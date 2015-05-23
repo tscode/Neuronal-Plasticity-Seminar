@@ -1,0 +1,30 @@
+Ziel: Optimierung von neuronalen Netzwerkstrukturen
+
+Topologie:
+  - Neuronenzahl aus Auswahl möglicher Neuronentypen (Typen = Aktivierungsfunktionen)
+  - Erlaubte Verbindungen (Synapsen-Topologie)
+
+
+o Bewertung von Strukturen und Parametrisierung von Lernregeln durch Erfolg
+  von Lernregeln (update-weight-rules) angewendet auf bestimmte
+  Aufgabenstellungen
+  - Lernregeln: FORCE, Reward-Modulated, Noise, ...
+
+  -> Selektion zu bevorzugender Topologien und Lernregeln(-Parametrisierungen)
+
+
+o Charakterisiere Topologieen durch Parameter, stoch. Größen
+  - Neuronenzahl N
+  - Neuronentypen (Aktivierungsfunktion, nicht-lineare Neuronen-Input-Summation, Zustände, spiking, rates)
+  - Parameter der Lernregeln
+
+
+o Aufgabenstellungen:
+  - Funktionen nachzeichnen
+  - Inputabhängige Reaktionen auf gelerntes
+  - Memory tests
+  - Inputabhängige Reaktion auf ungelerntes
+
+
+
+  -> Generiere Netzwerke, die maßgeschneidert auf bestimmte Aufgabenstellungen sind.
