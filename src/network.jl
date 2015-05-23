@@ -15,10 +15,12 @@ type Network{T1 <: AAF, T2 <: AAF, T3 <: AAF, T4 <: AAF} <: AbstractNetwork
 
     α::Function                   # mapping the neuron input to output, α for "activation"
 
+    time::Float64
+
 
     # "internal" constructor -- only this one can then be called in programs
     function Network( ω_r::T1, ω_i::T2, ω_f::T3, ω_o::T4, neuron_in::Vector{Float64},
-                      neuron_out::Vector{Float64}, readout::Vector{Float64}, α::Function )
+                      neuron_out::Vector{Float64}, readout::Vector{Float64}, α::Function, time::Float64 )
         # consistency checks
         # First, all dimensions
         @assert size(ω_r)[1] == size(ω_r)[2]      == size(ω_i)[1]       == size(ω_f)[1] ==
@@ -27,28 +29,31 @@ type Network{T1 <: AAF, T2 <: AAF, T3 <: AAF, T4 <: AAF} <: AbstractNetwork
         @assert size(ω_o)[1] == length(readout) "Inconsistent number of readout neurons"
 
         # create an instance, specialized on the given types
-        return new(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, readout, α)
+        return new(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, readout, α, time)
     end # function Network
 
 end # type Network
 
 
 # "external" constructor so that one does not always have to type the parameter type stuff
-function NetworkTest(ω_r::AAF = randn(size,size),                       # weights_recurrent; for the recurrent neuron connections
+function NetworkTest(; ω_r = error("internal weight matrix must be given"),   # weights_recurrent; for the recurrent neuron connections
                    ω_i::AAF = randn(size(ω_r)[1],1),            # weights_input; input->internal neurons
                    ω_f::AAF = randn(size(ω_r)[1],1),            # weights_feedback; output->internal neurons
                    ω_o::AAF = randn(1,size(ω_r)[2]),            # weights internal neurons -> output
 
+                   α::Function = tanh,
                    neuron_in::Vector{Float64}  = randn(size(ω_r)[2]),
-                   neuron_out::Vector{Float64} = randn(size(ω_r)[2]),
+                   neuron_out::Vector{Float64} = α(neuron_in),
                    readout::Vector{Float64}    = zeros(size(ω_o)[1]),
-                   α::Function = tanh
+                   time::Real = 0.
                 )
-    return Network{typeof(ω_r), typeof(ω_i), typeof(ω_f), typeof(ω_o)}(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, readout, α)
+    return Network{typeof(ω_r), typeof(ω_i), typeof(ω_f), typeof(ω_o)}(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, readout, α, time)
 end
 
 
-function update(net::Network, ext_in::Array{Float64}=zeros(size(net.ω_i)[2]))
+function update!(net::Network, ext_in::Array{Float64}=zeros(size(net.ω_i)[2]))
+    # update time
+    net.time += dt
 
     # update the incoming signals for each neuron
     net.neuron_in += (- net.neuron_in                 # exponential decay of old signal
@@ -62,6 +67,7 @@ function update(net::Network, ext_in::Array{Float64}=zeros(size(net.ω_i)[2]))
 
     # calculate network output
     net.readout = net.ω_o * net.neuron_out
+    return net.readout
 end
 
 

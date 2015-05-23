@@ -2,16 +2,18 @@ include("types.jl")
 
 type FunctionTask <: AbstractTask
   time::Float64 # current time
-  func::Array{Function}
+  funcs::Array{Function}
   expected::Array{Float64}
 
-  function FunctionTask( func::Array{Function} )
-    new(0, func, zeros(length(func)))
+  function FunctionTask( funcs::Array{Function} )
+    new(0, funcs, zeros(length(funcs)))
   end
 end
 
-function set_time( task::AbstractTask, time::Float64 )
-  task.expected = task.func(time)
+function set_time!( task::FunctionTask, time::Float64 )
+  for i in 1:length(task.funcs)
+      task.expected[i] = task.funcs[i](time)
+  end
   task.time = time
 end
 

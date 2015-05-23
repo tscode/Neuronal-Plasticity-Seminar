@@ -10,24 +10,26 @@ type ForceRule <: AbstractRule
   end
 end
 
-function update_weights( rule::ForceRule, net::AbstractNetwork, task::AbstractTask )
-  k = rule.P*net.neuron_out       # helper var
-  c  = 1/(1 + net.neuron_out ⋅ k)               # helper var
+function update_weights!( rule::ForceRule, net::AbstractNetwork, task::AbstractTask )
+  k = rule.P * net.neuron_out       # helper var
+  c  = 1/(1 + net.neuron_out ⋅ k)   # helper var
 
-  update_P!(P, k, c)
+  update_P!(rule.P, k, c)
   #=P -= (c*k)*k'=#
 
-  e  = compare_result(task, net.readout)
+  err  = compare_result(task, net.readout)
 
   # Changing the weigths
-  net.ω_o -= (e*c)*k
+  @inbounds for j in 1:length(k)
+      @simd for i in 1:length(err)
+          net.ω_o[i,j] -= (c*err[i])*k[j]
+      end
+  end
 end
 
 #inside an external function for performance reasons
 function update_P!(P::Matrix{Float64}, k::Vector{Float64}, c::Float64)
-    # diagonal values
-    # Off diagonal values
-    # Summation order column-major friendly --> really saves time!
+    # summation order column-major friendly --> really saves time!
     @inbounds for j in 1:size(P)[2]
         @simd for i in 1:size(P)[1]
             P[i,j] -= (c*k[i]*k[j])::Float64
