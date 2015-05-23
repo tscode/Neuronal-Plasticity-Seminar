@@ -1,25 +1,24 @@
 include("types.jl")
 
-function step( rule::AbstractRule, net::AbstractNetwork)
-  error("not implemented")
-end
-
 type ForceRule <: AbstractRule
   P::AAF             # P variable
   α::Float64         # alpha parameter
 
-  function ForceRule(size::Int, α::Float64)
+  function ForceRule(size::Int, α::Real)
      P = 1/α * eye(size)
      return new( P, α )
   end
 end
 
-function step( rule::ForceRule, net::AbstractNetwork )
+function update_weights( rule::ForceRule, net::AbstractNetwork, task::AbstractTask )
   k = rule.P*net.neuron_out       # helper var
   c  = 1/(1 + net.neuron_out ⋅ k)               # helper var
+
   update_P!(P, k, c)
   #=P -= (c*k)*k'=#
-  e  = z-f(t)# TODO task
+
+  e  = compare_result(task, net.readout)
+
   # Changing the weigths
   net.ω_o -= (e*c)*k
 end
@@ -34,6 +33,4 @@ function update_P!(P::Matrix{Float64}, k::Vector{Float64}, c::Float64)
             P[i,j] -= (c*k[i]*k[j])::Float64
         end
     end
-end
-
 end

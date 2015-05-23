@@ -34,13 +34,13 @@ end # type Network
 
 
 # "external" constructor so that one does not always have to type the parameter type stuff
-function Network(; ω_r::AAF = zeros(1,1),                       # weights_recurrent; for the recurrent neuron connections
-                   ω_i::AAF = zeros(size(ω_r)[1],1),            # weights_input; input->internal neurons
-                   ω_f::AAF = zeros(size(ω_r)[1],1),            # weights_feedback; output->internal neurons
-                   ω_o::AAF = zeros(1,size(ω_r)[2]),            # weights internal neurons -> output
+function NetworkTest(ω_r::AAF = randn(size,size),                       # weights_recurrent; for the recurrent neuron connections
+                   ω_i::AAF = randn(size(ω_r)[1],1),            # weights_input; input->internal neurons
+                   ω_f::AAF = randn(size(ω_r)[1],1),            # weights_feedback; output->internal neurons
+                   ω_o::AAF = randn(1,size(ω_r)[2]),            # weights internal neurons -> output
 
-                   neuron_in::Vector{Float64}  = zeros(size(ω_r)[2]),
-                   neuron_out::Vector{Float64} = zeros(size(ω_r)[2]),
+                   neuron_in::Vector{Float64}  = randn(size(ω_r)[2]),
+                   neuron_out::Vector{Float64} = randn(size(ω_r)[2]),
                    readout::Vector{Float64}    = zeros(size(ω_o)[1]),
                    α::Function = tanh
                 )
