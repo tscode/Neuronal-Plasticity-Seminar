@@ -18,7 +18,7 @@ function teach!( teacher::Teacher, net::AbstractNetwork, task::AbstractTask )
     if teacher.last + teacher.period <= net.time
         set_time!(task, net.time)
         update_weights!(teacher.rule, net, task)
-        teacher.last = teacher.last + teacher.period < net.time ? net.time : teacher.last + teacher.period
+        teacher.last = teacher.last + 2teacher.period < net.time ? net.time : teacher.last + teacher.period
     end
     return readoff
 end
