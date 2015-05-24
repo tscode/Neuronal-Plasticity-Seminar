@@ -22,8 +22,8 @@ function eval_result( task::AbstractTask, out::Array{Float64} ) # returns Float6
 end
 
 # single teaching step
-function teach!( teacher::AbstractTeacher, net::AbstractNetwork, task::AbstractTask )
-  error("teach(", typeof(teacher), ", ", typeof(net), ", ", typeof(task), ")", "not implemented")
+function learn!( net::AbstractNetwork, teacher::AbstractTeacher, task::AbstractTask )
+  error("learn(", typeof(teacher), ", ", typeof(net), ", ", typeof(task), ")", "not implemented")
 end
 
 # convenience layer if we only want do develop the system 
