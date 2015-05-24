@@ -12,5 +12,8 @@ include("task.jl")
 include("network.jl")
 include("teacher.jl")
 
+# extra convenience stuff
+include("recorder.jl")
+
 
 end # module EvoNet

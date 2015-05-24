@@ -2,24 +2,28 @@
 type Teacher{R <: AbstractRule} <: AbstractTeacher
     rule::R
     period::Float64 # how often will learning occur in the simulation
-    last::Float64 # last time of learning
-    function Teacher(rule::R, period::Real, last::Real)
-        new(rule, period, last)
+    next::Float64   # next time of learning
+    until::Float64  # time to stop learning altogether
+    function Teacher(rule::R, period::Real, next::Real, until::Real)
+        @assert period >= dt "the teaching period must be > dt = $dt"
+        new(rule, period, next, until)
     end
 end
 
-function Teacher(rule::AbstractRule, period::Real, last::Real=-Inf)
-    Teacher{typeof(rule)}(rule, period, last)
+function Teacher(rule::AbstractRule, period::Real, next::Real, until::Real=Inf)
+    return Teacher{typeof(rule)}(rule, period, next, until)
 end
 
 
-function teach!( teacher::Teacher, net::AbstractNetwork, task::AbstractTask )
-    readoff = update!(net)
-    if teacher.last + teacher.period <= net.time
-        set_time!(task, net.time)
+function synchronize!( teacher::Teacher, net::AbstractNetwork )
+    teacher.next = net.time
+end
+
+function learn!( net::AbstractNetwork, teacher::Teacher, task::AbstractTask )
+    if teacher.next <= teacher.until && teacher.next <= net.time + 1e-5
+        teacher.next += teacher.period
+        prepare_task!(task, net.time)
         update_weights!(teacher.rule, net, task)
-        teacher.last = teacher.last + 2teacher.period < net.time ? net.time : teacher.last + teacher.period
     end
-    return readoff
 end
 

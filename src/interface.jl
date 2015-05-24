@@ -27,9 +27,9 @@ function teach!( teacher::AbstractTeacher, net::AbstractNetwork, task::AbstractT
 end
 
 # convenience layer if we only want do develop the system 
-function teach_until!( teacher::AbstractTeacher, net::AbstractNetwork, task::AbstractTask, stop_time::Float64 )
-    while net.time < stop_time
-        teach!(teacher, net, task)
-    end
-end
+#=function learn_until!( teacher::AbstractTeacher, net::AbstractNetwork, task::AbstractTask, stop_time::Float64 )=#
+    #=while net.time < stop_time=#
+        #=teach!(teacher, net, task)=#
+    #=end=#
+#=end=#
 
