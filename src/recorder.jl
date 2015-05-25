@@ -10,7 +10,7 @@ Recorder() = Recorder(Dict{Union(Symbol, Expr, Integer), Array{Any}}())
 
 function record(rec::Recorder, id::Union(Symbol, Integer), content::Real)
     if haskey(rec.__dict__, id)
-        push!(rec.__dict__[id], Float64(content))
+        push!(rec.__dict__[id], convert(Float64, content))
     else
         rec.__dict__[id] = Float64[content]
     end
@@ -24,9 +24,6 @@ function record(rec::Recorder, id::Union(Symbol, Integer), content::Vector{Float
     end
 end
 
-macro testr(args...)
-    for arg in args print(arg) end
-end
 
 macro rec(args...)
     loop = args[end]
