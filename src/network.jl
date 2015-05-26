@@ -11,7 +11,7 @@ type Network{T1 <: AAF, T2 <: AAF, T3 <: AAF, T4 <: AAF} <: AbstractNetwork
     # maybe put this into NeuronType
     neuron_in::Vector{Float64}    # same length as neurons
     neuron_out::Vector{Float64}   # what the neurons fired last step
-    readout::Vector{Float64}      # last output the network produced
+    output::Vector{Float64}      # last output the network produced
 
     α::Function                   # mapping the neuron input to output, α for "activation"
 
@@ -20,16 +20,16 @@ type Network{T1 <: AAF, T2 <: AAF, T3 <: AAF, T4 <: AAF} <: AbstractNetwork
 
     # "internal" constructor -- only this one can then be called in programs
     function Network( ω_r::T1, ω_i::T2, ω_f::T3, ω_o::T4, neuron_in::Vector{Float64},
-                      neuron_out::Vector{Float64}, readout::Vector{Float64}, α::Function, time::Float64 )
+                      neuron_out::Vector{Float64}, output::Vector{Float64}, α::Function, time::Float64 )
         # consistency checks
         # First, all dimensions
         @assert size(ω_r)[1] == size(ω_r)[2]      == size(ω_i)[1]       == size(ω_f)[1] ==
                 size(ω_o)[2] == length(neuron_in) == length(neuron_out) "Inconsistent number of internal neurons"
 
-        @assert size(ω_o)[1] == length(readout) "Inconsistent number of readout neurons"
+        @assert size(ω_o)[1] == length(output) "Inconsistent number of output neurons"
 
         # create an instance, specialized on the given types
-        return new(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, readout, α, time)
+        return new(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, output, α, time)
     end # function Network
 
 end # type Network
@@ -44,19 +44,19 @@ function NetworkTest(; ω_r = error("internal weight matrix must be given"),   #
                    α::Function = tanh,
                    neuron_in::Vector{Float64}  = randn(size(ω_r)[2]),
                    neuron_out::Vector{Float64} = α(neuron_in),
-                   readout::Vector{Float64}    = zeros(size(ω_o)[1]),
+                   output::Vector{Float64}    = zeros(size(ω_o)[1]),
                    time::Real = 0.
                 )
-    return Network{typeof(ω_r), typeof(ω_i), typeof(ω_f), typeof(ω_o)}(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, readout, α, time)
+    return Network{typeof(ω_r), typeof(ω_i), typeof(ω_f), typeof(ω_o)}(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, output, α, time)
 end
 
 
 function update!(net::Network, ext_in::Array{Float64}=zeros(size(net.ω_i)[2]))
-    @assert size(ext_in) == size(net.ω_i)[2], "external input size"
+    @assert size(ext_in)[1] == size(net.ω_i)[2] "external input size inconsistency"
 
     # update time
     net.time += dt
-    BLAS.gemv!('N', dt, net.ω_f, net.readout, 1.0 - dt, net.neuron_in) # feedback network dynamics
+    BLAS.gemv!('N', dt, net.ω_f, net.output, 1.0 - dt, net.neuron_in) # feedback network dynamics
                                                                        # exponential decay of old signal
     BLAS.gemv!('N', dt, net.ω_i, ext_in, 1.0, net.neuron_in)           # input network dynamics
 
@@ -69,9 +69,9 @@ function update!(net::Network, ext_in::Array{Float64}=zeros(size(net.ω_i)[2]))
     net.neuron_out = net.α(net.neuron_in)
 
     # calculate network output
-    # we do not use BLAS here, because net.readout is really small so we do not gain anything
-    net.readout =  net.ω_o * net.neuron_out
-    return net.readout
+    # we do not use BLAS here, because net.output is really small so we do not gain anything
+    net.output =  net.ω_o * net.neuron_out
+    return net.output
 end
 
 

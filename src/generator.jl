@@ -29,16 +29,16 @@ function generate(generator::SparseMatrixGenerator, seed::Int64)
 	ω_r = sprandn(N, N, generator.p)*generator.gain/sqrt(N * generator.p)
 	# feedback connections: [-1 .. 1]
 	ω_f = generator.feedback * (rand(N, generator.num_output) - 0.5)
-	# output (readout) weights.
+	# output (output) weights.
 	ω_o = 1randn(generator.num_output, N)
 	# input weights
 	ω_i = 1randn(N, generator.num_input)
 
 	neuron_in = 0.5randn(N)
 
-	# should readout be consisten with neuron_in?
-	readout = 2randn( generator.num_output )
+	# should output be consisten with neuron_in?
+	output = 2randn( generator.num_output )
 
 	# generate the network
-	net     = NetworkTest( ω_r = ω_r, ω_f = ω_f, neuron_in = neuron_in, readout = readout, ω_o = ω_o )
+	net     = NetworkTest( ω_r = ω_r, ω_f = ω_f, neuron_in = neuron_in, output = output, ω_o = ω_o )
 end

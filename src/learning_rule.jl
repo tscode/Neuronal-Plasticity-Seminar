@@ -21,7 +21,7 @@ function update_weights!( rule::ForceRule, net::AbstractNetwork, task::AbstractT
   update_P!(rule.P, rule.k, c)
   #=P -= (c*k)*k'=#
 
-  err  = compare_result(task, net.readout)
+  err  = compare_result(task, net.output)
 
   # Changing the weigths
   @inbounds for j in 1:length(rule.k)
