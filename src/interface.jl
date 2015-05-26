@@ -26,7 +26,11 @@ function learn!( net::AbstractNetwork, teacher::AbstractTeacher, task::AbstractT
   error("learn(", typeof(teacher), ", ", typeof(net), ", ", typeof(task), ")", "not implemented")
 end
 
-# convenience layer if we only want do develop the system 
+# generate network
+function generate(generator::AbstractGenerator, seed::Int64)
+  error("generate(", typeof(generator), "Int64) not implemented")
+end
+# convenience layer if we only want do develop the system
 #=function learn_until!( teacher::AbstractTeacher, net::AbstractNetwork, task::AbstractTask, stop_time::Float64 )=#
     #=while net.time < stop_time=#
         #=teach!(teacher, net, task)=#

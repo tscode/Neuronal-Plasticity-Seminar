@@ -11,6 +11,7 @@ include("learning_rule.jl")
 include("task.jl")
 include("network.jl")
 include("teacher.jl")
+include("generator.jl")
 
 # extra convenience stuff
 include("recorder.jl")

@@ -6,3 +6,4 @@ abstract AbstractNeuron
 abstract AbstractRule
 abstract AbstractTask
 abstract AbstractTeacher
+abstract AbstractGenerator
