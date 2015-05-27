@@ -12,6 +12,7 @@ include("task.jl")
 include("network.jl")
 include("teacher.jl")
 include("generator.jl")
+include("evaluator.jl")
 
 # extra convenience stuff
 include("recorder.jl")
