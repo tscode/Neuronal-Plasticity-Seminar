@@ -52,7 +52,7 @@ end
 
 
 function update!(net::Network, ext_in::Array{Float64}=zeros(size(net.ω_i)[2]))
-    @assert size(ext_in) == size(net.ω_i)[2], "external input size"
+    @assert size(ext_in)[1] == size(net.ω_i)[2] "external input size"
 
     # update time
     net.time += dt
@@ -61,15 +61,15 @@ function update!(net::Network, ext_in::Array{Float64}=zeros(size(net.ω_i)[2]))
     BLAS.gemv!('N', dt, net.ω_i, ext_in, 1.0, net.neuron_in)           # input network dynamics
 
     # update the incoming signals for each neuron
-    # TODO is there a way to avoid the allocation here?
-    temp = net.ω_r * net.neuron_out            # intra (recurrent) network dynamics
-    BLAS.axpy!(dt, temp, net.neuron_in)
+    A_mul_B!(dt, net.ω_r, net.neuron_out ,1 ,net.neuron_in )
 
     # update the outgoing signal for each neuron.
+    # TODO this is the only remaining significant allocation
     net.neuron_out = net.α(net.neuron_in)
 
     # calculate network output
     # we do not use BLAS here, because net.readout is really small so we do not gain anything
+    # the overhead of calling seems to exceed mem allocation
     net.readout =  net.ω_o * net.neuron_out
     return net.readout
 end
