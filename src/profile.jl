@@ -13,7 +13,7 @@ f(t) = cos(1.1t) + 0.5sin(1.3t)
 n = 10000
 # The types needed for the simulation
 task    = ev.FunctionTask( [f] )
-net     = ev.generate( generator, 1 )
+net     = ev.generate( generator, 5 )
 rule    = ev.ForceRule( N, 1 )
 teacher = ev.Teacher( rule, 0.2, net.time, n/2 )
 
@@ -22,6 +22,7 @@ teacher = ev.Teacher( rule, 0.2, net.time, n/2 )
     ev.update!(net)
     ev.learn!(net, teacher, task)
 end
+#=print(net.ω_o)=#
 
 evl = ev.Evaluator()
 print(ev.evaluate(evl, net, task, 10000))
