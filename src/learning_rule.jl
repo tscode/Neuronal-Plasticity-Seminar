@@ -3,7 +3,7 @@ type ForceRule <: AbstractRule
   # Invariants for the Rule
   α::Float64         # alpha parameter
 
-  # helper quantities 
+  # helper quantities
   P::AAF             # P variable
   k::Vector{Float64} # needed to calc update_weights efficiently
 
@@ -21,7 +21,7 @@ function update_weights!( rule::ForceRule, net::AbstractNetwork, task::AbstractT
   update_P!(rule.P, rule.k, c)
   #=P -= (c*k)*k'=#
 
-  err  = compare_result(task, net.readout)
+  err  = compare_result(task, net.output)
 
   # Changing the weigths
   @inbounds for j in 1:length(rule.k)

@@ -18,7 +18,7 @@ rule    = ev.ForceRule( N, 1 )
 teacher = ev.Teacher( rule, 0.2, net.time, n/2 )
 
 
-@time @rec net.time net.readout[1] for i in 1:n
+@time @rec net.time net.output[1] for i in 1:n
     ev.update!(net)
     ev.learn!(net, teacher, task)
 end

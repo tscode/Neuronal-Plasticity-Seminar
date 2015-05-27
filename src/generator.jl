@@ -37,8 +37,8 @@ function generate(generator::SparseMatrixGenerator, seed::Int64)
 	neuron_in = 0.5randn(N)
 
 	# should readout be consisten with neuron_in?
-	readout = 2randn( generator.num_output )
+	output = 2randn( generator.num_output )
 
 	# generate the network
-	net     = NetworkTest( ω_r = ω_r, ω_f = ω_f, neuron_in = neuron_in, readout = readout, ω_o = ω_o )
+	net     = NetworkTest( ω_r = ω_r, ω_f = ω_f, neuron_in = neuron_in, output = output, ω_o = ω_o )
 end
