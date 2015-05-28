@@ -18,15 +18,15 @@ type SampleOutputNetwork{T <: AAF} <: AbstractNetwork
     neuron_out::Vector{Float64}   # what the neurons fired last step
     output::Vector{Float64}       # last output the network produced
 
-    output_neurons::Vector{Int}   # holds indices of the neurons responsible 
+    output_neurons::Vector{Int}   # holds indices of the neurons responsible
 
     α::Function                   # mapping the neuron input to output, α for "activation"
 
                                   # to produce the network output
     time::Float64
 
-    function SampleOutputNetwork( ω_r::T, ω_i::Matrix{Float64}, ω_f::Matrix{Float64}, ω_o::Matrix{Float64}, 
-                      neuron_in::Vector{Float64}, neuron_out::Vector{Float64}, output::Vector{Float64}, 
+    function SampleOutputNetwork( ω_r::T, ω_i::Matrix{Float64}, ω_f::Matrix{Float64}, ω_o::Matrix{Float64},
+                      neuron_in::Vector{Float64}, neuron_out::Vector{Float64}, output::Vector{Float64},
                       output_neurons::Vector{Int}, α::Function, time::Float64 )
 
         #=# consistency checks=#
@@ -36,7 +36,7 @@ type SampleOutputNetwork{T <: AAF} <: AbstractNetwork
 
         @assert size(ω_o)[1] == length(output) "inconsistent number of output channels"
         @assert size(ω_o)[2] == length(output_neurons) "inconsistent number of output neurons"
-        
+
 
         # all indices in 'output_neurons' must be unique and between 1 and the number of neurons
         last = 0
@@ -164,7 +164,7 @@ function update!(net::SampleOutputNetwork, ext_in::Array{Float64}=zeros(size(net
     # we do not use BLAS here, because net.output is really small so we do not gain anything
     @inbounds for i in length(net.output)
         net.output[i] = net.ω_o[i, 1] * net.neuron_out[net.output_neurons[1]]
-        for j in 1:length(net.output_neurons)
+        for j in 2:length(net.output_neurons)
             net.output[i] += net.ω_o[i, j] * net.neuron_out[net.output_neurons[j]]
         end
     end

@@ -4,19 +4,20 @@ ev = EvoNet
 import EvoNet.@rec
 
 # create a random network
-N = 2000
+N = 1000
 generator = ev.SparseMatrixGenerator( N, 0.1, gain = 1.1  )
 # init quantities
 # Function for the task
-f(t) = cos(1.1t) + 0.5sin(1.3t)
+f(t) = cos(1.5t)
 
 n = 10000
 # The types needed for the simulation
-task    = ev.FunctionTask( [f] )
+task    = ev.FunctionTask( [f], fluctuations=0.1 )
 net     = ev.generate( generator, 5 )
-rule    = ev.ForceRule( N, 1 )
-teacher = ev.Teacher( rule, 0.2, net.time, n/2 )
+rule    = ev.ForceRule( N, 0.1 )
+teacher = ev.Teacher( rule, 0.2, net.time, n )
 
+ev.set_deterministic!(task, false)
 
 @time @rec net.time net.output[1] for i in 1:n
     ev.update!(net)
@@ -24,8 +25,9 @@ teacher = ev.Teacher( rule, 0.2, net.time, n/2 )
 end
 #=print(net.ω_o)=#
 
-evl = ev.Evaluator()
-print(ev.evaluate(evl, net, task, 10000))
+evl = ev.Evaluator(100, 0.0)
+println(ev.evaluate(evl, net, task, 100))
+println(evl.timeshift)
 
 writedlm("profile.dat", [ ev.REC[1] f(ev.REC[1]) ev.REC[2] ])
 

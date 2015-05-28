@@ -26,6 +26,11 @@ function get_expected( task::AbstractTask )
   error("get expected(AbstractTask) not implemented")
 end
 
+# sets the task in deterministic/indeterministic mode.
+function set_deterministic!( task::AbstractTask, det::Bool )
+  error("set_deterministic(AbstactTask, Bool) not implemented")
+end
+
 # single teaching step
 function learn!( net::AbstractNetwork, teacher::AbstractTeacher, task::AbstractTask )
   error("learn(", typeof(teacher), ", ", typeof(net), ", ", typeof(task), ")", "not implemented")
