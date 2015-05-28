@@ -1,4 +1,7 @@
 
+
+# Force rule #
+
 type ForceRule <: AbstractRule
   # Invariants for the Rule
   α::Float64         # alpha parameter
@@ -70,3 +73,8 @@ function calc_k_sample!( k::Vector{Float64}, P::Matrix{Float64}, neuron_out::Vec
   end
   return d
 end
+
+
+
+# Reward modulated learning rule #
+# Soon to come!

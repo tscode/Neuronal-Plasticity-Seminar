@@ -18,9 +18,9 @@ end
 
 function record(rec::Recorder, id::Union(Symbol, Integer), content::Vector{Float64})
     if haskey(rec.__dict__, id)
-        rec.__dict__[id] = [rec.__dict__[id]; content']
+        push!(rec.__dict__[id], copy(content))
     else
-        rec.__dict__[id] = Float64[content]
+        rec.__dict__[id] = typeof(content)[copy(content)]
     end
 end
 

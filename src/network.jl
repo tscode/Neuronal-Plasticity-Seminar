@@ -18,7 +18,7 @@ type SampleOutputNetwork{T <: AAF} <: AbstractNetwork
     neuron_out::Vector{Float64}   # what the neurons fired last step
     output::Vector{Float64}       # last output the network produced
 
-    output_neurons::Vector{Int}   # holds indices of the neurons responsible
+    output_neurons::Vector{Int}   # holds indices of the neurons responsible 
 
     α::Function                   # mapping the neuron input to output, α for "activation"
 
@@ -36,7 +36,6 @@ type SampleOutputNetwork{T <: AAF} <: AbstractNetwork
 
         @assert size(ω_o)[1] == length(output) "inconsistent number of output channels"
         @assert size(ω_o)[2] == length(output_neurons) "inconsistent number of output neurons"
-
 
         # all indices in 'output_neurons' must be unique and between 1 and the number of neurons
         last = 0
