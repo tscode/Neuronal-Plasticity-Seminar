@@ -13,12 +13,17 @@ end
 
 # compares out with the output the task desires
 function compare_result( task::AbstractTask, out::Array{Float64} )  # returns Array{Float64}
-  error("compare_result(", typeof(task), ", ", typeof(out), ")", "not implemented")
+  return out - get_expected(task)  # default implementation: difference between expected and generated
 end
 
 # checks the quality of the generated output
 function eval_result( task::AbstractTask, out::Array{Float64} ) # returns Float64
-  return norm( compare_result( task, out ) )
+  return norm( compare_result( task, out ) ) # default implementation: norm of the difference vector
+end
+
+# returns the expected output
+function get_expected( task::AbstractTask )
+  error("get expected(AbstractTask) not implemented")
 end
 
 # single teaching step
