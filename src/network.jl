@@ -18,7 +18,7 @@ type SampleOutputNetwork{T <: AAF} <: AbstractNetwork
     neuron_out::Vector{Float64}   # what the neurons fired last step
     output::Vector{Float64}       # last output the network produced
 
-    output_neurons::Vector{Int}   # holds indices of the neurons responsible 
+    output_neurons::Vector{Int}   # holds indices of the neurons responsible
 
     α::Function                   # mapping the neuron input to output, α for "activation"
 
@@ -168,6 +168,14 @@ function update!(net::SampleOutputNetwork, ext_in::Array{Float64}=zeros(size(net
         end
     end
     return net.output
+end
+
+function get_num_output(net::Network)
+  return length(net.output)
+end
+
+function get_num_output(net::SampleOutputNetwork)
+  return length(net.output)
 end
 
 #=net = Network(ω_r = [1 2; 3 4.])=#

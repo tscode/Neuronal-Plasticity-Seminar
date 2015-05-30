@@ -1,5 +1,14 @@
 
 ## interfaces
+# network interface
+function get_num_output(net::AbstractNetwork)
+  error("get_num_output(AbstractNetwork) not implemented")
+end
+
+function get_num_input(net::AbstractNetwork)
+  error("get_num_input(AbstractNetwork) not implemented")
+end
+
 
 # update the weigths according to rule
 function update_weights!( rule::AbstractRule, net::AbstractNetwork )

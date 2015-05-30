@@ -7,3 +7,4 @@ abstract AbstractRule
 abstract AbstractTask
 abstract AbstractTeacher
 abstract AbstractGenerator
+abstract AbstractEvaluator
