@@ -4,7 +4,7 @@ ev = EvoNet
 import EvoNet.@rec
 
 # create a random network
-N = 500
+N = 600
 generator = ev.SparseMatrixGenerator( N, 0.1, gain = 1.1, feedback = 2) #2. )
 # init quantities
 # Function for the task
@@ -17,12 +17,13 @@ function r(t; freq=1/(20*6), amp=1, rel_width=10)
 end
 g(t) = 0.5r(t)
 
-n = 10000
+n = 50000
 # The types needed for the simulation
-task    = ev.FunctionTask( [f] )
+task    = ev.FunctionTask( [f], fluctuations=0.0 )
 net     = ev.generate( generator, 0 )
-rule    = ev.ForceRule( N, 1/10 )
-teacher = ev.Teacher( rule, 0.2, net.time, n/20 )
+rule    = ev.ForceRule( N, 0.1 )
+evl     = ev.Evaluator( 100, 0, net )
+teacher = ev.Teacher( rule, 0.2, net.time, evl, n*ev.dt, true)
 
 
 @time @rec net.time net.output[1] for i in 1:n
@@ -31,7 +32,14 @@ teacher = ev.Teacher( rule, 0.2, net.time, n/20 )
 end
 #=print(net.ω_o)=#
 
-writedlm("input_reaction.dat", [ ev.REC[1] f(ev.REC[1]) g(ev.REC[1]) ev.REC[2] ])
+# let some time pass between lerning and evaluation
+ev.evaluate(evl, task, 50, rec=false)
+
+ev.reset(evl)
+print("result: ")
+print(ev.evaluate(evl, task, 500, rec=true))
+
+writedlm("input_reaction.dat", [ ev.REC[1] f(ev.REC[1]) g(ev.REC[1]) ev.REC[2]])
 
 #=using PyPlot=#
 #=plot(T, result)=#
