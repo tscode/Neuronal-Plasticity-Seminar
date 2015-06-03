@@ -7,8 +7,6 @@ import EvoNet.@rec
 N = 600
 generator = ev.SparseMatrixGenerator( N, 0.1, gain = 1.1, feedback = 2) #2. )
 # init quantities
-# Function for the task
-f(t) = cos(2pi*t/(20*6)) + 0.5sin(2pi*t*5/(20*6))
 
 # a "taktgeber"
 function r(t; freq=1/(20*6), amp=1, rel_width=10)
@@ -17,9 +15,12 @@ function r(t; freq=1/(20*6), amp=1, rel_width=10)
 end
 g(t) = 0.5r(t)
 
+# Function for the task
+f(t) = cos(2pi*t/(20*6)) + 0.5sin(2pi*t*5/(20*6)) + r(t+5, rel_width = 1000)
+
 n = 50000
 # The types needed for the simulation
-task    = ev.FunctionTask( [f], fluctuations=0.0 )
+task    = ev.FunctionTask( [f], [g], fluctuations=0.0 )
 net     = ev.generate( generator, 0 )
 rule    = ev.ForceRule( N, 0.1 )
 evl     = ev.Evaluator( 100, 0, net )
@@ -27,17 +28,16 @@ teacher = ev.Teacher( rule, 0.2, net.time, evl, n*ev.dt, true)
 
 
 @time @rec net.time net.output[1] for i in 1:n
-    ev.update!(net, [g(net.time);])
     ev.learn!(net, teacher, task)
 end
 #=print(net.ω_o)=#
 
 # let some time pass between lerning and evaluation
-ev.evaluate(evl, task, 50, rec=false)
+ev.evaluate(evl, task, 1000, rec=false)
 
 ev.reset(evl)
 print("result: ")
-print(ev.evaluate(evl, task, 500, rec=true))
+print(ev.evaluate(evl, task, 1000, rec=true))
 
 writedlm("input_reaction.dat", [ ev.REC[1] f(ev.REC[1]) g(ev.REC[1]) ev.REC[2]])
 

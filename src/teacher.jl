@@ -26,8 +26,13 @@ function synchronize!( teacher::Teacher, net::AbstractNetwork )
     teacher.next = net.time
 end
 
+# learns and advances network time by a single step
 function learn!( net::AbstractNetwork, teacher::Teacher, task::AbstractTask )
-    @assert( net == teacher.evl.net )
+    @assert net == teacher.evl.net
+    # we need to set time to net.time + dt, so that after update (i.e. when we test the result) task and net have the same time
+    # we also need to set it before update so we get the correct input
+    prepare_task!(task, net.time + dt, false)
+    update!(net, get_input(task))
 
      # adaptive stepping
      if teacher.adaptive_stepping && evaluate_step!(teacher.evl, task)
@@ -38,12 +43,10 @@ function learn!( net::AbstractNetwork, teacher::Teacher, task::AbstractTask )
        elseif teacher.period > 2 * dt  && get_current_score(teacher.evl) < (1-teacher.precision)
          teacher.period /= 1.5
        end
-
      end
 
-    if teacher.next <= teacher.until && teacher.next <= net.time + 1e-5
+    if teacher.next <= teacher.until && (teacher.next <= net.time + 1e-5 || eval_result( task, net.output ) > 0.1)
         teacher.next += teacher.period
-        prepare_task!(task, net.time)
         update_weights!(teacher.rule, net, task)
         teacher.can_adapt = true # we want to have at least one learning step between subsequent learning rate increases
     end

@@ -27,9 +27,17 @@ end
 # this function does not advance network time
 # returns true is we have collected a full chunk and updated the error
 function evaluate_step!(evl::Evaluator, task::AbstractTask)
-  prepare_task!(task, evl.net.time - evl.timeshift)
+  # update task for currently needed time
+  old_time = task.time
+  old_det  = task.deterministic
+  prepare_task!(task, evl.net.time - evl.timeshift, true)
+
   evl.expected[evl.T,:] = get_expected(task)
   evl.received[evl.T,:] = evl.net.output
+
+  # reset task to old time
+  prepare_task!(task, old_time, old_det)
+
   evl.T += 1
   if evl.T > evl.chunksize
     calculate_correlation!(evl)
@@ -70,7 +78,8 @@ end
 function evaluate(evl::Evaluator, task::AbstractTask, duration::Real; rec::Bool=false, recorder=REC)
   start_time = evl.net.time
   while evl.net.time < start_time + duration
-    update!(evl.net)
+    prepare_task!(task, evl.net.time  + dt, false) # non deterministic: allows noise in input
+    update!(evl.net, get_input(task))
     evaluate_step!(evl, task)
     if rec
       record(recorder, 1, evl.net.time)
