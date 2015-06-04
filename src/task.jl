@@ -12,8 +12,8 @@ type FunctionTask <: AbstractTask
 
   randsource::AbstractRNG   # randomness source for this task
 
-  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}; fluctuations = 0.0 )
-    new(0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), fluctuations, false, MersenneTwister())
+  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}; fluctuations = 0.0, rnd::AbstractRNG = MersenneTwister() )
+    new(0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), fluctuations, false, rnd)
   end
 end
 
@@ -52,3 +52,12 @@ end
 function get_input( task::FunctionTask )
   return task.input
 end
+
+# generator function
+function make_periodic_function(randsource::AbstractRNG)
+  freq = dt * (rand(randsource) * 1000 + 10)
+  amplitud = 1 + randn(randsource) / 2
+  phaseshift = rand(randsource) * 2π
+  return t->amplitud*sin(t*freq + phaseshift)
+end
+
