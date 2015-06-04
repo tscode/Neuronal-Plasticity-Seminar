@@ -41,3 +41,20 @@ function generate(generator::SparseMatrixGenerator, seed::Int64)
 	# generate the network
 	net     = NetworkTest( ω_r = ω_r, ω_f = ω_f, neuron_in = neuron_in, output = output, ω_o = ω_o )
 end
+
+function export_params( generator::SparseMatrixGenerator)
+  parameters::Dict{String, Tuple}
+  D["percentage"] = (0.0, 1.0, generator.p)
+  D["gain"] = (0.0, 5.0, generator.gain)           # !TODO is this a good maximum? maybe we should specify a distribution
+  D["size"] = (0, inf(0), generator.size)          # here again, size should in principle be unbounded, but we do not want big
+                                                   # changes out of nothing
+  D["feedback"] = (0.0, 5.0, generator.feedback)
+  return D
+end
+
+function import_params!(generator::SparseMatrixGenerator, params::Dict{String, Tuple})
+  generator.p = D["percentage"][3]
+  generator.gain = D["gain"][3]
+  generator.size = D["size"][3]
+  generator.feedback = D["feedback"][3]
+end
