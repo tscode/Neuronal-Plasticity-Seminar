@@ -96,6 +96,10 @@ function get_current_score(evl::Evaluator)
   return evl.last_result
 end
 
+function get_accumulated_score(evl::Evaluator)
+  return evl.sumcor / evl.chunkcount
+end
+
 function reset(evl::Evaluator)
   evl.T = 1
   # leave timeshift intact?
