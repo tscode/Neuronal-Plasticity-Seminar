@@ -58,6 +58,7 @@ function calculate_correlation!( evl::Evaluator )
     evl.last_result = 0
     evl.chunkcount += 1
     evl.T = 1
+    return
   end
   for ΔT = -div(evl.chunksize, 10):div(evl.chunksize, 10)
     summed = 0.0

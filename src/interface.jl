@@ -9,10 +9,6 @@ function get_num_input(net::AbstractNetwork)
   error("get_num_input(AbstractNetwork) not implemented")
 end
 
-function size(net::AbstractNetworl)
-  return size(net.ω_r)[1]
-end
-
 # update the weigths according to rule
 function update_weights!( rule::AbstractRule, net::AbstractNetwork )
   error("update_weights!(", typeof(rule), ", ", typeof(net), ") not implemented")

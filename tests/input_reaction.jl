@@ -29,6 +29,9 @@ teacher = ev.Teacher( rule, 0.2, net.time, evl, n*ev.dt, true)
 
 @time @rec net.time net.output[1] for i in 1:n
     ev.learn!(net, teacher, task)
+    if( teacher.finished )
+      break
+    end
 end
 #=print(net.ω_o)=#
 
