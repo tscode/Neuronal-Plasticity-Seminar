@@ -53,6 +53,14 @@ function calculate_correlation!( evl::Evaluator )
   # and choose Δt such that it is maximized
   mxsum = -inf(1.0)
   dtime = 0
+  recvn = norm(evl.received)
+  # in case the network died down, we can skip all the computations (and avoid NaN)
+  if recvn == 0
+     # dead network counts as fully failed
+    evl.last_result = 0
+    evl.chunkcount += 1
+    evl.T = 1
+  end
   for ΔT = -div(evl.chunksize, 10):div(evl.chunksize, 10)
     summed = 0.0
     for i = 1+max(0,-ΔT):evl.chunksize-max(0, ΔT)
@@ -67,7 +75,7 @@ function calculate_correlation!( evl::Evaluator )
 
   # just nices variable names
   evl.timeshift += dtime * dt
-  evl.last_result = mxsum / norm(evl.expected) / norm(evl.received)
+  evl.last_result = mxsum / norm(evl.expected) / recvn
   evl.sumcor += evl.last_result
   evl.chunkcount += 1
 
