@@ -69,11 +69,11 @@ end
 
 
 # generic network class
-type Network{T1 <: AAF, T2 <: AAF, T3 <: AAF, T4 <: AAF} <: AbstractNetwork
+type Network{T1 <: AAF} <: AbstractNetwork
     ω_r::T1    # weights_recurrent; for the recurrent neuron connections
-    ω_i::T2    # weights_input; input->internal neurons
-    ω_f::T3    # weights_feedback; output->internal neurons
-    ω_o::T4    # weights internal neurons -> output
+    ω_i::Matrix{Float64}   # weights_input; input->internal neurons
+    ω_f::Matrix{Float64}   # weights_feedback; output->internal neurons
+    ω_o::Matrix{Float64}   # weights internal neurons -> output
 
     #neurons::Vector{NeuronType}
     # maybe put this into NeuronType
@@ -87,7 +87,7 @@ type Network{T1 <: AAF, T2 <: AAF, T3 <: AAF, T4 <: AAF} <: AbstractNetwork
 
 
     # "internal" constructor -- only this one can then be called in programs
-    function Network( ω_r::T1, ω_i::T2, ω_f::T3, ω_o::T4, neuron_in::Vector{Float64},
+    function Network( ω_r::T1, ω_i::Matrix{Float64}, ω_f::Matrix{Float64}, ω_o::Matrix{Float64}, neuron_in::Vector{Float64},
                       neuron_out::Vector{Float64}, output::Vector{Float64}, α::Function, time::Float64 )
         # consistency checks
         # First, all dimensions
@@ -105,9 +105,9 @@ end # type Network
 
 # "external" constructor so that one does not always have to type the parameter type stuff
 function NetworkTest(; ω_r = error("internal weight matrix must be given"),   # weights_recurrent; for the recurrent neuron connections
-                   ω_i::AAF = randn(size(ω_r)[1],1),            # weights_input; input->internal neurons
-                   ω_f::AAF = randn(size(ω_r)[1],1),            # weights_feedback; output->internal neurons
-                   ω_o::AAF = randn(1,size(ω_r)[2]),            # weights internal neurons -> output
+                   ω_i = randn(size(ω_r)[1],1),            # weights_input; input->internal neurons
+                   ω_f = randn(size(ω_r)[1],1),            # weights_feedback; output->internal neurons
+                   ω_o = randn(1,size(ω_r)[2]),            # weights internal neurons -> output
 
                    α::Function = tanh,
                    neuron_in::Vector{Float64}  = randn(size(ω_r)[2]),
@@ -115,7 +115,7 @@ function NetworkTest(; ω_r = error("internal weight matrix must be given"),   #
                    output::Vector{Float64}    = zeros(size(ω_o)[1]),
                    time::Real = 0.
                 )
-    return Network{typeof(ω_r), typeof(ω_i), typeof(ω_f), typeof(ω_o)}(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, output, α, time)
+    return Network{typeof(ω_r)}(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, output, α, time)
 end
 
 

@@ -58,6 +58,10 @@ function clear_records()
     REC = EvoNet.Recorder()
 end
 
+function clear_records(recorder) 
+    recorder = EvoNet.Recorder()
+end
+
 # global recorder variable as convenience
 REC = Recorder()
 

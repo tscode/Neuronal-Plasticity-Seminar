@@ -1,4 +1,3 @@
-include("types.jl")
 
 type SparseMatrixGenerator <: AbstractGenerator
 	p::Float64			  # percentage of edges taken

@@ -1,5 +1,3 @@
-include("types.jl")
-include("recorder.jl")
 
 type Evaluator <: AbstractEvaluator
   # configuration
@@ -26,7 +24,7 @@ end
 
 # this function does not advance network time
 # returns true is we have collected a full chunk and updated the error
-function evaluate_step!(evl::Evaluator, task::AbstractTask)
+function evaluate_step!(evl::Evaluator, task::AbstractTask) # ::Bool
   # update task for currently needed time
   old_time = task.time
   old_det  = task.deterministic
@@ -51,7 +49,7 @@ function calculate_correlation!( evl::Evaluator )
   # now evaluate the collected chunk.
   # first, we remove a costant phase shift. to do that, we look at the crosscorrelation of expected and received
   # and choose Δt such that it is maximized
-  mxsum = -inf(1.0)
+  mxsum = -Inf
   dtime = 0
   recvn = norm(evl.received)
   # in case the network died down, we can skip all the computations (and avoid NaN)
