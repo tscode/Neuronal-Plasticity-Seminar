@@ -35,11 +35,6 @@ function get_expected( task::AbstractTask )
   error("get expected(AbstractTask) not implemented")
 end
 
-# sets the task in deterministic/indeterministic mode.
-function set_deterministic!( task::AbstractTask, det::Bool )
-  error("set_deterministic(AbstactTask, Bool) not implemented")
-end
-
 # single teaching step
 function learn!( net::AbstractNetwork, teacher::AbstractTeacher, task::AbstractTask )
   error("learn(", typeof(teacher), ", ", typeof(net), ", ", typeof(task), ")", "not implemented")
@@ -49,6 +44,11 @@ end
 function generate(generator::AbstractGenerator, seed::Int64)
   error("generate(", typeof(generator), "Int64) not implemented")
 end
+
+function reset(rule::AbstractRule)
+  error("rule(", typeof(rule), ") not implemented")
+end
+
 # convenience layer if we only want do develop the system
 #=function learn_until!( teacher::AbstractTeacher, net::AbstractNetwork, task::AbstractTask, stop_time::Float64 )=#
     #=while net.time < stop_time=#

@@ -1,7 +1,8 @@
 
 
-type Teacher{R <: AbstractRule} <: AbstractTeacher
+type Teacher{R <: AbstractRule, N <: AbstractNetwork} <: AbstractTeacher
     rule::R
+    net::N
     period::Float64 # how often will learning occur in the simulation
     next::Float64   # next time of learning
     max_time::Float64  # time to stop learning altogether
@@ -12,20 +13,19 @@ type Teacher{R <: AbstractRule} <: AbstractTeacher
     precision::Float64      # threshold precision for the decision whether to change the learing rate
     finished::Bool
 
-    function Teacher(rule::R, period::Real, next::Real, until::Real, evl::AbstractEvaluator, adaptive_stepping::Bool, precision::Float64 = 0.001)
+    function Teacher(rule::R, net::N, period::Real, next::Real, max_time::Real, 
+                     evl::AbstractEvaluator, adaptive_stepping::Bool, precision::Float64 = 0.001)
         @assert period >= dt "the teaching period must be > dt = $dt"
-        new(rule, period, next, until, evl, adaptive_stepping, false, precision, false)
+        new(rule, net, period, next, max_time, evl, adaptive_stepping, false, precision, false)
     end
 end
 
-function Teacher(rule::AbstractRule, period::Real, next::Real, evl::AbstractEvaluator, until::Real=Inf, adaptive_stepping = false)
-    return Teacher{typeof(rule)}(rule, period, next, until, evl, adaptive_stepping)
+function Teacher(rule::AbstractRule,      evl::AbstractEvaluator; 
+                 next::Real=evl.net.time, period::Real=dt, 
+                 max_time::Real=Inf,      adaptive = false)
+    return Teacher{typeof(rule), typeof(evl.net)}(rule, evl.net, period, next, max_time, evl, adaptive)
 end
 
-
-function synchronize!( teacher::Teacher, net::AbstractNetwork )
-    teacher.next = net.time
-end
 
 # learns and advances network time by a single step
 function learn!( net::AbstractNetwork, teacher::Teacher, task::AbstractTask )
@@ -58,4 +58,3 @@ function learn!( net::AbstractNetwork, teacher::Teacher, task::AbstractTask )
       teacher.finished = true
     end
 end
-
