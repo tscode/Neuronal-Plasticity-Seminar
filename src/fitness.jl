@@ -1,7 +1,8 @@
 include("types.jl")
 
 # this is the lowest level of fitness test: test a single network with learning rule for a single task
-function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::AbstractTask; learntime = 500, waittime = 1000, evaltime=500, adaptive=true, α=rule.α, fname="")
+function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::AbstractTask; 
+         learntime = 500, waittime = 1000, evaltime=500, adaptive=true, α=rule.α, fname="")
   # generate the evaluator and the teacher
   # the parameters here are fixed for now: 1000 sec of learning, 100 steps window for evaluation
   if fname != "" 
@@ -24,16 +25,15 @@ function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::A
 
   # let some time pass
   # we continue to use evaluate
-  evaluate(evl, task, waittime, rec=false) # TODO input
+  evaluate(evl, task, waittime, rec=true, recorder=recorder) # TODO input
 
   # now reevaluate
   reset(evl)
-  quality = evaluate(evl, task, evaltime, rec=false)
+  quality = evaluate(evl, task, evaltime, rec=true, recorder=recorder)
 
   if fname != ""
       data = zeros(size(recorder[1])[1], recorder.num_recs)
-      for i in 1:length(recorder.num_recs)
-          println(recorder[i])
+      for i in 1:recorder.num_recs
           data[:, i] = recorder[i]
       end
       writedlm(fname, data)

@@ -8,11 +8,20 @@ type GeneticOptimizer{T, S}
 
   fitness::Function # maps T → S : returns a multidimensional fitness measure
   compare::Function # (S, S) → bool : compares two fitness measures, returns True if first arg is better than second
+  function GeneticOptimizer(fitness::Function, compare::Function; 
+                            population::Vector{T}=T[], success::Vector{S}=S[], seed::Int=0) 
+      new(MersenneTwister(seed), population, success, fitness, compare)
+  end
 end
 
-function GeneticOptimizer{T, S}( fitness, compare )
-  GeneticOptimizer{T, S}(MersenneTwister(), T[], S[], fitness, compare)
-end
+#=function GeneticOptimizerFunction{T,S}(fitness::Function, compare::Function)=#
+  #=GeneticOptimizer{T, S}(MersenneTwister(), T[], S[], fitness, compare)=#
+#=end=#
+
+#=function call{T, S}(::Type{GeneticOptimizer{T,S}}, fitness::Function, compare::Function)=#
+  #=GeneticOptimizer{T, S}(MersenneTwister(), T[], S[], fitness, compare)=#
+#=end=#
+
 
 function init_population{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N::Integer )
   opt.population = fill(base_element, (N,))

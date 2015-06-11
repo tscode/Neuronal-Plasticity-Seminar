@@ -4,8 +4,10 @@ export @record
 
 type Recorder
     __dict__::Dict{Union(Symbol, Expr, Integer), Any}
+    num_recs::Int
+    Recorder() = new(Dict{Union(Symbol, Expr, Integer), Array{Any}}(), 0)
 end
-Recorder() = Recorder(Dict{Union(Symbol, Expr, Integer), Array{Any}}())
+#=Recorder() = Recorder(Dict{Union(Symbol, Expr, Integer), Array{Any}}())=#
 
 
 function record(rec::Recorder, id::Union(Symbol, Integer), content::Real)
@@ -13,6 +15,7 @@ function record(rec::Recorder, id::Union(Symbol, Integer), content::Real)
         push!(rec.__dict__[id], convert(Float64, content))
     else
         rec.__dict__[id] = Float64[content]
+        rec.num_recs += 1
     end
 end
 
@@ -21,6 +24,7 @@ function record(rec::Recorder, id::Union(Symbol, Integer), content::Vector{Float
         push!(rec.__dict__[id], copy(content))
     else
         rec.__dict__[id] = typeof(content)[copy(content)]
+        rec.num_recs += 1
     end
 end
 

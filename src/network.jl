@@ -24,6 +24,7 @@ type SampleOutputNetwork{T <: AAF} <: AbstractNetwork
 
                                   # to produce the network output
     time::Float64
+    num_neurons::Int
 
     function SampleOutputNetwork( ω_r::T, ω_i::Matrix{Float64}, ω_f::Matrix{Float64}, ω_o::Matrix{Float64},
                       neuron_in::Vector{Float64}, neuron_out::Vector{Float64}, output::Vector{Float64},
@@ -45,7 +46,7 @@ type SampleOutputNetwork{T <: AAF} <: AbstractNetwork
         end
         @assert last <= size(ω_r)[1] "vector output_neurons contains index higher than the number of neurons"
         # create an instance, specialized on the given types
-        return new(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, output, output_neurons, α, time)
+        return new(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, output, output_neurons, α, time, size(ω_r)[1])
     end # function Network
 end
 
@@ -84,6 +85,7 @@ type Network{T1 <: AAF} <: AbstractNetwork
     α::Function                   # mapping the neuron input to output, α for "activation"
 
     time::Float64
+    num_neurons::Int
 
 
     # "internal" constructor -- only this one can then be called in programs
@@ -97,7 +99,7 @@ type Network{T1 <: AAF} <: AbstractNetwork
         @assert size(ω_o)[1] == length(output) "Inconsistent number of output neurons"
 
         # create an instance, specialized on the given types
-        return new(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, output, α, time)
+        return new(ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out, output, α, time, size(ω_r)[1])
     end # function Network
 
 end # type Network

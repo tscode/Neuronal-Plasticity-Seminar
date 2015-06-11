@@ -79,8 +79,8 @@ end
 
 
 
-function reset(rule::ForceRule, α::Real=rule.α, s::Integer=size(rule.k)[1])
+function reset(rule::ForceRule; α::Real=rule.α, N::Integer=size(rule.k)[1])
   rule.α = α
-  rule.P = 1/α * eye(s)
-  rule.k = zeros(s)
+  rule.P = 1/α * eye(N)
+  rule.k = zeros(N)
 end
