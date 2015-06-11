@@ -47,3 +47,17 @@ function test_fitness_of_generator(gen::AbstractGenerator; rnd::AbstractRNG=Mers
   mean_s /= success
   return success/samples, mean_q, mean_s
 end
+
+# comparision of fitness results
+function compare_fitness(v1, v2)
+  if v1[1] > v2[1] + 0.05
+    return true
+  elseif v2[1] > v1[1] + 0.05
+    return false
+  end
+
+  # ok, almost identical success rate, now compare both success and quality
+  return v1[1] + v1[2] > v2[1] + v2[2]
+end
+
+

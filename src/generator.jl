@@ -45,10 +45,10 @@ end
 function export_params( generator::SparseMatrixGenerator)
   parameters::Dict{String, Tuple}
   D["percentage"] = (0.0, 1.0, generator.p)
-  D["gain"] = (0.0, 5.0, generator.gain)           # !TODO is this a good maximum? maybe we should specify a distribution
-  D["size"] = (0, inf(0), generator.size)          # here again, size should in principle be unbounded, but we do not want big
+  D["gain"] = (0.0, 4.0, generator.gain)           # !TODO is this a good maximum? maybe we should specify a distribution
+  D["size"] = (max(0, generator.size - 10), max(0, generator.size + 10), generator.size)          # this limits size to close to old size
                                                    # changes out of nothing
-  D["feedback"] = (0.0, 5.0, generator.feedback)
+  D["feedback"] = (0.0, 4.0, generator.feedback)
   return D
 end
 
