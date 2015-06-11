@@ -19,24 +19,24 @@ end
 
 function generate(generator::SparseMatrixGenerator, seed::Int64)
 	# initialize random by seed
-	srand(seed)
+	rng = MersenneTwister(seed)
 
 	# convenience variable
 	N = generator.size
 
 	# internal connections: sparse, normal distributed
-	ω_r = sprandn(N, N, generator.p)*generator.gain/sqrt(N * generator.p)
+	ω_r = sprandn(rng, N, N, generator.p)*generator.gain/sqrt(N * generator.p)
 	# feedback connections: [-1 .. 1]
-	ω_f = generator.feedback * (rand(N, generator.num_output) - 0.5)
+	ω_f = generator.feedback * (rand(rng, N, generator.num_output) - 0.5)
 	# output (readout) weights.
-	ω_o = 1randn(generator.num_output, N)
+	ω_o = 1randn(rng, generator.num_output, N)
 	# input weights
-	ω_i = 1randn(N, generator.num_input)
+	ω_i = 1randn(rng, N, generator.num_input)
 
-	neuron_in = 0.5randn(N)
+	neuron_in = 0.5randn(rng, N)
 
 	# should readout be consisten with neuron_in?
-	output = 2randn( generator.num_output )
+	output = 2randn( rng, generator.num_output )
 
 	# generate the network
 	net     = NetworkTest( ω_r = ω_r, ω_f = ω_f, neuron_in = neuron_in, output = output, ω_o = ω_o )
