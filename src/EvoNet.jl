@@ -15,6 +15,7 @@ include("teacher.jl")
 include("generator.jl")
 include("evaluator.jl")
 include("fitness.jl")
+include("genetics.jl")
 
 # extra convenience stuff
 include("recorder.jl")

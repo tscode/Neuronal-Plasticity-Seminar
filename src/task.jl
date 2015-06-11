@@ -55,9 +55,13 @@ end
 
 # generator function
 function make_periodic_function(randsource::AbstractRNG)
-  freq = dt * (rand(randsource) * 1000 + 10)
+  freq = 2π/(dt * (rand(randsource) * 100 + 10))
   amplitud = 1 + randn(randsource) / 2
   phaseshift = rand(randsource) * 2π
   return t->amplitud*sin(t*freq + phaseshift)
 end
 
+function make_periodic_function_task( out::Int, in::Array{Function}, rnd::AbstractRNG )
+  tfuncs = [make_periodic_function(rnd) for i = 1:out]
+  return FunctionTask(tfuncs, in, rnd=rnd)
+end
