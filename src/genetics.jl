@@ -1,6 +1,6 @@
 include("types.jl")
 
-type GeneticOptimizer{T, S}
+type GeneticOptimizer{T, S <: AbstractSuccessRating}
   rng::AbstractRNG
 
   population::Vector{T}
@@ -25,7 +25,7 @@ end
 
 function init_population!{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N::Integer )
   opt.population = fill(base_element, N)
-  opt.success = fill((0,0,0), N)
+  opt.success = fill(S(0,0,0,0), N)
 
   # load parameters
   params = export_params( base_element )
