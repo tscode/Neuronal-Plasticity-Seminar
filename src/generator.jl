@@ -25,7 +25,8 @@ function generate(generator::SparseMatrixGenerator, seed::Int64)
 	N = generator.size
 
 	# internal connections: sparse, normal distributed
-	ω_r = sprandn(rng, N, N, generator.p)*generator.gain/sqrt(N * generator.p)
+  # DAMN, JULIA 0.3 DOES NOT SEEM TO SUPPORT SETTING RNG IN sprandn
+	ω_r = sprandn(N, N, generator.p)*generator.gain/sqrt(N * generator.p)
 	# feedback connections: [-1 .. 1]
 	ω_f = generator.feedback * (rand(rng, N, generator.num_output) - 0.5)
 	# output (readout) weights.
@@ -43,7 +44,7 @@ function generate(generator::SparseMatrixGenerator, seed::Int64)
 end
 
 function export_params( generator::SparseMatrixGenerator)
-  parameters::Dict{String, Tuple}
+  D::Dict{String, Tuple} = Dict{String, Tuple}()
   D["percentage"] = (0.0, 1.0, generator.p)
   D["gain"] = (0.0, 4.0, generator.gain)           # !TODO is this a good maximum? maybe we should specify a distribution
   D["size"] = (max(0, generator.size - 10), max(0, generator.size + 10), generator.size)          # this limits size to close to old size
@@ -53,8 +54,8 @@ function export_params( generator::SparseMatrixGenerator)
 end
 
 function import_params!(generator::SparseMatrixGenerator, params::Dict{String, Tuple})
-  generator.p = D["percentage"][3]
-  generator.gain = D["gain"][3]
-  generator.size = D["size"][3]
-  generator.feedback = D["feedback"][3]
+  generator.p = params["percentage"][3]
+  generator.gain = params["gain"][3]
+  generator.size = params["size"][3]
+  generator.feedback = params["feedback"][3]
 end
