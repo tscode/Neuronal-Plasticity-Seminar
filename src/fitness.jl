@@ -72,7 +72,7 @@ function test_fitness_of_generator(gen::AbstractGenerator; rnd::AbstractRNG=Mers
     end
   end
 
-  if succss == 0
+  if success == 0
     return  SuccessRating(0,0,0, samples)
   end
 
