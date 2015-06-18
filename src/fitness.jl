@@ -1,4 +1,14 @@
 
+abstract AbstractSuccessRating
+
+type SuccessRating <: AbstractSuccessRating
+    quota::Float64      # relative number of successfull networks
+    quality::Float64    # average quality of the successfull networks
+    timeshift::Float64  # timeshift
+    samples::Int        # number of samples used to calculate the rating
+end
+
+
 # this is the lowest level of fitness test: test a single network with learning rule for a single task
 function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::AbstractTask; 
          learntime = 500, waittime = 1000, evaltime=500, adaptive=true, α=rule.α, fname="")
@@ -45,7 +55,7 @@ end
 
 
 # test fitness for a generator
-function test_fitness_of_generator(gen::AbstractGenerator; rnd::AbstractRNG=MersenneTwister(), samples = 25, threshold = 0.95)
+function test_fitness_of_generator(gen::AbstractGenerator; rnd::AbstractRNG=MersenneTwister(), samples::Int = 25, threshold::Float64 = 0.95)
   mean_q = 0.0
   mean_s = 0.0
   success = 0
@@ -64,19 +74,17 @@ function test_fitness_of_generator(gen::AbstractGenerator; rnd::AbstractRNG=Mers
 
   mean_q /= success
   mean_s /= success
-  return success/samples, mean_q, mean_s
+  return SuccessRating(success/samples, mean_q, mean_s, samples)
 end
 
 # comparision of fitness results
-function compare_fitness(v1, v2)
-  if v1[1] > v2[1] + 0.05
+function compare_fitness(v1::SuccessRating, v2::SuccessRating)
+  if v1.quota > v2.quota + 0.05
     return true
-  elseif v2[1] > v1[1] + 0.05
+  elseif v2.quota > v1.quota + 0.05
     return false
   end
 
   # ok, almost identical success rate, now compare both success and quality
-  return v1[1] + v1[2] > v2[1] + v2[2]
+  return v1.quota + v1.quality > v2.quota + v2.quality
 end
-
-
