@@ -36,11 +36,11 @@ function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::A
 
   # let some time pass
   # we continue to use evaluate
-  evaluate(evl, task, waittime, rec=true, recorder=recorder) # TODO input
+  evaluate(evl, task, waittime, rec=fname != "", recorder=recorder) # TODO input
 
   # now reevaluate
   reset(evl)
-  quality = evaluate(evl, task, evaltime, rec=true, recorder=recorder)
+  quality = evaluate(evl, task, evaltime, rec=fname != "", recorder=recorder)
 
   if fname != ""
       data = zeros(size(recorder[1])[1], recorder.num_recs)
