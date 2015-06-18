@@ -1,4 +1,3 @@
-include("types.jl")
 
 type GeneticOptimizer{T, S <: AbstractSuccessRating}
   rng::AbstractRNG
@@ -38,9 +37,10 @@ function init_population!{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N:
   end
 
   # calculate initial fitness
-  for i in 1:length(opt.population)
-    opt.success[i] = opt.fitness(opt.population[i])
-  end
+  #=for i in 1:length(opt.population)=#
+    #=opt.success[i] = opt.fitness(opt.population[i])=#
+  #=end=#
+  opt.success = collect(pmap(opt.fitness, opt.population))
 
 end
 
@@ -72,15 +72,13 @@ function step!( opt::GeneticOptimizer )
       # for now, only mutate
       mutate!(opt, opt.population[living[lidx]])
       lidx += 1
-
-      #calculate new score
-      opt.success[i] = opt.fitness(opt.population[i])
     else
-      success[1] += opt.success[i][1]
-      success[2] += opt.success[i][2]
+      success[1] += opt.success[i].quota
+      success[2] += opt.success[i].quality
       success[3] += opt.population[i].size
     end
   end
+  opt.success = collect(pmap(opt.fitness, opt.population))
 
   # success measure
   println(2*success/length(opt.population))

@@ -1,4 +1,4 @@
-include("../src/EvoNet.jl")
+@everywhere include("../src/EvoNet.jl")
 ev = EvoNet
 import EvoNet.@rec
 
