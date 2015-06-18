@@ -39,6 +39,7 @@ function init_population!{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N:
 
   # calculate initial fitness
   for i in 1:length(opt.population)
+    println("sof $i")
     opt.success[i] = opt.fitness(opt.population[i])
   end
 
@@ -72,14 +73,12 @@ function step!( opt::GeneticOptimizer )
       # for now, only mutate
       mutate!(opt, opt.population[living[lidx]])
       lidx += 1
-
-      #calculate new score
-      opt.success[i] = opt.fitness(opt.population[i])
     else
       success[1] += opt.success[i][1]
       success[2] += opt.success[i][2]
       success[3] += opt.population[i].size
     end
+    opt.success[i] = opt.fitness(opt.population[i])
   end
 
   # success measure
