@@ -1,4 +1,3 @@
-include("types.jl")
 include("recorder.jl")
 
 type GeneticOptimizer{T, S <: AbstractSuccessRating}
@@ -39,10 +38,10 @@ function init_population!{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N:
   end
 
   # calculate initial fitness
-  for i in 1:length(opt.population)
-    println("sof $i")
-    opt.success[i] = opt.fitness(opt.population[i])
-  end
+  #=for i in 1:length(opt.population)=#
+    #=opt.success[i] = opt.fitness(opt.population[i])=#
+  #=end=#
+  opt.success = collect(pmap(opt.fitness, opt.population))
 
 end
 
@@ -82,8 +81,8 @@ function step!( opt::GeneticOptimizer )
       success[3] += opt.population[i].size
       record(recorder, 1, [i, opt.success[i].quota, opt.success[i].quality, opt.population[i].size, opt.population[i].p, opt.population[i].gain, opt.population[i].feedback ])
     end
-    opt.success[i] = opt.fitness(opt.population[i])
   end
+  opt.success = collect(pmap(opt.fitness, opt.population))
 
   # success measure
   println(2*success/length(opt.population))

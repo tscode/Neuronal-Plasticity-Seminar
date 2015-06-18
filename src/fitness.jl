@@ -10,12 +10,12 @@ end
 
 
 # this is the lowest level of fitness test: test a single network with learning rule for a single task
-function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::AbstractTask; 
+function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::AbstractTask;
          learntime = 500, waittime = 1000, evaltime=500, adaptive=true, α=rule.α, fname="")
   # generate the evaluator and the teacher
   # the parameters here are fixed for now: 1000 sec of learning, 100 steps window for evaluation
-  if fname != "" 
-    recorder = Recorder() 
+  if fname != ""
+    recorder = Recorder()
   else
     recorder = REC
   end
