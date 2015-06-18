@@ -72,6 +72,10 @@ function test_fitness_of_generator(gen::AbstractGenerator; rnd::AbstractRNG=Mers
     end
   end
 
+  if succss == 0
+    return  SuccessRating(0,0,0, samples)
+  end
+
   mean_q /= success
   mean_s /= success
   return SuccessRating(success/samples, mean_q, mean_s, samples)
