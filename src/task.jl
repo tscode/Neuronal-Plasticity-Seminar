@@ -10,10 +10,13 @@ type FunctionTask <: AbstractTask
   fluctuations::Float64	   # amount of random noise added to the data
   deterministic::Bool      # true if the current values of expected and input are deterministic
 
-  randsource::AbstractRNG   # randomness source for this task
+  rng::AbstractRNG   # randomness source for this task
 
-  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}; fluctuations = 0.0, rnd::AbstractRNG = MersenneTwister() )
-    new(0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), fluctuations, false, rnd)
+  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}; fluctuations = 0.0, seed=0 )
+    new(0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), fluctuations, false, MersenneTwister(seed))
+  end
+  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}, rng::AbstractRNG; fluctuations = 0.0 )
+    new(0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), fluctuations, false, rng)
   end
 end
 
@@ -27,7 +30,7 @@ function prepare_task!( task::FunctionTask, time::Real, deterministic::Bool) # u
       if deterministic
         task.expected[i] = task.funcs[i](time)
       else
-        task.expected[i] = task.funcs[i](time) + randn(task.randsource) * task.fluctuations
+        task.expected[i] = task.funcs[i](time) + randn(task.rng) * task.fluctuations
       end
   end
   #!TODO would it make sense to leave the input noisy but test for noiseless output. prly yes
@@ -36,7 +39,7 @@ function prepare_task!( task::FunctionTask, time::Real, deterministic::Bool) # u
       if deterministic
         task.input[i] = task.ifuncs[i](time)
       else
-        task.input[i] = task.ifuncs[i](time) + randn(task.randsource) * task.fluctuations
+        task.input[i] = task.ifuncs[i](time) + randn(task.rng) * task.fluctuations
       end
   end
   task.time = time
@@ -54,14 +57,14 @@ function get_input( task::FunctionTask )
 end
 
 # generator function
-function make_periodic_function(randsource::AbstractRNG)
-  freq = 2π/(dt * (rand(randsource) * 100 + 10))
-  amplitud = 1 + randn(randsource) / 2
-  phaseshift = rand(randsource) * 2π
+function make_periodic_function(rng::AbstractRNG)
+  freq = 2π/(dt * (rand(rng) * 100 + 10))
+  amplitud = 1 + randn(rng) / 2
+  phaseshift = rand(rng) * 2π
   return t->amplitud*sin(t*freq + phaseshift)
 end
 
-function make_periodic_function_task( out::Int, in::Array{Function}, rnd::AbstractRNG )
-  tfuncs = [make_periodic_function(rnd) for i = 1:out]
-  return FunctionTask(tfuncs, in, rnd=rnd)
+function make_periodic_function_task( out::Int, invals::Array{Function}, rng::AbstractRNG )
+  tfuncs = [make_periodic_function(rng) for i = 1:out]
+  return FunctionTask(tfuncs, invals, rng)
 end

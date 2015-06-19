@@ -20,5 +20,7 @@ include("genetics.jl")
 # extra convenience stuff
 include("recorder.jl")
 
+# missing sparse matrix function sprandn for julia3
+include("sparsematrix.jl")
 
 end # module EvoNet

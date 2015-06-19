@@ -2,7 +2,7 @@
 type GeneticOptimizer{T, S <: AbstractSuccessRating}
   rng::AbstractRNG
 
-  population::Vector{T}
+  population::Vector{T} # vector of generators
   success::Vector{S}
 
   fitness::Function # maps T → S : returns a multidimensional fitness measure
@@ -36,11 +36,12 @@ function init_population!{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N:
     import_params!( el, params )
   end
 
+
   # calculate initial fitness
   #=for i in 1:length(opt.population)=#
     #=opt.success[i] = opt.fitness(opt.population[i])=#
   #=end=#
-  opt.success = collect(pmap(opt.fitness, opt.population))
+  opt.success = collect(pmap(gen -> opt.fitness(gen, rng=opt.rng), opt.population))
 
 end
 
@@ -50,7 +51,7 @@ function step!( opt::GeneticOptimizer )
   # collection of all living nets
   living = Int64[]
 
-  order = shuffle(collect(1:length(opt.population))) # TODO specify RNG
+  order = shuffle(opt.rng, collect(1:length(opt.population))) 
 
   # fight: just compare the old fitnesses
   for i = 2:2:length(opt.population)
@@ -78,7 +79,7 @@ function step!( opt::GeneticOptimizer )
       success[3] += opt.population[i].size
     end
   end
-  opt.success = collect(pmap(opt.fitness, opt.population))
+  opt.success = collect(pmap(gen -> opt.fitness(gen, rng=opt.rng), opt.population))
 
   # success measure
   println(2*success/length(opt.population))

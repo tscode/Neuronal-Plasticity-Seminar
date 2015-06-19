@@ -17,7 +17,7 @@ function SparseMatrixGenerator(size, p; num_input=0, num_output=1, gain=1.2, fee
   return SparseMatrixGenerator(size, p, num_input=num_input, num_output=num_output, gain=gain, feedback=feedback)
 end
 
-function generate(generator::SparseMatrixGenerator, seed::Int64)
+function generate(generator::SparseMatrixGenerator; seed::Int64=0)
 	# initialize random by seed
 	rng = MersenneTwister(seed)
 
@@ -25,8 +25,7 @@ function generate(generator::SparseMatrixGenerator, seed::Int64)
 	N = generator.size
 
 	# internal connections: sparse, normal distributed
-  # DAMN, JULIA 0.3 DOES NOT SEEM TO SUPPORT SETTING RNG IN sprandn
-	ω_r = sprandn(N, N, generator.p)*generator.gain/sqrt(N * generator.p)
+	ω_r = sprandn(rng, N, N, generator.p)*generator.gain/sqrt(N * generator.p)
 	# feedback connections: [-1 .. 1]
 	ω_f = generator.feedback * (rand(rng, N, generator.num_output) - 0.5)
 	# output (readout) weights.
@@ -52,6 +51,9 @@ function export_params( generator::SparseMatrixGenerator)
   D["feedback"] = (0.0, 4.0, generator.feedback)
   return D
 end
+
+#=function save_params( fname::String, params::Dict{String, Tuple} )=#
+
 
 function import_params!(generator::SparseMatrixGenerator, params::Dict{String, Tuple})
   generator.p = params["percentage"][3]
