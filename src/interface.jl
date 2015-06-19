@@ -48,6 +48,16 @@ function reset(rule::AbstractRule)
   error("rule(", typeof(rule), ") not implemented")
 end
 
+
+# convenience method for init of random number generators
+function randseed()
+	convert(Uint32, round(rand() * typemax(Uint32)))
+end
+
+function randseed(rng::AbstractRNG)
+	convert(Uint32, round(rand(rng) * typemax(Uint32)))
+end
+
 # convenience layer if we only want do develop the system
 #=function learn_until!( teacher::AbstractTeacher, net::AbstractNetwork, task::AbstractTask, stop_time::Float64 )=#
     #=while net.time < stop_time=#

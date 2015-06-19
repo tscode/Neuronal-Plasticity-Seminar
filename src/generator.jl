@@ -17,7 +17,7 @@ function SparseMatrixGenerator(size, p; num_input=0, num_output=1, gain=1.2, fee
   return SparseMatrixGenerator(size, p, num_input=num_input, num_output=num_output, gain=gain, feedback=feedback)
 end
 
-function generate(generator::SparseMatrixGenerator; seed::Int64=0)
+function generate(generator::SparseMatrixGenerator; seed::Integer = randseed())
 	# initialize random by seed
 	rng = MersenneTwister(seed)
 
