@@ -1,3 +1,4 @@
+include("recorder.jl")
 
 type GeneticOptimizer{T, S <: AbstractSuccessRating}
   rng::AbstractRNG
@@ -45,6 +46,8 @@ function init_population!{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N:
 
 end
 
+recorder = Recorder()
+
 function step!( opt::GeneticOptimizer )
   # marks whether an entity is still alive
   alive = fill(true, length(opt.population))
@@ -77,12 +80,16 @@ function step!( opt::GeneticOptimizer )
       success[1] += opt.success[i].quota
       success[2] += opt.success[i].quality
       success[3] += opt.population[i].size
+      record(recorder, 1, [i, opt.success[i].quota, opt.success[i].quality, opt.population[i].size, opt.population[i].p, opt.population[i].gain, opt.population[i].feedback ])
     end
   end
   opt.success = collect(pmap(gen -> opt.fitness(gen, rng=opt.rng), opt.population))
 
   # success measure
   println(2*success/length(opt.population))
+
+  writedlm("genes.dat", recorder[1])
+  println(recorder[1])
 end
 
 

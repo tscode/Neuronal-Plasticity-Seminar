@@ -1,11 +1,11 @@
 
 type SparseMatrixGenerator <: AbstractGenerator
 	p::Float64			  # percentage of edges taken
-	gain::Real			  # gain factor for edge strength
+	gain::Float64			  # gain factor for edge strength
 	size::Int			    # size of the network
 	num_input::Int64		# number of input channels
 	num_output::Int64		# number of output channels
-	feedback::Real		# strength of feedback connections
+	feedback::Float64		# strength of feedback connections
 
   function SparseMatrixGenerator(size::Int, p::Float64; num_input=0, num_output=1, gain::Real=1.2, feedback::Real=2)
     @assert 0 < p <= 1 "p is a connection probability, thus 0 < p <= 1"

@@ -10,12 +10,12 @@ end
 
 
 # this is the lowest level of fitness test: test a single network with learning rule for a single task
-function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::AbstractTask; 
+function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::AbstractTask;
          learntime = 500, waittime = 1000, evaltime=500, adaptive=true, α=rule.α, fname="")
   # generate the evaluator and the teacher
   # the parameters here are fixed for now: 1000 sec of learning, 100 steps window for evaluation
-  if fname != "" 
-    recorder = Recorder() 
+  if fname != ""
+    recorder = Recorder()
   else
     recorder = REC
   end
@@ -36,11 +36,11 @@ function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::A
 
   # let some time pass
   # we continue to use evaluate
-  evaluate(evl, task, waittime, rec=true, recorder=recorder) # TODO input
+  evaluate(evl, task, waittime, rec=fname != "", recorder=recorder) # TODO input
 
   # now reevaluate
   reset(evl)
-  quality = evaluate(evl, task, evaltime, rec=true, recorder=recorder)
+  quality = evaluate(evl, task, evaltime, rec=fname != "", recorder=recorder)
 
   if fname != ""
       data = zeros(size(recorder[1])[1], recorder.num_recs)
@@ -70,6 +70,10 @@ function test_fitness_of_generator(gen::AbstractGenerator; rng::AbstractRNG=Mers
       mean_s += s
       success += 1
     end
+  end
+
+  if success == 0
+    return  SuccessRating(0,0,0, samples)
   end
 
   mean_q /= success
