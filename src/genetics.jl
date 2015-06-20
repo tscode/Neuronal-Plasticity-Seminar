@@ -75,18 +75,20 @@ function step!( opt::GeneticOptimizer )
   lidx = 1
   # replace dead entities
   for i = 1:length(opt.population)
+    # alive index is the same as population index
     if !alive[i]
-      # for now, only mutate
-      mutate!(opt, opt.population[living[lidx]])
+      # for now, only mutate: rewirte popultion[i] (which is not alive) with a mutation of living[lidx] (which was a good net)
+      new_generator = mutate!(opt, opt.population[i], opt.population[living[lidx]])
       lidx += 1
     else
       success[1] += opt.success[i].quota
       success[2] += opt.success[i].quality
       success[3] += opt.population[i].size
-      record(opt.recorder, 1, [i, opt.generation, opt.success[i].quota, opt.success[i].quality, opt.population[i].size, opt.population[i].p, opt.population[i].gain, opt.population[i].feedback ])
+      record(opt.recorder, 1, [opt.generation, i , opt.success[i].quota, opt.success[i].quality, opt.population[i].size, opt.population[i].p, opt.population[i].gain, opt.population[i].feedback ])
     end
   end
-  opt.success = collect(pmap(gen -> opt.fitness(gen, rng=opt.rng, samples = 50), opt.population))
+  println(opt.success)
+  opt.success = collect(pmap(gen -> opt.fitness(gen, rng=opt.rng), opt.population))
 
   # success measure
   println(2*success/length(opt.population))
@@ -95,15 +97,15 @@ function step!( opt::GeneticOptimizer )
 end
 
 
-function mutate!( opt::GeneticOptimizer, gen::AbstractGenerator )
+function mutate!( opt::GeneticOptimizer, target::AbstractGenerator, source::AbstractGenerator )
   # load parameters
-  params = export_params( gen )
+  params = export_params( source )
   # randomize networks
   parray = [p for p in params]
   # change a single parameter
   pidx = int(round(rand(opt.rng) * length(parray) + 0.5))::Int
   params[parray[pidx][1]] = random_param(parray[pidx][2], 9)
-  import_params!( gen, params )
+  import_params!( target, params )
 end
 
 function random_param( v, n = 1)
