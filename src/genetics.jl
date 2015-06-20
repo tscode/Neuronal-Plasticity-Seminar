@@ -25,6 +25,13 @@ end
   #=GeneticOptimizer{T, S}(MersenneTwister(), T[], S[], fitness, compare)=#
 #=end=#
 
+function rate_population_parallel{T, S}(opt::GeneticOptimizer{T, S}; seed::Integer=randseed())
+  rng = MersenneTwister(seed)
+  gene_tuples = [ (gene, randseed(rng)) for gene in opt.population ]
+  opt.success = collect(pmap(x -> opt.fitness(x[1], rng=MersenneTwister(x[2])), gene_tuples))
+end
+
+
 
 function init_population!{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N::Integer )
   # must NOT use fill here, since this only gives references!
@@ -45,8 +52,7 @@ function init_population!{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N:
   #=for i in 1:length(opt.population)=#
     #=opt.success[i] = opt.fitness(opt.population[i])=#
   #=end=#
-  opt.success = collect(pmap(gen -> opt.fitness(gen, rng=opt.rng), opt.population))
-
+  opt.success = rate_population_parallel(opt, seed=randseed(opt.rng))
 end
 
 function step!( opt::GeneticOptimizer )
