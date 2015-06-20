@@ -27,19 +27,19 @@ end
 
 
 function init_population!{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N::Integer )
-  opt.population = fill(base_element, N)
-  opt.success = fill(S(0,0,0,0), N)
+  # must NOT use fill here, since this only gives references!
+  opt.population = [ deepcopy(base_element) for i in 1:N ]
+  opt.success    = [ S(0,0,0,0) for i in 1:N ]
 
   # load parameters
   params = export_params( base_element )
   # randomize networks
   for el in opt.population
-    for v in params
-      params[v[1]] = random_param(v[2])
+    for (key,val) in params
+      params[key] = random_param(val, rng=opt.rng)
     end
     import_params!( el, params )
   end
-
 
   # calculate initial fitness
   #=for i in 1:length(opt.population)=#
@@ -104,15 +104,15 @@ function mutate!( opt::GeneticOptimizer, target::AbstractGenerator, source::Abst
   parray = [p for p in params]
   # change a single parameter
   pidx = int(round(rand(opt.rng) * length(parray) + 0.5))::Int
-  params[parray[pidx][1]] = random_param(parray[pidx][2], 9)
+  params[parray[pidx][1]] = random_param(parray[pidx][2], 9, rng=opt.rng)
   import_params!( target, params )
 end
 
-function random_param( v, n = 1)
+function random_param( v, n = 1; rng::AbstractRNG=MersenneTwister(randseed()) )
    if isa(v[3], Int)
-    nval = int(round((n*v[3] + rand() * (v[2] - v[1]) + v[1])/(n+1)))
+    nval = int(round((n*v[3] + rand(rng) * (v[2] - v[1]) + v[1])/(n+1)))
   else
-    nval = (n*v[3] + rand() * (v[2] - v[1]) + v[1]) / (n+1)
+    nval = (n*v[3] + rand(rng) * (v[2] - v[1]) + v[1]) / (n+1)
   end
   return (v[1], v[2], nval )
 end

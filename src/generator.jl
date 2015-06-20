@@ -11,6 +11,9 @@ type SparseMatrixGenerator <: AbstractGenerator
     @assert 0 < p <= 1 "p is a connection probability, thus 0 < p <= 1"
     return new(p, gain, size, num_input, num_output, feedback)
   end
+  function SparseMatrixGenerator(gen::SparseMatrixGenerator)
+    return new(gen.p, gen.gain, gen.size, gen.num_input, gen.num_output, gen.feedback)
+  end
 end
 
 function SparseMatrixGenerator(size, p; num_input=0, num_output=1, gain=1.2, feedback=2)
