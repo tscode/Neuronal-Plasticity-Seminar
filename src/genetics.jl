@@ -8,9 +8,12 @@ type GeneticOptimizer{T, S <: AbstractSuccessRating}
 
   fitness::Function # maps T → S : returns a multidimensional fitness measure
   compare::Function # (S, S) → bool : compares two fitness measures, returns True if first arg is better than second
+
+  generation::Int   # Counts the number of generations that have been calculated
+  recorder::Recorder
   function GeneticOptimizer(fitness::Function, compare::Function;
                             population::Vector{T}=T[], success::Vector{S}=S[], seed::Int=0)
-      new(MersenneTwister(seed), population, success, fitness, compare)
+      new(MersenneTwister(seed), population, success, fitness, compare, 0, Recorder())
   end
 end
 
@@ -46,15 +49,15 @@ function init_population!{T,S}( opt::GeneticOptimizer{T, S}, base_element::T, N:
 
 end
 
-recorder = Recorder()
-
 function step!( opt::GeneticOptimizer )
+  println("processing generation $(opt.generation)")
+
   # marks whether an entity is still alive
   alive = fill(true, length(opt.population))
   # collection of all living nets
   living = Int64[]
 
-  order = shuffle(opt.rng, collect(1:length(opt.population))) 
+  order = shuffle(opt.rng, collect(1:length(opt.population)))
 
   # fight: just compare the old fitnesses
   for i = 2:2:length(opt.population)
@@ -67,7 +70,7 @@ function step!( opt::GeneticOptimizer )
     end
   end
 
-  print(alive)
+  # TODO better way to save these values
   success = [0.0,0.0,0.0]
   lidx = 1
   # replace dead entities
@@ -80,16 +83,15 @@ function step!( opt::GeneticOptimizer )
       success[1] += opt.success[i].quota
       success[2] += opt.success[i].quality
       success[3] += opt.population[i].size
-      record(recorder, 1, [i, opt.success[i].quota, opt.success[i].quality, opt.population[i].size, opt.population[i].p, opt.population[i].gain, opt.population[i].feedback ])
+      record(opt.recorder, 1, [i, opt.generation, opt.success[i].quota, opt.success[i].quality, opt.population[i].size, opt.population[i].p, opt.population[i].gain, opt.population[i].feedback ])
     end
   end
-  opt.success = collect(pmap(gen -> opt.fitness(gen, rng=opt.rng), opt.population))
+  opt.success = collect(pmap(gen -> opt.fitness(gen, rng=opt.rng, samples = 50), opt.population))
 
   # success measure
   println(2*success/length(opt.population))
 
-  writedlm("genes.dat", recorder[1])
-  println(recorder[1])
+  opt.generation += 1
 end
 
 
@@ -97,9 +99,10 @@ function mutate!( opt::GeneticOptimizer, gen::AbstractGenerator )
   # load parameters
   params = export_params( gen )
   # randomize networks
-  for v in params
-    params[v[1]] = random_param(v[2], 9)
-  end
+  parray = [p for p in params]
+  # change a single parameter
+  pidx = int(round(rand(opt.rng) * length(parray) + 0.5))::Int
+  params[parray[pidx][1]] = random_param(parray[pidx][2], 9)
   import_params!( gen, params )
 end
 
@@ -110,4 +113,8 @@ function random_param( v, n = 1)
     nval = (n*v[3] + rand() * (v[2] - v[1]) + v[1]) / (n+1)
   end
   return (v[1], v[2], nval )
+end
+
+function save_evolution(file, opt::GeneticOptimizer)
+  writedlm(file, hcat(opt.recorder[1]...)')
 end
