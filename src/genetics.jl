@@ -94,7 +94,7 @@ function step!( opt::GeneticOptimizer )
     end
   end
   println(opt.success)
-  opt.success = collect(pmap(gen -> opt.fitness(gen, rng=opt.rng), opt.population))
+  opt.success = rate_population_parallel(opt, seed=randseed(opt.rng))
 
   # success measure
   println(2*success/length(opt.population))
@@ -109,14 +109,14 @@ function mutate!( opt::GeneticOptimizer, target::AbstractGenerator, source::Abst
   # randomize networks
   parray = [p for p in params]
   # change a single parameter
-  pidx = int(round(rand(opt.rng) * length(parray) + 0.5))::Int
+  pidx = convert(Int, round(rand(opt.rng) * length(parray) + 0.5))
   params[parray[pidx][1]] = random_param(parray[pidx][2], 9, rng=opt.rng)
   import_params!( target, params )
 end
 
 function random_param( v, n = 1; rng::AbstractRNG=MersenneTwister(randseed()) )
    if isa(v[3], Int)
-    nval = int(round((n*v[3] + rand(rng) * (v[2] - v[1]) + v[1])/(n+1)))
+    nval = convert(Int, round((n*v[3] + rand(rng) * (v[2] - v[1]) + v[1])/(n+1)))
   else
     nval = (n*v[3] + rand(rng) * (v[2] - v[1]) + v[1]) / (n+1)
   end

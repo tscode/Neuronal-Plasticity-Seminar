@@ -1,5 +1,8 @@
 # This file contains parts of Julia. License is MIT: http://julialang.org/license
 
+# For the sake of j4 and j3 compability.....
+sizehint! = sizehint
+
 function shuffle!(r::AbstractRNG, a::AbstractVector)
     for i = length(a):-1:2
         j = convert(Int, ceil(rand(r)*i))
@@ -18,7 +21,7 @@ function ev_randsubseq!(r::AbstractRNG, S::AbstractArray, A::AbstractArray, p::R
     empty!(S)
     p == 0 && return S
     nexpected = p * length(A)
-    sizehint(S, convert(Int, round(nexpected + 5*sqrt(nexpected))))
+    sizehint!(S, convert(Int, round(nexpected + 5*sqrt(nexpected))))
     if p > 0.15 # empirical threshold for trivial O(n) algorithm to be better
         for i = 1:n
             rand(r) <= p && push!(S, A[i])
@@ -110,8 +113,8 @@ function sprand{T}(r::AbstractRNG, m::Integer, n::Integer, density::FloatingPoin
     N == 1 && return rand(r) <= density ? sparse(rfn(r,1)) : spzeros(T,1,1)
 
     I, J = Array(Int, 0), Array(Int, 0) # indices of nonzero elements
-    sizehint(I, int(N*density))
-    sizehint(J, int(N*density))
+    sizehint!(I, convert(Int, round(N*density)))
+    sizehint!(J, convert(Int, round(N*density)))
 
     # density of nonzero columns:
     L = log1p(-density)
@@ -127,7 +130,7 @@ function sprand{T}(r::AbstractRNG, m::Integer, n::Integer, density::FloatingPoin
         # except given that at least one is nonzero (via Bayes' rule);
         # carefully rearranged to avoid excessive roundoff errors.
         k = ceil(log(colsparsity + rand(r)*coldensity) * L)
-        ik = k < 1 ? 1 : k > m ? m : int(k) # roundoff-error/underflow paranoia
+        ik = k < 1 ? 1 : k > m ? m : convert(Int, k) # roundoff-error/underflow paranoia
         ev_randsubseq!(r, rows, 1:m-ik, density)
         push!(rows, m-ik+1)
         append!(I, rows)
