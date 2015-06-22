@@ -79,18 +79,17 @@ function generate(gen::SparseLRGenerator; seed::Integer = randseed())   ## TO BE
 
   # if we have full readout, use full readout network, else sparse readout
   # TODO, for more than x%, sparse readout actually hurts performance: find x
-  #       and adapt the condition here
+  #       and adapt the condition here <-- this should be fixed as LR networks
+  #       are really fast now
 
   if num_readout >= N
-    # generate the network
+    # generate a full readout network
     return Network{typeof(ω_r)}( ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out,
-                                  output, gen.α, 0 )
+                                 output, gen.α, 0 )
   else
-    # neurons 1 to generator.num_readout shall be used for the readout
-    output_neurons = collect(1:num_readout)
-    # generate the network
+    # generate a genuinely limited readout network
     return LRNetwork{typeof(ω_r)}( ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out,
-                                  output, output_neurons, gen.α, 0 )
+                                   output, num_readout, gen.α, 0 )
   end
 end
 

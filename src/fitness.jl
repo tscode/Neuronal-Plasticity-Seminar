@@ -62,8 +62,8 @@ end
 
 
 # test fitness for a generator
-function test_fitness_of_generator( gen::AbstractGenerator; rng::AbstractRNG=MersenneTwister(randseed()),
-                                    samples::Int = 25, threshold::Float64 = 0.95 )
+function test_fitness_of_generator( gen::AbstractGenerator; rng::AbstractRNG=MersenneTwister(randseed()), 
+                                    samples::Int = 25, threshold::Float64 = 0.95, adaptive::Bool=true )
   mean_q = 0.0
   mean_s = 0.0
   success = 0
@@ -71,7 +71,7 @@ function test_fitness_of_generator( gen::AbstractGenerator; rng::AbstractRNG=Mer
   for i = 1:samples
     task = make_periodic_function_task( gen.num_output, Function[], rng=rng )
     net = generate( gen, seed = randseed(rng) )
-    q, s = test_fitness_for_task( net, rule, task )
+    q, s = test_fitness_for_task( net, rule, task, adaptive=adaptive )
     if q > threshold
       # rescale q relative to threshold
       mean_q += (q - threshold) / (1.0 - threshold)
