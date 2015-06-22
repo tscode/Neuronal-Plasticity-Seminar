@@ -83,9 +83,25 @@ end
 
 # comparision of fitness results
 function compare_fitness(v1::SuccessRating, v2::SuccessRating)
-  if v1.quota > v2.quota + 0.05
+  # average error of v1 and v2. use err ~ 1/sqrt(N), because it is a counting process
+
+  # probability, that v1 succeeds and v2 does not: v1.q * (1-v2.q)
+  # directly decide who is better in that case:
+  val = rand() # TODO use rng here
+  if val < v1.quota * (1.0 - v2.quota) # v1 wins
     return true
-  elseif v2.quota > v1.quota + 0.05
+  elseif val < v1.quota * (1.0 - v2.quota) + v2.quota * (1.0 - v1.quota) # v2 wins
+    return false
+  elseif val < v1.quota * (1.0 - v2.quota) + v2.quota * (1.0 - v1.quota) + (1.0 - v2.quota) * (1.0 - v1.quota)
+    # both lose: we use the one with the better quota
+    return v1.quota > v2.quota
+  end
+
+  # othwerwise, more elaborate mesures are required
+  err = 0.5 / sqrt(v1.samples) + 0.5/sqrt(v2.samples)
+  if v1.quota > v2.quota + err
+    return true
+  elseif v2.quota > v1.quota + err
     return false
   end
 
