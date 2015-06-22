@@ -6,8 +6,8 @@ type GeneticOptimizer
   population::Vector{AbstractGenerator}   # vector of generators, all different genotypes
   success::Vector{AbstractSuccessRating}  # holds the current success ratings
 
-  fitness::Function     # maps AbstractGenerator → AbstractSuccessRating
-  compare::Function     # maps AbstractGenerator² → bool,
+  fitness::Function     # maps AbstractGenerator       → AbstractSuccessRating
+  compare::Function     # maps AbstractGenerator², RNG → bool,
                         # returns true if first arg is better than second
 
   generation::Int       # counts the number of generations that have been simulated
@@ -26,11 +26,11 @@ end
 # function to calculate the success values as fast as possible in parallel
 # ATTENTION: Usage of this function makes it necessary to start julia appropriately
 # for several processes
-function rate_population_parallel(opt::GeneticOptimizer; seed::Integer=randseed())
+function rate_population_parallel(opt::GeneticOptimizer; seed::Integer=randseed(), samples = 25)
   rng = MersenneTwister(seed)
   gene_tuples = [ (gene, randseed(rng)) for gene in opt.population ]
   return AbstractSuccessRating[ succ for succ in pmap( x -> opt.fitness(x[1],
-                                                       rng=MersenneTwister(x[2])),
+                                                       rng=MersenneTwister(x[2]), samples=samples),
                                                        gene_tuples ) ]
 end
 
@@ -60,7 +60,7 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
 
   # fight: just compare the old fitnesses
   for i = 2:2:length(opt.population)
-    if opt.compare( opt.success[order[i-1]], opt.success[order[i]] )
+    if opt.compare( opt.success[order[i-1]], opt.success[order[i]], opt.rng )
       push!(survivors, opt.population[order[i-1]])
       push!(success, opt.success[order[i-1]])
     else
@@ -81,7 +81,20 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
   mean_success /= length(survivors)
   println(mean_success)
 
-  opt.population = calculate_next_generation(opt.rng, survivors, length(opt.population) )
+  # two stage population generation:
+  newborns = calculate_next_generation(opt.rng, survivors, 2*length(opt.population) )
+  NUM_SAMPLES = 4
+  nb_rating = rate_population_parallel(opt, seed=randseed(opt.rng), samples = NUM_SAMPLES) # only do a few samples
+  N = length(opt.population)
+  opt.population = AbstractGenerator[]
+
+  linear_scores = [s.quota * NUM_SAMPLES + s.quality for s in nb_rating]
+  while length(opt.population) < N
+    best = indmax(linear_scores)
+    linear_scores[best] = -1 # this one is used
+    push!(opt.population, newborns[best])
+  end
+
   opt.success = rate_population_parallel(opt, seed=randseed(opt.rng))
 
   opt.generation += 1
