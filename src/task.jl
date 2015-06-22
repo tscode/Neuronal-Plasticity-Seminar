@@ -1,28 +1,32 @@
-include("types.jl")
-
+#
+# TASK
+#
+# Tasks the network can be forced to learn
+#
 type FunctionTask <: AbstractTask
-  time::Float64 # current time -- does the task need this one?
+  time::Float64            # current time
   funcs::Array{Function}   # collection of functions
   ifuncs::Array{Function}  # collection of input functions
-  expected::Array{Float64} # function values -> these are the expected values
+  expected::Array{Float64} # function values; are the expected values
   input::Array{Float64}    # inputs for the network
 
   fluctuations::Float64	   # amount of random noise added to the data
-  deterministic::Bool      # true if the current values of expected and input are deterministic
+  deterministic::Bool      # true if the current values of expected 
+                           # and input are deterministic
+  rng::AbstractRNG         # randomness source for this task
 
-  rng::AbstractRNG   # randomness source for this task
-
-  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}; fluctuations = 0.0, seed=0 )
-    new(0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), fluctuations, false, MersenneTwister(seed))
+  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}; 
+                         fluctuations = 0.0, seed=0 )
+    new( 0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), 
+         fluctuations, false, MersenneTwister(seed) )
   end
-  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}, rng::AbstractRNG; fluctuations = 0.0 )
-    new(0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), fluctuations, false, rng)
+  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}; 
+                         rng::AbstractRNG=MersenneTwister(randseed()), fluctuations = 0.0 )
+    new( 0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), 
+         fluctuations, false, rng )
   end
 end
 
-#function FunctionTask( funcs...; fluctuations = 0.0 )
-#    FunctionTask( [funcs...], fluctuations )
-#end
 
 function prepare_task!( task::FunctionTask, time::Real, deterministic::Bool) # usually only called by teacher
   # generate expected output
@@ -64,7 +68,8 @@ function make_periodic_function(rng::AbstractRNG)
   return t->amplitud*sin(t*freq + phaseshift)
 end
 
-function make_periodic_function_task( out::Int, invals::Array{Function}, rng::AbstractRNG )
-  tfuncs = [make_periodic_function(rng) for i = 1:out]
-  return FunctionTask(tfuncs, invals, rng)
+function make_periodic_function_task( out::Int, ifuncs::Array{Function}; 
+                                      rng::AbstractRNG=MersenneTwister(randseed()) )
+  tfuncs = [ make_periodic_function(rng) for i = 1:out ]
+  return FunctionTask( tfuncs, ifuncs, rng=rng )
 end

@@ -1,4 +1,6 @@
-
+#
+# RECORDER
+#
 
 export @record
 
@@ -7,7 +9,6 @@ type Recorder
     num_recs::Int
     Recorder() = new(Dict{Union(Symbol, Expr, Integer), Array{Any}}(), 0)
 end
-#=Recorder() = Recorder(Dict{Union(Symbol, Expr, Integer), Array{Any}}())=#
 
 
 function record(rec::Recorder, id::Union(Symbol, Integer), content::Real)

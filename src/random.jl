@@ -1,11 +1,23 @@
 # This file contains parts of Julia. License is MIT: http://julialang.org/license
 
+#
+# RANDOM
+#
+# Some routines regarding random numbers to overcome the shortcommings of julia3
+# in this regard
+
 # For the sake of j4 and j3 compability.....
 sizehint! = sizehint
 
-function shuffle!(r::AbstractRNG, a::AbstractVector)
+import Base.rand
+function rand( rng::AbstractRNG, a::AbstractVector )
+    idx = convert(Int, ceil(rand(rng)*length(a)))
+    return a[idx]
+end
+
+function shuffle!(rng::AbstractRNG, a::AbstractVector)
     for i = length(a):-1:2
-        j = convert(Int, ceil(rand(r)*i))
+        j = convert(Int, ceil(rand(rng)*i))
         a[i], a[j] = a[j], a[i]
     end
     return a

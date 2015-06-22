@@ -1,3 +1,7 @@
+#
+# TYPES
+#
+# Collection of all? abstract types used
 
 typealias AAF AbstractArray{Float64, 2}
 
@@ -8,3 +12,5 @@ abstract AbstractTask
 abstract AbstractTeacher
 abstract AbstractGenerator
 abstract AbstractEvaluator
+abstract AbstractParameter
+abstract AbstractSuccessRating

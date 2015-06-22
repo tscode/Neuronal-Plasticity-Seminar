@@ -1,4 +1,8 @@
+#
+# EVALUATOR
+#
 
+# concrete evaluator type used to grade the performance of networks
 type Evaluator <: AbstractEvaluator
   # configuration
   chunksize::Int
@@ -47,7 +51,8 @@ end
 function calculate_correlation!( evl::Evaluator )
   @assert evl.T == evl.chunksize + 1 "trying to calculate correlation before chunk was filled"
   # now evaluate the collected chunk.
-  # first, we remove a costant phase shift. to do that, we look at the crosscorrelation of expected and received
+  # first, we remove a costant phase shift. to do that, 
+  # we look at the crosscorrelation of expected and received
   # and choose Δt such that it is maximized
   mxsum = -Inf
   dtime = 0
@@ -72,7 +77,7 @@ function calculate_correlation!( evl::Evaluator )
     end
   end
 
-  # just nices variable names
+  # just nice variable names
   evl.timeshift += dtime * dt
   evl.last_result = mxsum / norm(evl.expected) / recvn
   evl.sumcor += evl.last_result
