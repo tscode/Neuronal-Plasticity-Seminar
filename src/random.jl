@@ -10,6 +10,8 @@
 sizehint! = sizehint
 
 import Base.rand
+randbool(rng::AbstractRNG) = rand(rng, Bool[true, false])
+
 function rand( rng::AbstractRNG, a::AbstractVector )
     idx = convert(Int, ceil(rand(rng)*length(a)))
     return a[idx]
