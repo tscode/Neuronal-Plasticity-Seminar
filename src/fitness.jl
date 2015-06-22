@@ -1,6 +1,8 @@
+#
+# FITNESS
+#
 
-abstract AbstractSuccessRating
-
+# A measure for the success of a network
 type SuccessRating <: AbstractSuccessRating
     quota::Float64      # relative number of successfull networks
     quality::Float64    # average quality of the successfull networks
@@ -9,9 +11,12 @@ type SuccessRating <: AbstractSuccessRating
 end
 
 
-# this is the lowest level of fitness test: test a single network with learning rule for a single task
-function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::AbstractTask;
-         learntime = 500, waittime = 1000, evaltime=500, adaptive=true, α=rule.α, fname="")
+# this is the lowest level of fitness test: test a single network for a single task
+function test_fitness_for_task( net::AbstractNetwork, rule::AbstractRule, 
+                                task::AbstractTask;
+                                learntime=500, waittime=1000 , 
+                                evaltime=500,  adaptive=true , 
+                                α=rule.α,      fname=""      )
   # generate the evaluator and the teacher
   # the parameters here are fixed for now: 1000 sec of learning, 100 steps window for evaluation
   if fname != ""
@@ -19,13 +24,15 @@ function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::A
   else
     recorder = REC
   end
-  evl     = Evaluator( 100, 0, net )
-  reset(rule, N = net.num_neurons, α = α)                # reset the network
+  # prepare the learning process
+  evl = Evaluator( 100, 0, net ) # produce an evaluator
+  reset(rule, N = get_num_readout(net), α = α)  # reset the rule
   teacher = Teacher( rule, evl, max_time = learntime, adaptive = adaptive)
 
   # now learn sth :)
   while !teacher.finished
     learn!(net, teacher, task)
+    # record in case that a filename was given
     if fname != ""
         record(recorder, 1, net.time)
         for i = 1:length(net.output)
@@ -37,11 +44,11 @@ function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::A
   # let some time pass
   # we continue to use evaluate
   evaluate(evl, task, waittime, rec=fname != "", recorder=recorder) # TODO input
-
   # now reevaluate
   reset(evl)
   quality = evaluate(evl, task, evaltime, rec=fname != "", recorder=recorder)
 
+  # save the data to file -- if given
   if fname != ""
       data = zeros(size(recorder[1])[1], recorder.num_recs)
       for i in 1:recorder.num_recs
@@ -49,23 +56,24 @@ function test_fitness_for_task(net::AbstractNetwork, rule::AbstractRule, task::A
       end
       writedlm(fname, data)
   end
-
+ 
   return quality, evl.timeshift
 end
 
 
 # test fitness for a generator
-function test_fitness_of_generator(gen::AbstractGenerator; rng::AbstractRNG=MersenneTwister( randseed() ), samples::Int = 25, threshold::Float64 = 0.95)
+function test_fitness_of_generator( gen::AbstractGenerator; rng::AbstractRNG=MersenneTwister(randseed()), 
+                                    samples::Int = 25, threshold::Float64 = 0.95 )
   mean_q = 0.0
   mean_s = 0.0
   success = 0
-  rule = ForceRule( gen.size, 0.1 )
+  rule = ForceRule( α = 1/100 )
   for i = 1:samples
-    task = make_periodic_function_task(gen.num_output, [x->0], rng)
+    task = make_periodic_function_task( gen.num_output, Function[], rng=rng )
     net = generate( gen, seed = randseed(rng) )
     q, s = test_fitness_for_task( net, rule, task )
     if q > threshold
-      # rescale q reltive to threshold
+      # rescale q relative to threshold
       mean_q += (q - threshold) / (1.0 - threshold)
       mean_s += s
       success += 1

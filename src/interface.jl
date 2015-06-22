@@ -1,6 +1,9 @@
+#
+# INTERFACE
+#
 
-## interfaces
-# network interface
+# Collection of interface functions -- not up to date?
+
 function get_num_output(net::AbstractNetwork)
   error("get_num_output(AbstractNetwork) not implemented")
 end
@@ -40,14 +43,21 @@ function learn!( net::AbstractNetwork, teacher::AbstractTeacher, task::AbstractT
 end
 
 # generate network
-function generate(generator::AbstractGenerator, seed::Int64)
-  error("generate(", typeof(generator), "Int64) not implemented")
+function generate(generator::AbstractGenerator; seed::Int64=0)
+  error("generate($(typeof(generator)), $(typeof(seed))) not implemented.")
 end
 
 function reset(rule::AbstractRule)
   error("rule(", typeof(rule), ") not implemented")
 end
 
+function export_params( generator::AbstractGenerator )
+  error("export_params($(typeof(generator))) not implemented")
+end
+
+function import_params!( generator::AbstractGenerator, params )
+  error("import_params($(typeof(generator)), $(typeof(params))) not implemented")
+end
 
 # convenience method for init of random number generators
 function randseed()
@@ -57,11 +67,4 @@ end
 function randseed(rng::AbstractRNG)
 	convert(Uint32, round(rand(rng) * typemax(Uint32)))
 end
-
-# convenience layer if we only want do develop the system
-#=function learn_until!( teacher::AbstractTeacher, net::AbstractNetwork, task::AbstractTask, stop_time::Float64 )=#
-    #=while net.time < stop_time=#
-        #=teach!(teacher, net, task)=#
-    #=end=#
-#=end=#
 

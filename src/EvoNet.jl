@@ -1,12 +1,21 @@
+#
+# EVONET
+#
 
 module EvoNet
 
 # Basic integration step for the network dynamic
 const dt = 0.1
 
+# abstract stuff
 include("types.jl")
 include("interface.jl")
 
+# extra convenience / needed stuff
+include("recorder.jl")
+include("random.jl")
+
+# neuronal stuff
 include("network.jl")
 include("force_rule.jl")
 include("reward_rule.jl")
@@ -17,10 +26,5 @@ include("evaluator.jl")
 include("fitness.jl")
 include("genetics.jl")
 
-# extra convenience stuff
-include("recorder.jl")
-
-# missing sparse matrix function sprandn for julia3
-include("sparsematrix.jl")
 
 end # module EvoNet
