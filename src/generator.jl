@@ -49,7 +49,7 @@ function SparseFRGenerator(size::Int, p::Float64;
                               num_input::Integer=0, num_output::Integer=1,
                               gain::Real=1.2, feedback::Real=2, α::Function=tanh)
   return SparseLRGenerator(size, p, num_input=num_input, num_output=num_output,
-                           num_readout = size, gain = gain, feedback = feedback, α = α)
+                           num_readout = -1, gain = gain, feedback = feedback, α = α)
 end
 
 # Generate a concrete, random network (phenotype) using the generator (genotype)
@@ -61,6 +61,8 @@ function generate(gen::SparseLRGenerator; seed::Integer = randseed())   ## TO BE
   gain     = gen.params[2].val
   N        = gen.params[3].val
   feedback = gen.params[4].val
+  num_readout = gen.num_readout < 0 ? N : gen.num_readout
+
   # internal connections: sparse, normal distributed
   ω_r = sprandn(rng, N, N, p) * gain / sqrt(N * p)
   # input weights
@@ -68,7 +70,7 @@ function generate(gen::SparseLRGenerator; seed::Integer = randseed())   ## TO BE
   # feedback connections: [-fb/2 ... fb/2]
   ω_f = feedback * (rand(rng, N, gen.num_output) - 0.5)
   # output (readout) weights
-  ω_o = 1randn(rng, gen.num_output, gen.num_readout)
+  ω_o = 1randn(rng, gen.num_output, num_readout)
   # initial values for the internal state and the output of the neurons
   neuron_in  = 0.5randn(rng, N)
   neuron_out = gen.α(neuron_in)
@@ -79,13 +81,13 @@ function generate(gen::SparseLRGenerator; seed::Integer = randseed())   ## TO BE
   # TODO, for more than x%, sparse readout actually hurts performance: find x
   #       and adapt the condition here
 
-  if gen.num_readout == N
+  if num_readout >= N
     # generate the network
     return Network{typeof(ω_r)}( ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out,
                                   output, gen.α, 0 )
   else
     # neurons 1 to generator.num_readout shall be used for the readout
-    output_neurons = collect(1:gen.num_readout)
+    output_neurons = collect(1:num_readout)
     # generate the network
     return LRNetwork{typeof(ω_r)}( ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out,
                                   output, output_neurons, gen.α, 0 )
