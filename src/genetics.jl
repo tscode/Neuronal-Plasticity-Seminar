@@ -10,6 +10,8 @@ type GeneticOptimizer
   compare::Function     # maps AbstractGenerator², RNG → bool,
                         # returns true if first arg is better than second
 
+  samples::Integer      # number of samples to take when evaluating the generators
+
   generation::Int       # counts the number of generations that have been simulated
   recorder::Recorder    # records genotype information
   rng::AbstractRNG      # an own rng for deterministic results
@@ -19,14 +21,14 @@ type GeneticOptimizer
                              population::Vector{AbstractGenerator}=AbstractGenerator[],
                              success::Vector{AbstractSuccessRating}=AbstractSuccessRating[],
                              seed::Uint32 = randseed() )
-      new( population, success, fitness, compare, 0, Recorder(), MersenneTwister(seed) )
+      new( population, success, fitness, compare, 10, 0, Recorder(), MersenneTwister(seed) )
   end
 end
 
 # function to calculate the success values as fast as possible in parallel
 # ATTENTION: Usage of this function makes it necessary to start julia appropriately
 # for several processes
-function rate_population_parallel(opt::GeneticOptimizer; seed::Integer=randseed(), samples = 25)
+function rate_population_parallel(opt::GeneticOptimizer; seed::Integer=randseed(), samples = opt.samples)
   rng = MersenneTwister(seed)
   gene_tuples = [ (gene, randseed(rng)) for gene in opt.population ]
   return AbstractSuccessRating[ succ for succ in pmap( x -> opt.fitness(x[1],
@@ -71,14 +73,25 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
 
   # record survivor performance. it is not so nice that we have to do that here.
   mean_success = Float64[0.0, 0.0, 0.0]
+  squared_success = Float64[0.0, 0.0, 0.0]
   for i = 1:length(survivors)
     succ = Float64[success[i].quota, success[i].quality, success[i].timeshift]
     pars = Float64[p.val for p in export_params(survivors[i])]
     record(opt.recorder, 1, vcat([opt.generation], succ, pars))
 
     mean_success += succ
+    squared_success += succ .* succ
   end
   mean_success /= length(survivors)
+  squared_success /= length(survivors)
+  variance = squared_success - mean_success.*mean_success
+
+  # estimate number of samples needed
+  # error of sampling: es ~ p(1-p)/sqrt(N) => sqrt(N) = p(1-p)/sqrt(variance)
+  # we want error < third of variance, thus factor 9
+  req = round(9*(mean_success[1] * (1-mean_success[1]) / sqrt(variance[1]))^2)
+  opt.samples = max(20, int(req))
+  println(req)
   println(mean_success)
 
   # two stage population generation:
