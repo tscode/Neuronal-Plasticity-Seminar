@@ -28,9 +28,9 @@ end
 # function to calculate the success values as fast as possible in parallel
 # ATTENTION: Usage of this function makes it necessary to start julia appropriately
 # for several processes
-function rate_population_parallel(opt::GeneticOptimizer; seed::Integer=randseed(), samples = opt.samples)
+function rate_population_parallel(opt::GeneticOptimizer; seed::Integer=randseed(), samples = opt.samples, pop = opt.population)
   rng = MersenneTwister(seed)
-  gene_tuples = [ (gene, randseed(rng)) for gene in opt.population ]
+  gene_tuples = [ (gene, randseed(rng)) for gene in pop ]
   return AbstractSuccessRating[ succ for succ in pmap( x -> opt.fitness(x[1],
                                                        rng=MersenneTwister(x[2]), samples=samples),
                                                        gene_tuples ) ]
@@ -88,26 +88,17 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
 
   # estimate number of samples needed
   # error of sampling: es ~ p(1-p)/sqrt(N) => sqrt(N) = p(1-p)/sqrt(variance)
-  # we want error < third of variance, thus factor 9
-  req = round(9*(mean_success[1] * (1-mean_success[1]) / sqrt(variance[1]))^2)
-  opt.samples = max(20, int(req))
+  # we want error < half of variance, thus factor 4
+  req = round(4*(mean_success[1] * (1-mean_success[1]) / sqrt(variance[1]))^2)
+  opt.samples = clamp(int(req), 25, 50)
   println(req)
   println(mean_success)
 
   # two stage population generation:
   newborns = calculate_next_generation(opt.rng, survivors, 2*length(opt.population) )
-  NUM_SAMPLES = 4
-  nb_rating = rate_population_parallel(opt, seed=randseed(opt.rng), samples = NUM_SAMPLES) # only do a few samples
-  N = length(opt.population)
-  opt.population = AbstractGenerator[]
+  opt.population = infancy_death(opt, newborns, length(opt.population))
 
-  linear_scores = [s.quota * NUM_SAMPLES + s.quality for s in nb_rating]
-  while length(opt.population) < N
-    best = indmax(linear_scores)
-    linear_scores[best] = -1 # this one is used
-    push!(opt.population, newborns[best])
-  end
-
+  # re evaluate new nets
   opt.success = rate_population_parallel(opt, seed=randseed(opt.rng))
 
   opt.generation += 1
@@ -129,6 +120,40 @@ function calculate_next_generation( rng::AbstractRNG, parents::Vector{AbstractGe
   end
 
   return offspring
+end
+
+function infancy_death(opt::GeneticOptimizer, infants::Vector{AbstractGenerator}, N::Integer)
+  survivors = infants
+  survivor_rating = AbstractSuccessRating[]
+  NUM_SAMPLES = 0
+
+  while true
+    # do another sample and mix with previous results
+    nb_rating = rate_population_parallel(opt, seed=randseed(opt.rng), samples = 1, pop=survivors) # only do a few samples
+    if length(survivor_rating) != 0
+      nb_rating .+= survivor_rating
+    end
+    NUM_SAMPLES += 1
+
+    # reset survivors and their ratings, initialise linearized score
+    infants = deepcopy(survivors)
+    survivors = AbstractGenerator[]
+    survivor_rating = AbstractSuccessRating[]
+    linear_scores = [s.quota * NUM_SAMPLES + s.quality for s in nb_rating]
+
+    # take the N best networks
+    while length(survivors) < N
+      best = indmax(linear_scores)
+      linear_scores[best] = -1 # this one is used
+      push!(survivors, infants[best])
+      push!(survivor_rating, nb_rating[best])
+    end
+
+    # take a look at the last survivors rating. if it includes failed trials, we are finished
+    if survivor_rating[end].quota < 1
+      return survivors # would be cool if we could reuse the samples we did here
+    end
+  end
 end
 
 function recombine( rng::AbstractRNG, A::AbstractGenerator, B::AbstractGenerator )
