@@ -10,6 +10,14 @@ type SuccessRating <: AbstractSuccessRating
     samples::Int        # number of samples used to calculate the rating
 end
 
+# Sum of two success ratings is their weighted average
+function +(A::SuccessRating, B::SuccessRating)
+  va = Float64[A.quota, A.quality, A.timeshift]
+  vb = Float64[B.quota, B.quality, B.timeshift]
+  r = (va*A.samples + vb*B.samples)/(A.samples + B.samples)
+  return SuccessRating( r[1], r[2], r[3], A.samples + B.samples )
+end
+
 
 # this is the lowest level of fitness test: test a single network for a single task
 function test_fitness_for_task( net::AbstractNetwork, rule::AbstractRule,
@@ -62,7 +70,7 @@ end
 
 
 # test fitness for a generator
-function test_fitness_of_generator( gen::AbstractGenerator; rng::AbstractRNG=MersenneTwister(randseed()), 
+function test_fitness_of_generator( gen::AbstractGenerator; rng::AbstractRNG=MersenneTwister(randseed()),
                                     samples::Int = 25, threshold::Float64 = 0.95, adaptive::Bool=true )
   mean_q = 0.0
   mean_s = 0.0
