@@ -20,7 +20,7 @@ type GeneticOptimizer
   function GeneticOptimizer( fitness::Function, compare::Function;
                              population::Vector{AbstractGenerator}=AbstractGenerator[],
                              success::Vector{AbstractSuccessRating}=AbstractSuccessRating[],
-                             seed::Uint32 = randseed() )
+                             seed::Integer = randseed() )
       new( population, success, fitness, compare, 10, 0, Recorder(), MersenneTwister(seed) )
   end
 end

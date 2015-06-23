@@ -14,3 +14,5 @@ abstract AbstractGenerator
 abstract AbstractEvaluator
 abstract AbstractParameter
 abstract AbstractSuccessRating
+abstract AbstractChallenge
+abstract AbstractEnvironment

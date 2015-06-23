@@ -68,15 +68,66 @@ function test_fitness_for_task( net::AbstractNetwork, rule::AbstractRule,
   return quality, evl.timeshift
 end
 
+# test the fitness of a generator in a given environment
+function fitness_in_environment( gen::AbstractGenerator; samples::Int = 25,
+                                 rng::AbstractRNG=MersenneTwister(randseed()),
+                                 env::AbstractEnvironment=default_environment(),
+                                 threshold::Float64 = 0.95, adaptive::Bool=true )
+    # variables for the mean quality and the timeshifts of the samples / phenotypes
+    mean_qual  = 0.
+    mean_shift = 0.
+    # number of successful samples / phenotypes
+    num_success = 0.
+    # empty rule; what to do with α?
+    rule = ForceRule( α = 1/100 )
+    # how many challenges may occur in the environment
+    num_challenges = length(env.challenges)
+    # now let the epic fight for predomination of phenotypes begin. Go
+    # through the samples, choose challenges, get concrete tasks and use
+    # these to evaluate the performance / fitness
+    for i in 1:samples
+      # the challenge number for this sample
+      j = (i-1) % (num_challenges) + 1
+      # the chosen challenge
+      ch = env.challenges[j]
+      # the specific task for this challenge
+      task = get_task(ch, rng=rng)
+      # generate a network that is specialized for the right number of
+      # output/input channels
+      net = generate( gen, seed = randseed(rng), 
+                      num_output = length(task.ofuncs),
+                      num_input = length(task.ifuncs) )
+      # perform the actual test
+      qual, shift = test_fitness_for_task( net, rule, task, adaptive=adaptive )
+      # 
+      if qual > threshold
+        # linearly rescale quality to region [threshold, 1]
+        mean_qual   += (qual - threshold) / (1.0 - threshold)
+        mean_shift  += shift
+        num_success += 1
+      end
+  end
+  # if no sample succeded
+  if num_success == 0
+    return SuccessRating(0, 0, 0, samples)
+  end
+  # if at least one sample succeded
+  mean_qual  /= num_success
+  mean_shift /= num_success
+  # 
+  return SuccessRating( num_success/samples, mean_qual, mean_shift, samples )
+end
 
 # test fitness for a generator
-function test_fitness_of_generator( gen::AbstractGenerator; rng::AbstractRNG=MersenneTwister(randseed()),
-                                    samples::Int = 25, threshold::Float64 = 0.95, adaptive::Bool=true )
+function test_fitness_of_generator( gen::AbstractGenerator; samples::Int = 25,
+                                    rng::AbstractRNG=MersenneTwister(randseed()),
+                                    env::AbstractEnvironment=default_environment(),
+                                    threshold::Float64 = 0.95, adaptive::Bool=true )
   mean_q = 0.0
   mean_s = 0.0
   success = 0
   rule = ForceRule( α = 1/100 )
-  for i = 1:samples
+  for i in 1:samples
     net = generate( gen, seed = randseed(rng) )
     task = make_periodic_function_task( get_num_output(net), Function[], rng=rng )
     q, s = test_fitness_for_task( net, rule, task, adaptive=adaptive )
