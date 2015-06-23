@@ -44,7 +44,7 @@ end
 # "fake" constructor for SparseGenerator: use LR with full readout
 function SparseFRGenerator( size::Int, p::Float64;
                             gain::Real=1.2, feedback::Real=2, α::Function=tanh )
-  return SparseLRGenerator( size, p, frac_readout = -1, gain = gain, 
+  return SparseLRGenerator( size, p, frac_readout = -1, gain = gain,
                             feedback = feedback, α = α )
 end
 
@@ -110,7 +110,7 @@ end
 # import parameters in a network
 function import_params!(gen::SparseLRGenerator, params::Vector{AbstractParameter})  ## TO BE GENERALIZED
   # check if the format of the parameters to be imported is suitable
-  @assert length(params) == length(gen.params) "wrong length of vector of parameters"
+  @assert length(params) == length(gen.params) "wrong length of vector of parameters $params vs $(gen.params)"
   for i in 1:length(params)
       @assert gen.params[i].name == params[i].name "parameters to be imported do not fit"
   end

@@ -17,7 +17,7 @@ function rand( rng::AbstractRNG, a::AbstractVector )
     return a[idx]
 end
 
-function choice( rng::AbstractRNG, elem::AbstractVector, p::Vector{Real})
+function choice( rng::AbstractRNG, elem::AbstractVector, p::Vector{Float64})
   #@assert(sum[p] == 1)
   @assert(length(elem) == length(p))
 
@@ -29,6 +29,13 @@ function choice( rng::AbstractRNG, elem::AbstractVector, p::Vector{Real})
       return elem[i]
     end
   end
+end
+
+function startswith(str::ASCIIString, beg::ASCIIString)
+  if length(beg) > length(str)
+    return false
+  end
+  return str[1:length(beg)] == beg
 end
 
 function shuffle!(rng::AbstractRNG, a::AbstractVector)

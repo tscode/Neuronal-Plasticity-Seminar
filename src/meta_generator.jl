@@ -8,7 +8,7 @@ type MetaGenerator <: AbstractGenerator
   metaparam::MetaCombinationParam
   common_params::Vector{ASCIIString}
 
-  function MetaGenerator( gens::Vector{AbstractGenerator}; p::Vector{Float64} = [1/length(gens) for i=1:length(gens)] , commmon_params = ASCIIString[] )
+  function MetaGenerator( gens::Vector{AbstractGenerator}; p::Vector{Float64} = [1/length(gens) for i=1:length(gens)] , common_params = ASCIIString["size"] )
     @assert sum(p) == 1
     new(gens, MetaCombinationParam("meta_strengths", p), common_params)
   end
@@ -24,7 +24,7 @@ function random_param( param::MetaCombinationParam, rng::AbstractRNG; s::Real = 
   new_val /= sum(new_val)
 
   # Check if the new value is within the boundaries and return new param
-  return Parameter{Float64}(param.name, new_val)
+  return MetaCombinationParam(param.name, new_val)
 end
 
 
@@ -48,7 +48,7 @@ function generate( gen::MetaGenerator; seed::Integer = randseed(),
 
   # iterate over whole matrix
   @inbounds for x = 1:size(nets[1].ω_r)[1], y = 1:size(nets[1].ω_r)[2]
-    nets[1].ω_r[x, y] = choice(rng, [nets[i].ω_r[x, y] for i in 1:length(nets)], metaparam.val)
+    nets[1].ω_r[x, y] = choice(rng, [nets[i].ω_r[x, y] for i in 1:length(nets)], gen.metaparam.val)
   end
 
   return nets[1]
@@ -63,13 +63,13 @@ function export_params( gen::MetaGenerator )
     pars = export_params(g)
     for p in pars
       if !(p.name in gen.common_params)
-        p.name = string(typeof(g)) * p.name
+        p.name = string(typeof(g)) * ":" * p.name
       end
 
       unique = true
       for s in all_params
         if s.name == p.name
-          @assert s.val = p.val
+          @assert s.val == p.val
           unique = false
         end
       end
@@ -78,7 +78,7 @@ function export_params( gen::MetaGenerator )
       end
     end
   end
-  push!(all_params, metaparam)
+  push!(all_params, gen.metaparam)
   return all_params
 end
 
@@ -92,7 +92,7 @@ function import_params!(gen::MetaGenerator, params::Vector{AbstractParameter})
       if p.name in gen.common_params
         push!(pog, p)
       elseif startswith(p.name, string(typeof(g)))
-        p.name = replace(p.name, string(typeof(g)), "")
+        p.name = replace(p.name, string(typeof(g)) * ":", "")
         push!(pog, p)
       end
     end
