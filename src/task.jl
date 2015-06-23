@@ -5,7 +5,7 @@
 #
 type FunctionTask <: AbstractTask
   time::Float64            # current time
-  funcs::Array{Function}   # collection of functions
+  ofuncs::Array{Function}   # collection of functions
   ifuncs::Array{Function}  # collection of input functions
   expected::Array{Float64} # function values; are the expected values
   input::Array{Float64}    # inputs for the network
@@ -15,14 +15,14 @@ type FunctionTask <: AbstractTask
                            # and input are deterministic
   rng::AbstractRNG         # randomness source for this task
 
-  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}; 
+  function FunctionTask( ofuncs::Array{Function}, ifuncs::Array{Function}; 
                          fluctuations = 0.0, seed=0 )
-    new( 0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), 
+    new( 0, ofuncs, ifuncs,  zeros(length(ofuncs)), zeros(length(ifuncs)), 
          fluctuations, false, MersenneTwister(seed) )
   end
-  function FunctionTask( funcs::Array{Function}, ifuncs::Array{Function}; 
+  function FunctionTask( ofuncs::Array{Function}, ifuncs::Array{Function}; 
                          rng::AbstractRNG=MersenneTwister(randseed()), fluctuations = 0.0 )
-    new( 0, funcs, ifuncs,  zeros(length(funcs)), zeros(length(ifuncs)), 
+    new( 0, ofuncs, ifuncs,  zeros(length(ofuncs)), zeros(length(ifuncs)), 
          fluctuations, false, rng )
   end
 end
@@ -30,11 +30,11 @@ end
 
 function prepare_task!( task::FunctionTask, time::Real, deterministic::Bool) # usually only called by teacher
   # generate expected output
-  for i in 1:length(task.funcs)
+  for i in 1:length(task.ofuncs)
       if deterministic
-        task.expected[i] = task.funcs[i](time)
+        task.expected[i] = task.ofuncs[i](time)
       else
-        task.expected[i] = task.funcs[i](time) + randn(task.rng) * task.fluctuations
+        task.expected[i] = task.ofuncs[i](time) + randn(task.rng) * task.fluctuations
       end
   end
   #!TODO would it make sense to leave the input noisy but test for noiseless output. prly yes

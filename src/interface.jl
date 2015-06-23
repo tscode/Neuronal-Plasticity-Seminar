@@ -68,3 +68,6 @@ function randseed(rng::AbstractRNG)
 	convert(Uint32, round(rand(rng) * typemax(Uint32)))
 end
 
+function create_task( tc::AbstractChallenge; rng::AbstractRNG=MersenneTwister(randseed()) ) #-> AbstractTask
+    error("create_task($(typeof(tc))), $(typeof(seed)) not implemented")
+end

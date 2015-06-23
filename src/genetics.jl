@@ -14,6 +14,7 @@ type GeneticOptimizer
 
   samples::Integer      # number of samples to take when evaluating the generators
 
+  env::AbstractEnvironment # the environment that the optimizer has to work in
   generation::Int       # counts the number of generations that have been simulated
   recorder::Recorder    # records genotype information
   rng::AbstractRNG      # an own rng for deterministic results
@@ -22,19 +23,23 @@ type GeneticOptimizer
   function GeneticOptimizer( fitness::Function, compare::Function;
                              population::Vector{AbstractGenerator}=AbstractGenerator[],
                              success::Vector{AbstractSuccessRating}=AbstractSuccessRating[],
-                             seed::Uint32 = randseed() )
-      new( population, success, fitness, compare, 50, 0, Recorder(), MersenneTwister(seed) )
+                             env::AbstractEnvironment=default_environment(),
+                             seed::Integer = randseed() )
+      new( population, success, fitness, compare, 50, env, 0, Recorder(), MersenneTwister(seed) )
   end
 end
 
 # function to calculate the success values as fast as possible in parallel
 # ATTENTION: Usage of this function makes it necessary to start julia appropriately
 # for several processes
-function rate_population_parallel(opt::GeneticOptimizer; seed::Integer=randseed(), samples = opt.samples, pop = opt.population)
+function rate_population_parallel( opt::GeneticOptimizer; seed::Integer=randseed(), 
+                                   samples = opt.samples, pop = opt.population )
   rng = MersenneTwister(seed)
   gene_tuples = [ (gene, randseed(rng)) for gene in pop ]
   return AbstractSuccessRating[ succ for succ in pmap( x -> opt.fitness(x[1],
-                                                       rng=MersenneTwister(x[2]), samples=samples),
+                                                            rng=MersenneTwister(x[2]), 
+                                                            samples=samples,
+                                                            env=opt.env),
                                                        gene_tuples ) ]
 end
 
