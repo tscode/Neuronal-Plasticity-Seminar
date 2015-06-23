@@ -17,6 +17,20 @@ function rand( rng::AbstractRNG, a::AbstractVector )
     return a[idx]
 end
 
+function choice( rng::AbstractRNG, elem::AbstractVector, p::Vector{Real})
+  #@assert(sum[p] == 1)
+  @assert(length(elem) == length(p))
+
+  r = rand(rng)
+
+  cp::Float64 = 0
+  @inbounds for i = 1:length(cp)
+    if r < (cp += p[i])
+      return elem[i]
+    end
+  end
+end
+
 function shuffle!(rng::AbstractRNG, a::AbstractVector)
     for i = length(a):-1:2
         j = convert(Int, ceil(rand(rng)*i))
