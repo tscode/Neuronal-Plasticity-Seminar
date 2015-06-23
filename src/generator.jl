@@ -22,15 +22,12 @@ type SparseLRGenerator <: AbstractGenerator
   #              3: size
   #              4: feedback
 
-  num_input::Int64		# number of input channels
-  num_output::Int64		# number of output channels
-  num_readout::Int64    # number of neurons used to produce the output
-  α::Function           # activation function
+  frac_readout::Float64  # number of neurons used to produce the output
+  α::Function            # activation function
 
   # default constructor
   function SparseLRGenerator( size::Int, p::Float64;
-                              num_input::Integer=0, num_output::Integer=1,
-                              num_readout::Integer=div(size,2),
+                              frac_readout::Real=0.5,
                               gain::Real=1.2, feedback::Real=2, α::Function=tanh )
     # some checks
     @assert 0 < p <= 1 "p is a connection probability, thus 0 < p <= 1"
@@ -40,20 +37,20 @@ type SparseLRGenerator <: AbstractGenerator
                                 Parameter{Int}(     "size",       1,   typemax(Int),     size     ) ,
                                 Parameter{Float64}( "feedback",   0.0, typemax(Float64), feedback ) ]
     # plug everthing in
-    return new( params, num_input, num_output, num_readout, α )
+    return new( params, frac_readout, α )
   end
 end
 
 # "fake" constructor for SparseGenerator: use LR with full readout
-function SparseFRGenerator(size::Int, p::Float64;
-                              num_input::Integer=0, num_output::Integer=1,
-                              gain::Real=1.2, feedback::Real=2, α::Function=tanh)
-  return SparseLRGenerator(size, p, num_input=num_input, num_output=num_output,
-                           num_readout = -1, gain = gain, feedback = feedback, α = α)
+function SparseFRGenerator( size::Int, p::Float64;
+                            gain::Real=1.2, feedback::Real=2, α::Function=tanh )
+  return SparseLRGenerator( size, p, frac_readout = -1, gain = gain, 
+                            feedback = feedback, α = α )
 end
 
 # Generate a concrete, random network (phenotype) using the generator (genotype)
-function generate(gen::SparseLRGenerator; seed::Integer = randseed())   ## TO BE GENERALIZED
+function generate( gen::SparseLRGenerator; seed::Integer = randseed(),
+                   num_input::Integer=0, num_output::Integer=1 )   ## TO BE GENERALIZED
   # initialize an rng by the given seed
   rng = MersenneTwister(seed)
   # convenience variables
@@ -61,28 +58,39 @@ function generate(gen::SparseLRGenerator; seed::Integer = randseed())   ## TO BE
   gain     = gen.params[2].val
   N        = gen.params[3].val
   feedback = gen.params[4].val
-  num_readout = gen.num_readout < 0 ? N : gen.num_readout
+  # check which readout situation we have. if frac_readout == -1 then
+  # we assume that a full readout network shall be created. In all other
+  # cases a limited readout network is created instead
+  if gen.frac_readout == -1 || gen.frac_readout == 1
+      full_readout = true
+      num_readout = N
+  elseif 0 < gen.frac_readout < 1
+      full_readout = false
+      num_readout = convert( Int, round(gen.frac_readout*N) )
+  else
+      error("the readout fraction must be > 0 and <= 1")
+  end
 
   # internal connections: sparse, normal distributed
   ω_r = sprandn(rng, N, N, p) * gain / sqrt(N * p)
   # input weights
-  ω_i = 1randn(rng, N, gen.num_input)
+  ω_i = 1randn(rng, N, num_input)
   # feedback connections: [-fb/2 ... fb/2]
-  ω_f = feedback * (rand(rng, N, gen.num_output) - 0.5)
+  ω_f = feedback * (rand(rng, N, num_output) - 0.5)
   # output (readout) weights
-  ω_o = 1randn(rng, gen.num_output, num_readout)
+  ω_o = 1randn(rng, num_output, num_readout)
   # initial values for the internal state and the output of the neurons
   neuron_in  = 0.5randn(rng, N)
   neuron_out = gen.α(neuron_in)
   # should readout be consistent with neuron_in?
-  output = 2randn( rng, gen.num_output )
+  output = 2randn( rng, num_output )
 
   # if we have full readout, use full readout network, else sparse readout
   # TODO, for more than x%, sparse readout actually hurts performance: find x
   #       and adapt the condition here <-- this should be fixed as LR networks
   #       are really fast now
 
-  if num_readout >= N
+  if full_readout
     # generate a full readout network
     return Network{typeof(ω_r)}( ω_r, ω_i, ω_f, ω_o, neuron_in, neuron_out,
                                  output, gen.α, 0 )

@@ -69,8 +69,8 @@ function test_fitness_of_generator( gen::AbstractGenerator; rng::AbstractRNG=Mer
   success = 0
   rule = ForceRule( α = 1/100 )
   for i = 1:samples
-    task = make_periodic_function_task( gen.num_output, Function[], rng=rng )
     net = generate( gen, seed = randseed(rng) )
+    task = make_periodic_function_task( get_num_output(net), Function[], rng=rng )
     q, s = test_fitness_for_task( net, rule, task, adaptive=adaptive )
     if q > threshold
       # rescale q relative to threshold
