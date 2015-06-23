@@ -113,14 +113,6 @@ function compare_fitness(v1::SuccessRating, v2::SuccessRating, rng::AbstractRNG)
     return v1.quota > v2.quota
   end
 
-  # othwerwise, more elaborate mesures are required
-  err = 0.5 / sqrt(v1.samples) + 0.5/sqrt(v2.samples)
-  if v1.quota > v2.quota + err
-    return true
-  elseif v2.quota > v1.quota + err
-    return false
-  end
-
   # ok, almost identical success rate, now compare both success and quality
-  return v1.quota + v1.quality > v2.quota + v2.quality
+  return 2*v1.quota + v1.quality > 2*v2.quota + v2.quality
 end

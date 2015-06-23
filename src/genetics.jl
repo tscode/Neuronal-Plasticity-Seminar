@@ -2,6 +2,8 @@
 # GENETICS
 #
 
+#const MIN_SAMPLES::Int = 50
+
 type GeneticOptimizer
   population::Vector{AbstractGenerator}   # vector of generators, all different genotypes
   success::Vector{AbstractSuccessRating}  # holds the current success ratings
@@ -21,7 +23,7 @@ type GeneticOptimizer
                              population::Vector{AbstractGenerator}=AbstractGenerator[],
                              success::Vector{AbstractSuccessRating}=AbstractSuccessRating[],
                              seed::Uint32 = randseed() )
-      new( population, success, fitness, compare, 10, 0, Recorder(), MersenneTwister(seed) )
+      new( population, success, fitness, compare, 50, 0, Recorder(), MersenneTwister(seed) )
   end
 end
 
@@ -44,7 +46,7 @@ function init_population!( opt::GeneticOptimizer, base_element::AbstractGenerato
   params = export_params( base_element ) # Vector of AbstractParameters
   # randomize the generators in the population (genome-pool)
   for gen in opt.population
-    import_params!( gen, AbstractParameter[random_param(p, opt.rng, s = 5 ) for p in params] )
+    import_params!( gen, AbstractParameter[random_param(p, opt.rng, s = 0.5 ) for p in params] )
   end
   # calculate the initial success rates
   opt.success = rate_population_parallel(opt, seed=randseed(opt.rng))
@@ -53,6 +55,10 @@ end
 function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
   # provide the impatient programmer with some information
   println("processing generation $(opt.generation)")
+
+  #
+  mean_success, variance = record_population(opt.recorder, opt.population, opt.success, opt.generation)
+
   # collection of all generators that survive
   survivors = AbstractGenerator[]
   success = AbstractSuccessRating[]
@@ -71,27 +77,12 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
     end
   end
 
-  # record survivor performance. it is not so nice that we have to do that here.
-  mean_success = Float64[0.0, 0.0, 0.0]
-  squared_success = Float64[0.0, 0.0, 0.0]
-  for i = 1:length(survivors)
-    succ = Float64[success[i].quota, success[i].quality, success[i].timeshift]
-    pars = Float64[p.val for p in export_params(survivors[i])]
-    record(opt.recorder, 1, vcat([opt.generation], succ, pars))
-
-    mean_success += succ
-    squared_success += succ .* succ
-  end
-  mean_success /= length(survivors)
-  squared_success /= length(survivors)
-  variance = squared_success - mean_success.*mean_success
-
   # estimate number of samples needed
   # error of sampling: es ~ p(1-p)/sqrt(N) => sqrt(N) = p(1-p)/sqrt(variance)
   # we want error < half of variance, thus factor 4
   req = round(4*(mean_success[1] * (1-mean_success[1]) / sqrt(variance[1]))^2)
-  opt.samples = clamp(int(req), 25, 50)
   println(req)
+  opt.samples = int(clamp(req, 50, 2*50))
   println(mean_success)
 
   # two stage population generation:
@@ -104,6 +95,25 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
   opt.generation += 1
 end
 
+# writes info about a population
+function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractSuccessRating}, generation::Integer)
+   # collect info about all gens
+  mean_success = Float64[0.0, 0.0, 0.0]
+  squared_success = Float64[0.0, 0.0, 0.0]
+  for i = 1:length(pop)
+    succ = Float64[suc[i].quota, suc[i].quality, suc[i].timeshift]
+    pars = Float64[p.val for p in export_params(pop[i])]
+    record(rec, 1, vcat([generation], succ, pars))
+
+    mean_success += succ
+    squared_success += succ .* succ
+  end
+  mean_success /= length(pop)
+  squared_success /= length(pop)
+  variance = squared_success - mean_success.*mean_success
+
+  return mean_success, variance
+end
 
 function calculate_next_generation( rng::AbstractRNG, parents::Vector{AbstractGenerator}, N::Integer)
   offspring = AbstractGenerator[]
@@ -188,17 +198,17 @@ function mutate( rng::AbstractRNG, source::AbstractGenerator ) ## TO BE GENERALI
 end
 
 # create a new "mutated" parameter based on a given one
-function random_param( param::Parameter{Int}, rng::AbstractRNG; s::Real = 1. )
+function random_param( param::Parameter{Int}, rng::AbstractRNG; s::Real = 0.1 )
   # Obtain new parameter values by relative changes of +-0.1*s
-  new_val = convert(Int, round( param.val * (rand(rng)*0.2*s + 1 - 0.2*s*0.5) ))
+  new_val = convert(Int, round( param.val * (1.0 + randn(rng) * s) ))
   # Check if the new value is within the boundaries
   return Parameter{Int}(param.name, param.min, param.max, clamp(new_val, param.min, param.max))
 end
 
 
-function random_param( param::Parameter{Float64}, rng::AbstractRNG; s::Real = 1. )
+function random_param( param::Parameter{Float64}, rng::AbstractRNG; s::Real = 0.1 )
   # Obtain new parameter values by relative changes of +-0.1*s
-  new_val = param.val * (rand(rng)*0.2*s + 1 - 0.2*s*0.5) #  0.9 ... 1.1 is default
+  new_val = param.val * (1.0 + randn(rng) * s) #  0.9 ... 1.1 is default
   # Check if the new value is within the boundaries and return new param
   return Parameter{Float64}(param.name, param.min, param.max, clamp(new_val, param.min, param.max))
 end
