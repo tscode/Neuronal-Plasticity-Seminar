@@ -75,8 +75,8 @@ macro MakeMeta(N, T)
         for p in params
           if p.name in gen.common_params
             push!(pog, p)
-          elseif startswith(p.name, string(typeof(g)))
-            p.name = replace(p.name, string(typeof(g)) * ":", "")
+          elseif startswith(p.name, utf8(string(typeof(g))))
+            p.name = replace(p.name, utf8(string(typeof(g)) * ":"), "")
             push!(pog, p)
           end
         end
