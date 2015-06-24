@@ -58,7 +58,7 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
   #mean_success, variance = record_population(opt.recorder, opt.population, opt.success, opt.generation)
 
   # collection of all generators that survive
-  survivors = fight_till_death(opt, opt.population, opt.rng, opt.compare)
+  survivors = fight_till_death(opt, opt.population)
 
   # two stage population generation:
   newborns = calculate_next_generation(opt.rng, survivors, 2*length(opt.population) )
@@ -68,13 +68,15 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
 end
 
 # lets the members of a population fight
-function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGenerator}, rng::AbstractRNG, compare::Function )
+function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGenerator};
+                          rng::AbstractRNG = opt.rng, compare::Function = opt.compare,
+                          reduction_rate::Float64 = 0.9, max_samples = 100
+                          )
    # collection of all generators that survive
-  survivors = AbstractGenerator[]
-  success = rate_population_parallel(opt, seed=randseed(opt.rng), pop = population, samples = 20)
+  success = rate_population_parallel(opt, seed=randseed(rng), pop = population, samples = 20)
   samples = 20
   mean, stddev = mean_success(success)
-  while(samples < 2*50)
+  while(samples < max_samples)
     req1 = ceil(4*(mean * (1-mean) / stddev)^2) # first criterion: error
     req2 = 0
     if mean > 0.5
@@ -87,7 +89,7 @@ function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGen
     end
     if samples < max(req1, req2)
       println("mean $(mean)±$(stddev) → $(samples + 10) samples, estimating $(req1) / $(req2) total")
-      success += rate_population_parallel(opt, seed=randseed(opt.rng), pop = population, samples = 10)
+      success += rate_population_parallel(opt, seed=randseed(rng), pop = population, samples = 10)
       mean, stddev = mean_success(success)
       samples += 10
     else
@@ -98,19 +100,31 @@ function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGen
   # it is not really nice to record here :(
   record_population(opt.recorder, population, success, opt.generation)
 
-  # random order for comparison
-  order = shuffle( rng, collect(1:length(population)) )
+  wins = zeros(length(population))
+  NUM_FIGHTS = 10
+  for i = 1:NUM_FIGHTS
+    # random order for comparison
+    order = shuffle( rng, collect(1:length(population)) )
 
-  # fight: just compare the old fitnesses
-  for i = 2:2:length(population)
-    if opt.compare( success[order[i-1]], success[order[i]], rng )
-      push!(survivors, population[order[i-1]])
-    else
-      push!(survivors, population[order[i]])
+    # fight: just compare the old fitnesses
+    for i = 2:2:length(population)
+      if compare( success[order[i-1]], success[order[i]], rng )
+        wins[order[i-1]] += 1
+      else
+        wins[order[i]] += 1
+      end
     end
   end
 
-  return survivors
+  num_survivors = ceil(length(population) * (1.0 - reduction_rate) )
+  survivors = AbstractGenerator[]
+  for i = 1:num_survivors
+    index = indmax(wins)
+    push!(survivors, population[index]  )
+    wins[index] = 0 # prevent double selection
+  end
+
+  return shuffle(rng, survivors) # make sure they are not ordered in any particular way
 end
 
 
