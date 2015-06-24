@@ -10,6 +10,8 @@ const dt = 0.1
 # abstract stuff
 include("types.jl")
 include("interface.jl")
+include("parametric_object.jl")
+include("meta_pobject.jl")
 
 # extra convenience / needed stuff
 include("recorder.jl")
@@ -23,8 +25,8 @@ include("task.jl")
 include("challenge.jl")
 include("environment.jl")
 include("teacher.jl")
+include("topology.jl")
 include("generator.jl")
-include("meta_generator.jl")
 include("evaluator.jl")
 include("fitness.jl")
 include("genetics.jl")

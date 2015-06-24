@@ -10,7 +10,9 @@ abstract AbstractNeuron
 abstract AbstractRule
 abstract AbstractTask
 abstract AbstractTeacher
-abstract AbstractGenerator
+abstract AbstractParametricObject
+abstract AbstractGenerator <: AbstractParametricObject
+abstract AbstractTopology <: AbstractParametricObject
 abstract AbstractEvaluator
 abstract AbstractParameter
 abstract AbstractSuccessRating

@@ -107,7 +107,17 @@ function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::V
   squared_success = Float64[0.0, 0.0, 0.0]
   for i = 1:length(pop)
     succ = Float64[suc[i].quota, suc[i].quality, suc[i].timeshift]
-    pars = Float64[p.val for p in export_params(pop[i])]
+    pars = Float64[]
+    # UGLY UGLY UGLY
+    for p in export_params(pop[i])
+      if isa(p.val, Real)
+        pars = vcat(pars, p.val)
+      elseif isa(p.val, Vector{Float64})
+        pars = vcat(pars, p.val...)
+      else
+        @assert false "$(typeof(p.val))"
+      end
+    end
     record(rec, 1, vcat([generation], succ, pars))
 
     mean_success += succ
@@ -189,7 +199,7 @@ function recombine( rng::AbstractRNG, A::AbstractGenerator, B::AbstractGenerator
   return new_gen
 end
 
-function mutate( rng::AbstractRNG, source::AbstractGenerator ) ## TO BE GENERALIZED
+function mutate( rng::AbstractRNG, source::AbstractGenerator )
   # load parameters
   params = export_params( source )
   # choose parameter-index to mutate

@@ -51,14 +51,6 @@ function reset(rule::AbstractRule)
   error("rule(", typeof(rule), ") not implemented")
 end
 
-function export_params( generator::AbstractGenerator )
-  error("export_params($(typeof(generator))) not implemented")
-end
-
-function import_params!( generator::AbstractGenerator, params )
-  error("import_params($(typeof(generator)), $(typeof(params))) not implemented")
-end
-
 # convenience method for init of random number generators
 function randseed()
 	convert(Uint32, round(rand() * typemax(Uint32)))
