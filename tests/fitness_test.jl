@@ -4,7 +4,7 @@ import EvoNet.@rec
 
 # create a random network
 N = 20
-generator = ev.SparseFRGenerator( N )
+generator = ev.SparseFRGenerator( N, topology = ev.MetaTopology(ev.AbstractTopology[ev.ErdösRenyiTopology()]) )
 
 gopt = ev.GeneticOptimizer( ev.test_fitness_of_generator, ev.compare_fitness )
 

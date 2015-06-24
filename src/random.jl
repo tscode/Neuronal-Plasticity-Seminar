@@ -31,11 +31,11 @@ function choice( rng::AbstractRNG, elem::AbstractVector, p::Vector{Float64})
   end
 end
 
-function startswith(str::ASCIIString, beg::ASCIIString)
+function startswith{T<:String}(str::T, beg::T)
   if length(beg) > length(str)
     return false
   end
-  return str[1:length(beg)] == beg
+  return str[1:sizeof(beg)] == beg
 end
 
 function shuffle!(rng::AbstractRNG, a::AbstractVector)

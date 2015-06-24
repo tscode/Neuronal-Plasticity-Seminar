@@ -5,7 +5,7 @@
 # generator for the type 'LRNetwork'
 type SparseLRGenerator <: AbstractGenerator
   # parameters that may be altered by mutation
-  params::Vector{AbstractParameter}
+  params::ParameterContainer
   # must contain 1: percentage
   #              2: gain
   #              3: size
@@ -25,7 +25,7 @@ type SparseLRGenerator <: AbstractGenerator
                                 Parameter{Int}(     "size",       1,   typemax(Int),     size     ) ,
                                 Parameter{Float64}( "feedback",   0.0, typemax(Float64), feedback ) ]
     # plug everthing in
-    return new( params, frac_readout, α, topology )
+    return new( ParameterContainer(params), frac_readout, α, topology )
   end
 end
 
@@ -43,9 +43,9 @@ function generate( gen::SparseLRGenerator; seed::Integer = randseed(),
   # initialize an rng by the given seed
   rng = MersenneTwister(seed)
   # convenience variables
-  gain     = gen.params[1].val
-  N        = gen.params[2].val
-  feedback = gen.params[3].val
+  gain     = gen.params.params[1].val
+  N        = gen.params.params[2].val
+  feedback = gen.params.params[3].val
   # check which readout situation we have. if frac_readout == -1 then
   # we assume that a full readout network shall be created. In all other
   # cases a limited readout network is created instead
@@ -98,10 +98,10 @@ end
 
 # allow the parameters to be exported
 function export_params( gen::SparseLRGenerator )
-  return export_params([gen, gen.topology])
+  return export_params([gen.params, gen.topology])
 end
 
 # import parameters in a network
 function import_params!(gen::SparseLRGenerator, params::Vector{AbstractParameter})
-  import_params!([gen, gen.topology], params)
+  import_params!([gen.params, gen.topology], params)
 end
