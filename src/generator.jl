@@ -32,7 +32,7 @@ end
 # "fake" constructor for SparseGenerator: use LR with full readout
 function SparseFRGenerator( size::Int;
                             gain::Real=1.2, feedback::Real=2, α::Function=tanh,
-                            topology = ErdösRenyiTopology(0.1))
+                            topology::AbstractTopology = ErdösRenyiTopology(0.1))
   return SparseLRGenerator( size, frac_readout = -1, gain = gain,
                             feedback = feedback, α = α, topology = topology )
 end
@@ -60,11 +60,11 @@ function generate( gen::SparseLRGenerator; seed::Integer = randseed(),
   end
 
   # internal connections: sparse, normal distributed
-  #  first, create topology
+  # first, create topology
   ω_r = generate( gen.topology, N, rng )
-  #  the assign normal distributed values
+  # then assign normal distributed values
   randn!(rng, nonzeros(ω_r))
-  #  and scale according to gain
+  # and scale according to gain
   ω_r *= (gain * sqrt(N / nnz(ω_r)))
 
   # input weights

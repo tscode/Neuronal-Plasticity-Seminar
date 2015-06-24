@@ -8,6 +8,8 @@ type ErdösRenyiTopology <: AbstractTopology
   end
 end
 
+#=type FeedForwardTopology <: AbstractTopology=#
+
 function generate(top::ErdösRenyiTopology, size::Integer, rng::AbstractRNG)
   # generates an Erdös Renyi topology
   p = top.params[1].val
