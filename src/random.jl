@@ -18,13 +18,13 @@ function rand( rng::AbstractRNG, a::AbstractVector )
 end
 
 function choice( rng::AbstractRNG, elem::AbstractVector, p::Vector{Float64})
-  #@assert(sum[p] == 1)
+  #@assert(sum(p) == 1)
   @assert(length(elem) == length(p))
 
   r = rand(rng)
 
   cp::Float64 = 0
-  @inbounds for i = 1:length(cp)
+  @inbounds for i = 1:length(p)
     if r < (cp += p[i])
       return elem[i]
     end
