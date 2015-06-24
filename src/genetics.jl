@@ -6,13 +6,10 @@
 
 type GeneticOptimizer
   population::Vector{AbstractGenerator}   # vector of generators, all different genotypes
-  success::Vector{AbstractSuccessRating}  # holds the current success ratings
 
   fitness::Function     # maps AbstractGenerator       → AbstractSuccessRating
   compare::Function     # maps AbstractGenerator², RNG → bool,
                         # returns true if first arg is better than second
-
-  samples::Integer      # number of samples to take when evaluating the generators
 
   env::AbstractEnvironment # the environment that the optimizer has to work in
   generation::Int       # counts the number of generations that have been simulated
@@ -22,22 +19,21 @@ type GeneticOptimizer
   # Constructor
   function GeneticOptimizer( fitness::Function, compare::Function;
                              population::Vector{AbstractGenerator}=AbstractGenerator[],
-                             success::Vector{AbstractSuccessRating}=AbstractSuccessRating[],
                              env::AbstractEnvironment=default_environment(),
                              seed::Integer = randseed() )
-      new( population, success, fitness, compare, 50, env, 0, Recorder(), MersenneTwister(seed) )
+      new( population, fitness, compare, env, 0, Recorder(), MersenneTwister(seed) )
   end
 end
 
 # function to calculate the success values as fast as possible in parallel
 # ATTENTION: Usage of this function makes it necessary to start julia appropriately
 # for several processes
-function rate_population_parallel( opt::GeneticOptimizer; seed::Integer=randseed(), 
-                                   samples = opt.samples, pop = opt.population )
+function rate_population_parallel( opt::GeneticOptimizer; seed::Integer=randseed(),
+                                   samples = 10, pop = opt.population )
   rng = MersenneTwister(seed)
   gene_tuples = [ (gene, randseed(rng)) for gene in pop ]
   return AbstractSuccessRating[ succ for succ in pmap( x -> opt.fitness(x[1],
-                                                            rng=MersenneTwister(x[2]), 
+                                                            rng=MersenneTwister(x[2]),
                                                             samples=samples,
                                                             env=opt.env),
                                                        gene_tuples ) ]
@@ -46,15 +42,12 @@ end
 function init_population!( opt::GeneticOptimizer, base_element::AbstractGenerator, N::Integer )
   # provde defaults to be mutated later
   opt.population = AbstractGenerator[ deepcopy(base_element) for i in 1:N ]
-  opt.success    = AbstractSuccessRating[ SuccessRating(0,0,0,0) for i in 1:N ]
   # load parameters
   params = export_params( base_element ) # Vector of AbstractParameters
   # randomize the generators in the population (genome-pool)
   for gen in opt.population
     import_params!( gen, AbstractParameter[random_param(p, opt.rng, s = 0.5 ) for p in params] )
   end
-  # calculate the initial success rates
-  opt.success = rate_population_parallel(opt, seed=randseed(opt.rng))
 end
 
 function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
@@ -62,49 +55,84 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
   println("processing generation $(opt.generation)")
 
   #
-  mean_success, variance = record_population(opt.recorder, opt.population, opt.success, opt.generation)
+  #mean_success, variance = record_population(opt.recorder, opt.population, opt.success, opt.generation)
 
   # collection of all generators that survive
-  survivors = AbstractGenerator[]
-  success = AbstractSuccessRating[]
-
-  # random order for comparison
-  order = shuffle( opt.rng, collect(1:length(opt.population)) )
-
-  # fight: just compare the old fitnesses
-  for i = 2:2:length(opt.population)
-    if opt.compare( opt.success[order[i-1]], opt.success[order[i]], opt.rng )
-      push!(survivors, opt.population[order[i-1]])
-      push!(success, opt.success[order[i-1]])
-    else
-      push!(survivors, opt.population[order[i]])
-      push!(success, opt.success[order[i]])
-    end
-  end
-
-  # estimate number of samples needed
-  # error of sampling: es ~ p(1-p)/sqrt(N) => sqrt(N) = p(1-p)/sqrt(variance)
-  # we want error < half of variance, thus factor 4
-  req = round(4*(mean_success[1] * (1-mean_success[1]) / sqrt(variance[1]))^2)
-  println(req)
-  opt.samples = int(clamp(req, 50, 2*50))
-  println(mean_success)
+  survivors = fight_till_death(opt, opt.population, opt.rng, opt.compare)
 
   # two stage population generation:
   newborns = calculate_next_generation(opt.rng, survivors, 2*length(opt.population) )
   opt.population = infancy_death(opt, newborns, length(opt.population))
 
-  # re evaluate new nets
-  opt.success = rate_population_parallel(opt, seed=randseed(opt.rng))
-
   opt.generation += 1
 end
 
+# lets the members of a population fight
+function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGenerator}, rng::AbstractRNG, compare::Function )
+   # collection of all generators that survive
+  survivors = AbstractGenerator[]
+  success = rate_population_parallel(opt, seed=randseed(opt.rng), pop = population, samples = 20)
+  samples = 20
+  mean, stddev = mean_success(success)
+  while(samples < 2*50)
+    req1 = ceil(4*(mean * (1-mean) / stddev)^2) # first criterion: error
+    req2 = 0
+    if mean > 0.5
+      # second criterion: possible results
+      # if we have N samples, distributed symetrically around mean up to 1, we get B = 2(1-mean)⋅N usefull bins for our results
+      # distributing population P, we get K = S/B entries per bin. The chance of comparing two entities of the same bin thus is
+      # p = K/S ≤! 0.1. Pluggin in yield 1/B ≤! 0.1 ⇒ 2(1-mean)⋅N ≥ 10
+      # thus N ≥ 5 / (1-mean)   □
+      req2 = ceil(5/(1-mean))
+    end
+    if samples < max(req1, req2)
+      println("mean $(mean)±$(stddev) → $(samples + 10) samples, estimating $(req1) / $(req2) total")
+      success += rate_population_parallel(opt, seed=randseed(opt.rng), pop = population, samples = 10)
+      mean, stddev = mean_success(success)
+      samples += 10
+    else
+      break
+    end
+  end
+
+  # it is not really nice to record here :(
+  record_population(opt.recorder, population, success, opt.generation)
+
+  # random order for comparison
+  order = shuffle( rng, collect(1:length(population)) )
+
+  # fight: just compare the old fitnesses
+  for i = 2:2:length(population)
+    if opt.compare( success[order[i-1]], success[order[i]], rng )
+      push!(survivors, population[order[i-1]])
+    else
+      push!(survivors, population[order[i]])
+    end
+  end
+
+  return survivors
+end
+
+
+# calculate mean and stddev of success
+function mean_success(suc::Vector{AbstractSuccessRating})
+  # collect info about all gens
+  mean = 0.0
+  squared_success = 0.0
+  @inbounds for i = 1:length(suc)
+    mean += suc[i].quota
+    squared_success += suc[i].quota * suc[i].quota
+  end
+  mean /= length(suc)
+  squared_success /= length(suc)
+  variance = squared_success - mean*mean
+  return mean::Float64, sqrt(variance)::Float64
+end
+
+
 # writes info about a population
 function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractSuccessRating}, generation::Integer)
-   # collect info about all gens
-  mean_success = Float64[0.0, 0.0, 0.0]
-  squared_success = Float64[0.0, 0.0, 0.0]
+  # collect info about all gens
   for i = 1:length(pop)
     succ = Float64[suc[i].quota, suc[i].quality, suc[i].timeshift]
     pars = Float64[]
@@ -119,17 +147,10 @@ function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::V
       end
     end
     record(rec, 1, vcat([generation], succ, pars))
-
-    mean_success += succ
-    squared_success += succ .* succ
   end
-  mean_success /= length(pop)
-  squared_success /= length(pop)
-  variance = squared_success - mean_success.*mean_success
-
-  return mean_success, variance
 end
 
+# performs recombination and mutation / currently mutually exclusive
 function calculate_next_generation( rng::AbstractRNG, parents::Vector{AbstractGenerator}, N::Integer)
   offspring = AbstractGenerator[]
   lidx = 1
