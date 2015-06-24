@@ -6,6 +6,16 @@
 # Some routines regarding random numbers to overcome the shortcommings of julia3
 # in this regard
 
+unif(rng::AbstractRNG, a::Real, b::Real) = a + (b - a)*rand(rng)
+unif(a::Real, b::Real) = a + (b - a)*rand()
+unif(rng::AbstractRNG, a::Real) = a
+unif(a::Real) = a 
+
+normal(rng::AbstractRNG, a::Real, b::Real) = 0.5 * (a + b) + 0.5 * (b - a) * randn(rng)
+normal(a::Real, b::Real) = 0.5 * (a + b) + 0.5 * (b - a) * randn()
+normal(rng::AbstractRNG, a::Real) = a
+normal(a::Real) = a
+
 # For the sake of j4 and j3 compability.....
 sizehint! = sizehint
 
