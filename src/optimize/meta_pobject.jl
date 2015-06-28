@@ -19,9 +19,7 @@ function random_param( param::MetaCombinationParam, rng::AbstractRNG; s::Real = 
   return MetaCombinationParam(param.name, new_val)
 end
 
-
 #####################################################################################
-export @MakeMeta
 
 macro MakeMeta(N, T)
   return quote
@@ -135,7 +133,7 @@ end
 ################################################################################################################
 
 # default METAs we need
-@MakeMeta(MetaTopology, AbstractTopology)
-@MakeMetaGen(MetaTopology, generate)
+#@MakeMeta(MetaTopology, AbstractTopology)
+#@MakeMetaGen(MetaTopology, generate)
 
 #println(macroexpand(:(@MakeMetaGen(MetaTopology, generate))))
