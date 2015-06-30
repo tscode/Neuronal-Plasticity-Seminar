@@ -7,7 +7,7 @@
 type GeneticOptimizer
   population::Vector{AbstractGenerator}   # vector of generators, all different genotypes
 
-  fitness::Function     # maps AbstractGenerator       → AbstractSuccessRating
+  fitness::Function     # maps AbstractGenerator       → AbstractRating
   compare::Function     # maps AbstractGenerator², RNG → bool,
                         # returns true if first arg is better than second
 
@@ -32,7 +32,7 @@ function rate_population_parallel( opt::GeneticOptimizer; seed::Integer=randseed
                                    samples = 10, pop = opt.population )
   rng = MersenneTwister(seed)
   gene_tuples = [ (gene, randseed(rng)) for gene in pop ]
-  return AbstractSuccessRating[ succ for succ in pmap( x -> opt.fitness(x[1],
+  return AbstractRating[ succ for succ in pmap( x -> opt.fitness(x[1],
                                                             rng=MersenneTwister(x[2]),
                                                             samples=samples,
                                                             env=opt.env),
@@ -129,7 +129,7 @@ end
 
 
 # calculate mean and stddev of success
-function mean_success(suc::Vector{AbstractSuccessRating})
+function mean_success(suc::Vector{AbstractRating})
   # collect info about all gens
   mean = 0.0
   squared_success = 0.0
@@ -145,7 +145,7 @@ end
 
 
 # writes info about a population
-function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractSuccessRating}, generation::Integer)
+function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractRating}, generation::Integer)
   # collect info about all gens
   for i = 1:length(pop)
     succ = Float64[suc[i].quota, suc[i].quality, suc[i].timeshift]
@@ -184,7 +184,7 @@ end
 
 function infancy_death(opt::GeneticOptimizer, infants::Vector{AbstractGenerator}, N::Integer)
   survivors = infants
-  survivor_rating = AbstractSuccessRating[]
+  survivor_rating = AbstractRating[]
   NUM_SAMPLES = 0
 
   while true
@@ -198,7 +198,7 @@ function infancy_death(opt::GeneticOptimizer, infants::Vector{AbstractGenerator}
     # reset survivors and their ratings, initialise linearized score
     infants = deepcopy(survivors)
     survivors = AbstractGenerator[]
-    survivor_rating = AbstractSuccessRating[]
+    survivor_rating = AbstractRating[]
     linear_scores = [s.quota * NUM_SAMPLES + s.quality for s in nb_rating]
 
     # take the N best networks
@@ -232,35 +232,6 @@ function recombine( rng::AbstractRNG, A::AbstractGenerator, B::AbstractGenerator
   new_gen = deepcopy(A) # this assumes that A and B are equivalent!
   import_params!( new_gen, ap )
   return new_gen
-end
-
-function mutate( rng::AbstractRNG, source::AbstractGenerator )
-  # load parameters
-  params = export_params( source )
-  # choose parameter-index to mutate
-  id = rand( rng, 1:length(params) )
-  # make the mutation
-  params[id] = random_param( params[id], rng )
-  # and reimport them
-  target = deepcopy(source) # this assumes that A and B are equivalent!
-  import_params!( target, params )
-  return target
-end
-
-# create a new "mutated" parameter based on a given one
-function random_param( param::Parameter{Int}, rng::AbstractRNG; s::Real = 0.1 )
-  # Obtain new parameter values by relative changes of +-0.1*s
-  new_val = convert(Int, round( param.val * (1.0 + randn(rng) * s) ))
-  # Check if the new value is within the boundaries
-  return Parameter{Int}(param.name, param.min, param.max, clamp(new_val, param.min, param.max))
-end
-
-
-function random_param( param::Parameter{Float64}, rng::AbstractRNG; s::Real = 0.1 )
-  # Obtain new parameter values by relative changes of +-0.1*s
-  new_val = param.val * (1.0 + randn(rng) * s) #  0.9 ... 1.1 is default
-  # Check if the new value is within the boundaries and return new param
-  return Parameter{Float64}(param.name, param.min, param.max, clamp(new_val, param.min, param.max))
 end
 
 function save_evolution(file, opt::GeneticOptimizer)

@@ -8,7 +8,7 @@ generator = ev.SparseFRGenerator( N, topology = ev.MetaTopology(ev.AbstractTopol
 
 gopt = ev.GeneticOptimizer( ev.test_fitness_of_generator, ev.compare_fitness )
 
-ev.init_population!(gopt, generator, 50)
+ev.init_population!(gopt, generator, 5)
 
 for i = 1:25
   ev.step!(gopt)

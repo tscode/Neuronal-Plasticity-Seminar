@@ -2,8 +2,10 @@
 # FITNESS
 #
 
+import optimize.AbstractRating
+
 # A measure for the success of a network
-type SuccessRating <: AbstractSuccessRating
+type SuccessRating <: AbstractRating
     quota::Float64      # relative number of successfull networks
     quality::Float64    # average quality of the successfull networks
     timeshift::Float64  # timeshift
@@ -94,12 +96,12 @@ function fitness_in_environment( gen::AbstractGenerator; samples::Int = 25,
       task = get_task(ch, rng=rng)
       # generate a network that is specialized for the right number of
       # output/input channels
-      net = generate( gen, seed = randseed(rng), 
+      net = generate( gen, seed = randseed(rng),
                       num_output = length(task.ofuncs),
                       num_input = length(task.ifuncs) )
       # perform the actual test
       qual, shift = test_fitness_for_task( net, rule, task, adaptive=adaptive )
-      # 
+      #
       if qual > threshold
         # linearly rescale quality to region [threshold, 1]
         mean_qual   += (qual - threshold) / (1.0 - threshold)
@@ -114,7 +116,7 @@ function fitness_in_environment( gen::AbstractGenerator; samples::Int = 25,
   # if at least one sample succeded
   mean_qual  /= num_success
   mean_shift /= num_success
-  # 
+  #
   return SuccessRating( num_success/samples, mean_qual, mean_shift, samples )
 end
 

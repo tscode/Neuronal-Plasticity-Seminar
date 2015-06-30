@@ -4,14 +4,16 @@
 
 module EvoNet
 
+require("../src/optimize/optimize.jl")
+#using optimize
+import optimize
+
 # Basic integration step for the network dynamic
 const dt = 0.1
 
 # abstract stuff
 include("types.jl")
 include("interface.jl")
-include("parametric_object.jl")
-include("meta_pobject.jl")
 
 # extra convenience / needed stuff
 include("recorder.jl")

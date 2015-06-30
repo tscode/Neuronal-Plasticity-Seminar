@@ -1,6 +1,18 @@
-abstract AbstractParameter
 export AbstractParameter
-export Parameter{T}
+export Parameter
+
+abstract AbstractParameter
+
+# only classes that don't have those members need to reimplement these funtions
+function get_value(p::AbstractParameter)
+  return p.val
+end
+
+function get_name(p::AbstractParameter)
+  return p.name::UTF8String
+end
+
+# relative Parameter: changesproportional to current value
 
 # introduce parameter type that is used for genetic modifications
 # each parameter corresponds loosely to one gene that can be modified
@@ -12,13 +24,10 @@ type Parameter{T} <: AbstractParameter
     val::T
 end
 
-function Parameter{T}(name::UTF8String, value::T; min::typemin(T), max::typemax(T))
+function Parameter{T}(name::UTF8String, value::T; min::T=typemin(T), max::T=typemax(T))
   return Parameter{T}(name, min, ax, value)
 end
 
-function get_value(p::Parameter)
-  return p.val
-end
 
 # randomize parameters
 function random_param( param::Parameter{Int}, rng::AbstractRNG; s::Real = 0.1 )

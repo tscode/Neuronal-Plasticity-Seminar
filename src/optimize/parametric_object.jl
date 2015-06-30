@@ -1,10 +1,10 @@
 # interface defintion
-abstract AbstractParametricObject
-
 export AbstractParametricObject
 export ParameterContainer
 export export_params
 export import_params!
+
+abstract AbstractParametricObject
 
 type ParameterContainer <: AbstractParametricObject
   params::Vector{AbstractParameter}
@@ -34,7 +34,12 @@ end
 
 # export all parameter values into a Float64 Array if possible
 function get_values(pob::AbstractParametricObject)
-
+  result = Dict{UTF8String, Any}
+  valarray = export_params(pob)
+  for p in valarray
+    result[get_name(p)] = get_value(p)
+  end
+  return result
 end
 
 # mutation function

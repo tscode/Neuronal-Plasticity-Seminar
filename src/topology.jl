@@ -1,3 +1,6 @@
+import optimize.AbstractParameter
+import optimize.ParameterContainer
+
 type ErdösRenyiTopology <: AbstractTopology
   params::Vector{AbstractParameter}
 
@@ -7,8 +10,6 @@ type ErdösRenyiTopology <: AbstractTopology
     new(params)
   end
 end
-
-#=type FeedForwardTopology <: AbstractTopology=#
 
 function generate(top::ErdösRenyiTopology, size::Integer, rng::AbstractRNG)
   # generates an Erdös Renyi topology

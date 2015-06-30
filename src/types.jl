@@ -10,11 +10,8 @@ abstract AbstractNeuron
 abstract AbstractRule
 abstract AbstractTask
 abstract AbstractTeacher
-abstract AbstractParametricObject
-abstract AbstractGenerator <: AbstractParametricObject
-abstract AbstractTopology <: AbstractParametricObject
+abstract AbstractGenerator <: optimize.AbstractParametricObject
+abstract AbstractTopology <: optimize.AbstractParametricObject
 abstract AbstractEvaluator
-abstract AbstractParameter
-abstract AbstractSuccessRating
 abstract AbstractChallenge
 abstract AbstractEnvironment
