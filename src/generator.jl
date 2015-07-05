@@ -2,6 +2,9 @@
 # GENERATOR
 #
 
+import optimize.import_params!
+import optimize.export_params
+
 # generator for the type 'LRNetwork'
 type SparseLRGenerator <: AbstractGenerator
   # parameters that may be altered by mutation
@@ -21,9 +24,9 @@ type SparseLRGenerator <: AbstractGenerator
                               gain::Real=1.2, feedback::Real=2,
                               α::Function=tanh, topology::AbstractTopology = ErdösRenyiTopology(0.1) )
     # create the vector of parameters to be given to the generator
-    params = AbstractParameter[ Parameter{Float64}( "gain",       0.0, typemax(Float64), gain     ) ,
-                                Parameter{Int}(     "size",       1,   typemax(Int),     size     ) ,
-                                Parameter{Float64}( "feedback",   0.0, typemax(Float64), feedback ) ]
+    params = AbstractParameter[ RelativeParameter{Float64}( "gain",       0.0, typemax(Float64), gain     ) ,
+                                RelativeParameter{Int}(     "size",       1,   typemax(Int),     size     ) ,
+                                RelativeParameter{Float64}( "feedback",   0.0, typemax(Float64), feedback ) ]
     # plug everthing in
     return new( ParameterContainer(params), frac_readout, α, topology )
   end

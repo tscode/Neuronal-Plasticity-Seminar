@@ -3,6 +3,7 @@
 #
 
 import optimize.AbstractRating
+import optimize.get_value
 
 # A measure for the success of a network
 type SuccessRating <: AbstractRating
@@ -18,6 +19,10 @@ function +(A::SuccessRating, B::SuccessRating)
   vb = Float64[B.quota, B.quality, B.timeshift]
   r = (va*A.samples + vb*B.samples)/(A.samples + B.samples)
   return SuccessRating( r[1], r[2], r[3], A.samples + B.samples )
+end
+
+function get_value(v::SuccessRating)
+  return v.quota
 end
 
 

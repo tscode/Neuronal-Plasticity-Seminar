@@ -1,5 +1,4 @@
 # combination parameter
-
 type MetaCombinationParam <: AbstractParameter
   name::UTF8String
   val::Vector{Float64}
@@ -73,7 +72,7 @@ macro MakeMeta(N, T)
         for p in params
           if p.name in gen.common_params
             push!(pog, p)
-          elseif startswith(p.name, utf8(string(typeof(g))))
+          elseif EvoNet.startswith(p.name, utf8(string(typeof(g))))
             p.name = replace(p.name, utf8(string(typeof(g)) * ":"), "")
             push!(pog, p)
           end

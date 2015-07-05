@@ -1,12 +1,13 @@
 import optimize.AbstractParameter
 import optimize.ParameterContainer
+import optimize.RelativeParameter
 
 type ErdösRenyiTopology <: AbstractTopology
   params::Vector{AbstractParameter}
 
   function ErdösRenyiTopology(p=0.1)
     @assert 0 < p <= 1 "p is a connection probability, thus 0 < p <= 1"
-    params = AbstractParameter[ Parameter{Float64}( "percentage", 0.0, 1.0,  p)]
+    params = AbstractParameter[ RelativeParameter{Float64}( "percentage", 0.0, 1.0,  p)]
     new(params)
   end
 end
@@ -28,7 +29,7 @@ type RingTopology <: AbstractTopology
 
   function RingTopology(k = 2)
     @assert 0 <= k "distance is nonnegativ"
-    params = AbstractParameter[ Parameter{Float64}( "distance", 0.0, typemax(Float64),  k)]
+    params = AbstractParameter[ RelativeParameter{Float64}( "distance", 0.0, typemax(Float64),  k)]
     new(params)
   end
 end

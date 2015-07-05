@@ -6,7 +6,7 @@ module EvoNet
 
 require("../src/optimize/optimize.jl")
 #using optimize
-import optimize
+importall optimize
 
 # Basic integration step for the network dynamic
 const dt = 0.1
