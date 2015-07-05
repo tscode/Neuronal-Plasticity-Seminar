@@ -22,17 +22,17 @@ end
 #####################################################################################
 
 macro MakeMeta(N, T)
-  return quote
-    global $N
-    global import_params!
-    global export_params
-      type $N <: $T
+  return esc(quote
+    import EvoNet.optimize: import_params!
+    import EvoNet.optimize: export_params
+    import EvoNet.optimize: MetaCombinationParam
+    type $N <: $T
       objects::Vector{$T}
       metaparam::MetaCombinationParam
       common_params::Vector{UTF8String}
       function $N( obs::Vector{$T}; p::Vector{Float64} = [1/length(obs) for i=1:length(obs)] , common_params = UTF8String["size"] )
-        @assert sum($(esc(:p))) == 1
-        new(obs, MetaCombinationParam("meta_strengths", $(esc(:p))), $(esc(:common_params)))
+        @assert sum(p) == 1
+        new(obs, MetaCombinationParam("meta_strengths", p), common_params)
     end
     end
 
@@ -88,6 +88,7 @@ macro MakeMeta(N, T)
       end
     end
   end
+             )
 end
 
 ############################################################################################################
@@ -96,15 +97,16 @@ end
 # TODO maybe make this a macro that can use an arbitrary function name
 macro MakeMetaGen(N, F)
   # TODO check that N is META
-  return quote
-    global generate
+  return esc(quote
+    import EvoNet: generate
     function generate (gen::$N, size::Integer, rng::AbstractRNG )
       # TODO allow generic parameter forwarding
       candidates = [$F(g, size, rng) for g in gen.objects]
 
-      return combine(candidates, gen.metaparam.val, rng)
+      return EvoNet.optimize.combine(candidates, gen.metaparam.val, rng)
     end
   end
+  )
 end
 
 ##############################################################################################################
@@ -127,7 +129,7 @@ function combine{T}(mats::Vector{AbstractMatrix{T}}, p::Vector{Float64}, rng::Ab
 end
 
 function combine{T}(nums::Vector{T}, p::Vector{Float64}, rng::AbstractRNG)
-  return choice(rng, nums, p)
+  return EvoNet.choice(rng, nums, p)
 end
 
 ################################################################################################################
