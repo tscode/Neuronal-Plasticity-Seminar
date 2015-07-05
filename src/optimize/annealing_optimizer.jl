@@ -25,7 +25,7 @@ type AnnealingOptimizer{T <: AbstractParametricObject} <: AbstractOptimizer{T}
   function AnnealingOptimizer( init::T, fitness::Function;
                              seed::Integer = 0#=randseed() module problem! =# )
       ifit = fitness(init)
-      new( init, ifit, init, ifit, fitness, default_callback, 0, Recorder(), MersenneTwister(seed), 25, 1.0, 0.01 )
+      new( init, ifit, init, ifit, fitness, default_callback, 0, Recorder(), MersenneTwister(seed), 5, 1.0, 0.01 )
   end
 end
 
@@ -34,7 +34,8 @@ function anneal_at_temp(opt::AnnealingOptimizer, temperature::Real)
 
   for i = 1:opt.steps_per_temp
     neighbour = mutate(opt.rng, opt.current)
-    nscore = opt.fitness( neighbour, samples = 20 )
+    nscore = opt.fitness( neighbour, samples = 50 )
+    opt.cscore = opt.fitness( neighbour, samples = 50 ) # unfortunately, if it is statistical we have to recalculate it every step
     dif = get_value(opt.cscore) - get_value(nscore) # cscore - nscore, so positive if current is better
     p = rand(opt.rng)
     # is new state better?
@@ -42,9 +43,10 @@ function anneal_at_temp(opt::AnnealingOptimizer, temperature::Real)
       found_count += 1
       opt.current = neighbour
       opt.cscore = nscore
+      # we do not recalculate best here.
       if get_value(opt.bscore) - get_value( nscore ) < 0
         opt.best = deepcopy(neighbour)
-        opt.bscore = deepcopy(nscore)
+        opt.bscore = opt.fitness( neighbour, samples = 50 ) # use a new sample for best score, is that good?
       end
     elseif p < exp(-dif / temperature)
       opt.current = neighbour
@@ -53,7 +55,7 @@ function anneal_at_temp(opt::AnnealingOptimizer, temperature::Real)
     end
     record(opt.recorder, 1, opt.bscore) # best score
     record(opt.recorder, 2, opt.cscore) # current score
-    record(opt.recorder, 3, opt.current.value) # current value
+    record(opt.recorder, 3, opt.current) # current value
   end
   return found_count
 end

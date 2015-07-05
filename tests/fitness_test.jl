@@ -2,6 +2,9 @@
 ev = EvoNet
 import EvoNet.@rec
 
+EvoNet.optimize.@MakeMeta(MetaTopology, AbstractTopology)
+EvoNet.optimize.@MakeMetaGen(MetaTopology, generate)
+
 # create a random network
 N = 20
 generator = ev.SparseFRGenerator( N, topology = ev.MetaTopology(ev.AbstractTopology[ev.ErdösRenyiTopology(), ev.RingTopology()]) )
