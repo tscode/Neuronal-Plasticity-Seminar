@@ -38,11 +38,10 @@ function anneal_at_temp(opt::AnnealingOptimizer, temperature::Real)
     dif = get_value(opt.cscore) - get_value(nscore) # cscore - nscore, so positive if current is better
     p = rand(opt.rng)
     # is new state better?
-    println(dif)
     if dif < 0
       found_count += 1
-      current = neighbour
-      cscore = nscore
+      opt.current = neighbour
+      opt.cscore = nscore
       if get_value(opt.bscore) - get_value( nscore ) < 0
         opt.best = deepcopy(neighbour)
         opt.bscore = deepcopy(nscore)
