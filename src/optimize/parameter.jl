@@ -1,6 +1,12 @@
+# export types
 export AbstractParameter
 export RelativeParameter
 export AbsoluteParameter
+
+# export functions
+export get_value
+export get_name
+export random_param
 
 abstract AbstractParameter
 
