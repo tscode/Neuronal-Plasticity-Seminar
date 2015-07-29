@@ -24,7 +24,7 @@ function import_params!( pob::AbstractParametricObject, params::Vector{AbstractP
   # check if the format of the parameters to be imported is suitable
   @assert length(params) == length(pob.params) "wrong length of vector of parameters: $(params), \n$(export_params(pob))"
   for i in 1:length(params)
-      @assert pob.params[i].name == params[i].name "parameters to be imported do not fit: $(params), $(pop.params)"
+      @assert pob.params[i].name == params[i].name "parameters to be imported do not fit: $(params), $(pob.params)"
   end
   # if it is then hand over a copy to the generator
   pob.params = deepcopy(params)

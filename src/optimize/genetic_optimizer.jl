@@ -42,10 +42,15 @@ function init_population!( opt::GeneticOptimizer, base_element::AbstractGenerato
   opt.population = AbstractGenerator[ deepcopy(base_element) for i in 1:N ]
   # load parameters
   params = export_params( base_element ) # Vector of AbstractParameters
-  filter!( p -> get_name(p) ∉ opt.env.blacklist, params )
+  valid = filter( i -> get_name(params[i]) ∉ opt.env.blacklist, 1:length(params) )
   # randomize the generators in the population (genome-pool)
   for gen in opt.population
-    import_params!( gen, AbstractParameter[random_param(p, opt.rng, s = 0.5 ) for p in params] )
+    # damn, thats one big list comprehension. for valid (i.e. not blacklisted) indices, use random_params, and copy the others.
+    # deepcopy probably is overkill, but does not hurt either.
+    import_params!( gen, AbstractParameter[i ∈ valid ? random_param(params[i], opt.rng, s = 0.5 ) :
+                                                       deepcopy(params[i])
+                                           for i in 1:length(params)]
+                   )
   end
 end
 
@@ -243,9 +248,9 @@ function mutate( rng::AbstractRNG, source::AbstractParametricObject, lock=[] )
   # load parameters
   params = export_params( source )
   # remove blacklisted ones
-  filter!( p -> get_name(p) ∉ lock, params )
+  valid = filter( i -> get_name(params[i]) ∉ opt.env.blacklist, 1:length(params) )
   # choose parameter-index to mutate
-  id = rand( rng, 1:length(params) )
+  id = rand( rng, valid )
   # make the mutation
   params[id] = random_param( params[id], rng )
   # and reimport them
