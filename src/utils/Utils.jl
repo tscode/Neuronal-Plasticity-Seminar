@@ -1,8 +1,8 @@
 # files
-include("utils/random.jl")
-include("utils/sprandn.jl")
-include("utils/misc.jl")
-include("utils/recorder.jl")
+include("random.jl")
+include("sprandn.jl")
+include("misc.jl")
+include("recorder.jl")
 # types
 export Recorder
 # functions

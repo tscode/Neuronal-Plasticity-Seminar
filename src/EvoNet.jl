@@ -8,7 +8,7 @@ const dt = 0.1
 
 # Utility and helper types/functions, mending shortcomings of julia 0.3.
 module Utils
-  include("Utils.jl")
+  include("utils/Utils.jl")
 end 
 using .Utils
 
@@ -18,19 +18,19 @@ include("network.jl")
 # This module contains types and functions for the learning procedure of
 # a single network. 
 module Learning
-  include("Learning.jl")
+  include("learning/Learning.jl")
 end 
 using .Learning
 
 # Parameterizations for Generators
 module Param 
-  include("Param.jl")
+  include("param/Param.jl")
 end 
 using .Param
 
 # The actual generators
 module Generate
-  include("Generate.jl")
+  include("generate/Generate.jl")
 end 
 using .Generate
 
@@ -54,7 +54,7 @@ include("fitness.jl")
 
 
 module Optimize
-include("Optimize.jl")
+include("optimize/Optimize.jl")
 end # module Optimize
 using .Optimize
 

@@ -3,10 +3,10 @@ using EvoNet.Utils
 using EvoNet.Param
 using EvoNet.Generate
 # files
-include("optimize/record.jl") # *internal*
-include("optimize/optimizer.jl")
-include("optimize/genetic_optimizer.jl")
-include("optimize/annealing_optimizer.jl")
+include("record.jl") # *internal*
+include("optimizer.jl")
+include("genetic_optimizer.jl")
+include("annealing_optimizer.jl")
 # Types
 export AbstractOptimizer, GeneticOptimizer, AnnealingOptimizer
 # Functions

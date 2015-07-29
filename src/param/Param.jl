@@ -1,8 +1,8 @@
 using EvoNet.Utils
 # files
-include("param/parameter.jl")
-include("param/parametric_object.jl")
-include("param/meta_parametric_object.jl")
+include("parameter.jl")
+include("parametric_object.jl")
+include("meta_parametric_object.jl")
 # types
 export AbstractParameter, RelativeParameter,
        AbsoluteParameter, NormedSumParameter, 
