@@ -76,7 +76,7 @@ end
 # test the fitness of a generator in a given environment
 function fitness_in_environment( gen::AbstractGenerator; samples::Int = 25,
                                  rng::AbstractRNG=MersenneTwister(randseed()),
-                                 env::AbstractEnvironment=default_environment(),
+                                 env::AbstractEnvironment=Environment(),
                                  threshold::Float64 = 0.95, adaptive::Bool=true )
     # variables for the mean quality and the timeshifts of the samples / phenotypes
     mean_qual  = 0.
@@ -126,7 +126,7 @@ end
 # test fitness for a generator
 function test_fitness_of_generator( gen::AbstractGenerator; samples::Int = 25,
                                     rng::AbstractRNG=MersenneTwister(randseed()),
-                                    env::AbstractEnvironment=default_environment(),
+                                    env::AbstractEnvironment=Environment(),
                                     threshold::Float64 = 0.95, adaptive::Bool=true )
   mean_q = 0.0
   mean_s = 0.0

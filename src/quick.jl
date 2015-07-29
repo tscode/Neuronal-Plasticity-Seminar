@@ -1,7 +1,7 @@
 
 module QuickUse
 
-import EvoNet: fitness_in_environment, default_environment, 
+import EvoNet: fitness_in_environment, Environment, 
                test_fitness_for_task, test_fitness_of_generator,
                get_task, simple_periodic, complex_periodic,
                simple_wave, complex_wave, simple_sawtooth,
@@ -15,7 +15,7 @@ import EvoNet: AbstractEnvironment, Environment,
 importall Generate
 importall Optimize
 
-export fitness_in_environment, default_environment, 
+export fitness_in_environment, Environment, 
        test_fitness_for_task, test_fitness_of_generator,
        get_task, simple_periodic, complex_periodic,
        simple_wave, complex_wave, simple_sawtooth,

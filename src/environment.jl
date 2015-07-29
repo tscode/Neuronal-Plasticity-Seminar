@@ -11,20 +11,16 @@ abstract AbstractEnvironment
 type Environment <: AbstractEnvironment
     challenges::Vector{AbstractChallenge}  # Different challenges the networks have to be good at
 
-    size::Int     # a hint to the genetic optimizer about how sparse resources are
     contamination # a hint regarding the mutation rate
-    blacklist::Vector{ASCIIString} # Contains genes (parameters) not allowed to change
+    blacklist::Vector{UTF8String} # Contains genes (parameters) not allowed to change
+end
+
+function Environment(; contamination::Real = 0.,
+                       blacklist = UTF8String[],
+                       challenge::AbstractChallenge = simple_wave() )
+    blacklist = UTF8String[ entry for entry in blacklist ]
+    return Environment( AbstractChallenge[ challenge ], contamination, blacklist )
 end
 
 add_challenge(env::Environment, ch::AbstractChallenge) = push!(env.challenges, ch)
-
-
-# create an default environment that can be used for fast simulations
-function default_environment(; size::Int = typemax(Int), 
-                               contamination::Real = 0.,
-                               blacklist::Vector{ASCIIString}=ASCIIString[],
-                               challenge::AbstractChallenge = Challenges.simple_wave() )
-
-    # return the final environment with some default choices
-    return Environment( AbstractChallenge[ challenge ], typemax(Int), 0, ASCIIString[] )
-end
+add_blacklist_entry(env::Environment, ch::AbstractChallenge) = push!(env.challenges, ch)
