@@ -17,7 +17,7 @@ type GeneticOptimizer
   # Constructor
   function GeneticOptimizer( fitness::Function, compare::Function;
                              population::Vector{AbstractGenerator}=AbstractGenerator[],
-                             env::AbstractEnvironment=default_environment(),
+                             env::AbstractEnvironment=Environment(),
                              seed::Integer = randseed() )
       new( population, fitness, compare, env, 0, Recorder(), MersenneTwister(seed) )
   end
