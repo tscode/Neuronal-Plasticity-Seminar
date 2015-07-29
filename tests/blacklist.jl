@@ -17,7 +17,7 @@ gopt = ev.GeneticOptimizer( ev.fitness_in_environment, ev.compare_fitness, env=e
 gen  = ev.SparseFRGenerator( N, topology = ertop )
 ev.init_population!(gopt, gen, 10)
 
-for p in ev.export_params(generator)
+for p in ev.export_params(gen)
     println(p.name)
 end
 

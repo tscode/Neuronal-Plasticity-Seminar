@@ -248,7 +248,7 @@ function mutate( rng::AbstractRNG, source::AbstractParametricObject, lock=[] )
   # load parameters
   params = export_params( source )
   # remove blacklisted ones
-  valid = filter( i -> get_name(params[i]) ∉ opt.env.blacklist, 1:length(params) )
+  valid = filter( i -> get_name(params[i]) ∉ lock, 1:length(params) )
   # choose parameter-index to mutate
   id = rand( rng, valid )
   # make the mutation
