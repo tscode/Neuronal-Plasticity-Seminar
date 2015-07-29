@@ -6,6 +6,8 @@
 # the environment provides the tasks to be completed by the learning
 # networks. [It may have additional influence of the dynamics of evolution]
 
+abstract AbstractEnvironment
+
 type Environment <: AbstractEnvironment
     challenges::Vector{AbstractChallenge}  # Different challenges the networks have to be good at
 

@@ -2,6 +2,8 @@
 # EVALUATOR
 #
 
+abstract AbstractEvaluator
+
 # concrete evaluator type used to grade the performance of networks
 type Evaluator <: AbstractEvaluator
   # configuration

@@ -1,12 +1,6 @@
-# export types
-export AbstractParameter
-export RelativeParameter
-export AbsoluteParameter
-
-# export functions
-export get_value
-export get_name
-export random_param
+#
+# PARAM - PARAMETER
+#
 
 abstract AbstractParameter
 
@@ -19,12 +13,11 @@ function get_name(p::AbstractParameter)
   return p.name::UTF8String
 end
 
-# relative Parameter: changes proportional to current value
 
 # introduce parameter type that is used for genetic modifications
 # each parameter corresponds loosely to one gene that can be modified
 # by reproduction and mutation
-#=immutable=# type RelativeParameter{T} <: AbstractParameter
+type RelativeParameter{T} <: AbstractParameter
     name::UTF8String
     min::T
     max::T
@@ -40,7 +33,6 @@ function RelativeParameter{T}(name::UTF8String, value::T; min::T=typemin(T), max
   return RelativeParameter{T}(name, min, ax, value)
 end
 
-
 # randomize parameters
 function random_param{T<:Real}( param::RelativeParameter{T}, rng::AbstractRNG; s::Real = 0.1 )
   # Obtain new parameter values by relative changes of +-0.1*s
@@ -48,6 +40,7 @@ function random_param{T<:Real}( param::RelativeParameter{T}, rng::AbstractRNG; s
   # Check if the new value is within the boundaries and return new param
   return RelativeParameter{T}(param.name, param.min, param.max, clamp(new_val, param.min, param.max))
 end
+
 
 # special behaviour for integer
 function random_param{T<:Integer}( param::RelativeParameter{T}, rng::AbstractRNG; s::Real = 0.1 )
@@ -84,4 +77,19 @@ function random_param{T}( param::AbsoluteParameter{T}, rng::AbstractRNG; s::Real
   new_val = param.val + (rand(rng)-0.5) * param.Δ * s
   # Check if the new value is within the boundaries and return new param
   return AbsoluteParameter{T}(param.name, param.min, param.max, clamp(new_val, param.min, param.max), param.Δ)
+end
+
+type NormedSumParameter <: AbstractParameter
+  name::UTF8String
+  val::Vector{Float64}
+end
+
+# mutated parameters for array parameters with constant sum
+function random_param( param::NormedSumParameter, rng::AbstractRNG; s::Real = 0.1 )
+  old_val = copy(param.val)
+  new_val = Float64[val*(1.0 + rand(rng) * s) for val in old_val]
+  new_val /= sum(new_val)
+
+  # Check if the new value is within the boundaries and return new param
+  return NormedSumParameter(param.name, new_val)
 end

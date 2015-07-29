@@ -1,10 +1,11 @@
+#
+# RATING
+#
+
 #= This class defines an interface for types that rate the success of a network
 (or sth more general, but we apply it only to networks =#
 
 abstract AbstractRating
-export AbstractRating
-export get_value
-export get_uncertainty
 
 # interface of success ratings
 

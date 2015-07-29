@@ -1,6 +1,7 @@
 #
 # CHALLENGE
 #
+
 # A challenge is something you get a certain type of task from. The tasks
 # you get should be quantitatively similar, since a challenge is used to
 # check how well networks learn a narrow range of tasks
@@ -10,11 +11,14 @@
 
 # This type of callenge simply holds a list of possible tasks
 # that are then created at random when asked
+
+abstract AbstractChallenge
+
 type ListChallenge <: AbstractChallenge
     tasks::Vector{AbstractTask}
 end
 #
-function get_task(ch::ListChallenge; rng::AbstractRNG=MersenneTwister(randseed()))
+function get_task(ch::ListChallenge; rng::AbstractRNG=MersenneTwister(EvoNet.Utils.randseed()))
     return rand( rng, ch.tasks )
 end
 
@@ -45,13 +49,6 @@ function get_task(ch::ParametricChallenge; rng::AbstractRNG=MersenneTwister(rand
 end
 
 #----------------------------------------------------------------------------------------#
-
-# some default implementations for tasks
-module Challenges
-import EvoNet
-
-unif   = EvoNet.unif
-normal = EvoNet.normal
 
 
 # Helper type
@@ -198,4 +195,3 @@ function sawtooth_function(time::Float64)
     return time_ < 0.5 ? 1 - 4*time_ : 4*time_ - 3
 end
 
-end # module Challenges

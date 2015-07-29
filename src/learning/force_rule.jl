@@ -7,11 +7,13 @@
 # learned.
 #
 
+abstract AbstractRule
+
 type ForceRule <: AbstractRule
   # Invariants for the Rule
   α::Float64  # alpha parameter
   # helper quantities to be resetted before every learning process
-  P::AAF             # P variable
+  P::AbstractArray{Float64, 2} # P variable
   k::Vector{Float64} # needed to calc update_weights efficiently
   #
   # specify and initiale the rule for a fixed size

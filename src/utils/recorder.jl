@@ -1,17 +1,27 @@
 #
 # RECORDER
 #
+# Recording data during the simulation
 
 export @record
 
+# Identifiers for different entries
+typealias Entry Union(Symbol, Integer, String)
+
+# The recorder type that one can use to record Float or Array Data
+#
 type Recorder
-    __dict__::Dict{Union(Symbol, Expr, Integer), Any}
+    __dict__::Dict{Entry, Any}
     num_recs::Int
-    Recorder() = new(Dict{Union(Symbol, Expr, Integer), Array{Any}}(), 0)
+    Recorder() = new(Dict{Entry, Array{Any}}(), 0)
 end
 
+# global recorder variable for convenience
+#
+REC = Recorder()
 
-function record(rec::Recorder, id::Union(Symbol, Integer), content::Real)
+# record real values
+function record(rec::Recorder, id::Entry, content::Real)
     if haskey(rec.__dict__, id)
         push!(rec.__dict__[id], convert(Float64, content))
     else
@@ -20,7 +30,8 @@ function record(rec::Recorder, id::Union(Symbol, Integer), content::Real)
     end
 end
 
-function record(rec::Recorder, id::Union(Symbol, Integer), content::Vector{Float64})
+# record a vector of floats
+function record(rec::Recorder, id::Entry, content::Vector{Float64})
     if haskey(rec.__dict__, id)
         push!(rec.__dict__[id], copy(content))
     else
@@ -29,7 +40,28 @@ function record(rec::Recorder, id::Union(Symbol, Integer), content::Vector{Float
     end
 end
 
+# clear the records
+function clear_records(recorder::Recorder) 
+    recorder = EvoNet.Recorder()
+end
+clear_records() = clear_records(REC)
 
+# Nice syntax for recorders: access the elements by index
+import Base.getindex
+getindex(rec::Recorder, sym) = rec.__dict__[sym]
+
+# Command line printout 
+import Base.show
+function show(io::IO, rec::Recorder)
+    if isempty(rec.__dict__)
+        print(io, "Empty Recorder")
+    else
+        print(io, "Recorder with records for:", join((keys(rec.__dict__)...), " "))
+    end
+end
+
+# Some ugly macro that is not needed anymore, hopefully
+#
 macro rec(args...)
     loop = args[end]
     if typeof(loop) == Symbol || !(loop.head in [:while, :for])
@@ -57,28 +89,4 @@ macro rec(args...)
     end
 
     return esc(Expr(:block, loop))
-end
-
-function clear_records() 
-    REC = EvoNet.Recorder()
-end
-
-function clear_records(recorder) 
-    recorder = EvoNet.Recorder()
-end
-
-# global recorder variable as convenience
-REC = Recorder()
-
-#=import Core.getfield # should work?! but currently doesn't!=#
-#=getfield(rec::Recorder, id::Symbol) = rec.__dict__[id]=#
-import Base.getindex
-getindex(rec::Recorder, sym) = rec.__dict__[sym]
-import Base.show
-function show(io::IO, rec::Recorder)
-    if isempty(rec.__dict__)
-        print(io, "Empty Recorder")
-    else
-        print(io, "Recorder with records for:", keys(rec.__dict__)...)
-    end
 end

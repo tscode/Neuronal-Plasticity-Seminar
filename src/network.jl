@@ -2,8 +2,10 @@
 # NETWORK
 #
 
+abstract AbstractNetwork
+
 # LRNetwork: Limited Readout: don't use all neurons as readout neurons
-type LRNetwork{T <: AAF} <: AbstractNetwork
+type LRNetwork{T <: AbstractArray{Float64, 2}} <: AbstractNetwork
   # weights
   ω_r::T                        # recurrent weigthts
   ω_i::Matrix{Float64}          # weights used for the external input
@@ -43,7 +45,7 @@ end # type LRNeurons
 
 
 # generic network class
-type Network{T1 <: AAF} <: AbstractNetwork
+type Network{T1 <: AbstractArray{Float64, 2}} <: AbstractNetwork
   ω_r::T1    # weights_recurrent; for the recurrent neuron connections
   ω_i::Matrix{Float64}   # weights_input; input->internal neurons
   ω_f::Matrix{Float64}   # weights_feedback; output->internal neurons

@@ -1,8 +1,6 @@
 #
-# GENETICS
+# OPTIMIZE - GENETIC OPTIMIZER
 #
-
-#const MIN_SAMPLES::Int = 50
 
 type GeneticOptimizer
   population::Vector{AbstractGenerator}   # vector of generators, all different genotypes
@@ -237,4 +235,20 @@ end
 function save_evolution(file, opt::GeneticOptimizer)
   writedlm(file, hcat(opt.recorder[1]...)')
 #  writedlm(join(("mean_",file)), hcat(opt.recorder[2]...)')
+end
+
+
+function mutate( rng::AbstractRNG, source::AbstractParametricObject, lock=[] )
+  # load parameters
+  params = export_params( source )
+  # remove blacklisted ones
+  filter!( p -> get_name(p) ∉ lock, params )
+  # choose parameter-index to mutate
+  id = rand( rng, 1:length(params) )
+  # make the mutation
+  params[id] = random_param( params[id], rng )
+  # and reimport them
+  target = deepcopy(source) # this assumes that A and B are equivalent!
+  import_params!( target, params )
+  return target
 end

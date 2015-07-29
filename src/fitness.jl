@@ -2,9 +2,6 @@
 # FITNESS
 #
 
-import optimize.AbstractRating
-import optimize.get_value
-
 # A measure for the success of a network
 type SuccessRating <: AbstractRating
     quota::Float64      # relative number of successfull networks
@@ -14,6 +11,7 @@ type SuccessRating <: AbstractRating
 end
 
 # Sum of two success ratings is their weighted average
+import Base.+
 function +(A::SuccessRating, B::SuccessRating)
   va = Float64[A.quota, A.quality, A.timeshift]
   vb = Float64[B.quota, B.quality, B.timeshift]

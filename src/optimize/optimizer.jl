@@ -1,8 +1,9 @@
-abstract AbstractOptimizer{T}
+#
+# OPTIMIZE - OPTIMIZER
+#
 
-export AbstactOptimizer
-export get_recorder
-export set_callback!
+
+abstract AbstractOptimizer{T}
 
 # optimizer interface
 

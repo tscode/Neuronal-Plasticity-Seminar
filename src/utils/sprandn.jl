@@ -1,63 +1,14 @@
 # This file contains parts of Julia. License is MIT: http://julialang.org/license
 
 #
-# RANDOM
+# SPRANDN 
 #
-# Some routines regarding random numbers to overcome the shortcommings of julia3
-# in this regard
+# Contains basic random number functionality needed to get sprandn() to work with julia3
+# when using non-global RNG's. Don't look at it to closely, it's ugly
 
-unif(rng::AbstractRNG, a::Real, b::Real) = a + (b - a)*rand(rng)
-unif(a::Real, b::Real) = a + (b - a)*rand()
-unif(rng::AbstractRNG, a::Real) = a
-unif(a::Real) = a 
+import Base.sprandn
 
-normal(rng::AbstractRNG, a::Real, b::Real) = 0.5 * (a + b) + 0.5 * (b - a) * randn(rng)
-normal(a::Real, b::Real) = 0.5 * (a + b) + 0.5 * (b - a) * randn()
-normal(rng::AbstractRNG, a::Real) = a
-normal(a::Real) = a
-
-# For the sake of j4 and j3 compability.....
 sizehint! = sizehint
-
-import Base.rand
-randbool(rng::AbstractRNG) = rand(rng, Bool[true, false])
-
-function rand( rng::AbstractRNG, a::AbstractVector )
-    idx = convert(Int, ceil(rand(rng)*length(a)))
-    return a[idx]
-end
-
-function choice( rng::AbstractRNG, elem::AbstractVector, p::Vector{Float64})
-  #@assert(sum(p) == 1)
-  @assert(length(elem) == length(p))
-
-  r = rand(rng)
-
-  cp::Float64 = 0
-  @inbounds for i = 1:length(p)
-    if r < (cp += p[i])
-      return elem[i]
-    end
-  end
-end
-
-function startswith{T<:String}(str::T, beg::T)
-  if length(beg) > length(str)
-    return false
-  end
-  return str[1:sizeof(beg)] == beg
-end
-
-function shuffle!(rng::AbstractRNG, a::AbstractVector)
-    for i = length(a):-1:2
-        j = convert(Int, ceil(rand(rng)*i))
-        a[i], a[j] = a[j], a[i]
-    end
-    return a
-end
-
-shuffle(r::AbstractRNG, a::AbstractVector) = shuffle!(r, copy(a))
-
 
 function ev_randsubseq!(r::AbstractRNG, S::AbstractArray, A::AbstractArray, p::Real)
     0 <= p <= 1 || throw(ArgumentError("probability $p not in [0,1]"))
@@ -191,5 +142,3 @@ end
 
 sprand(r::AbstractRNG, m::Integer, n::Integer, density::FloatingPoint) = sprand(r,m,n,density,rand,Float64)
 sprandn(r::AbstractRNG, m::Integer, n::Integer, density::FloatingPoint) = sprand(r,m,n,density,randn,Float64)
-
-

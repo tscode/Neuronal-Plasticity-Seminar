@@ -10,7 +10,7 @@ type RewardModulatedRule <: AbstractRule
   α::Float64         # alpha parameter
 
   # helper quantities
-  P::AAF             # P variable
+  P::AbstractArray{Float64, 2}   # P variable
   k::Vector{Float64} # needed to calc update_weights efficiently
 
   function ForceRule(size::Int, α::Real)

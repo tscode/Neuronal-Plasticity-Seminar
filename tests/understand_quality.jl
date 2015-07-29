@@ -16,5 +16,5 @@ for i in 1:10
     net = ev.generate( generator, i )
     push!( quals, ev.test_fitness_for_task(net, rule, task, 
            learntime = 500, evaltime = 1000, waittime =  200, α=1/1000,
-           fname="understand_$i.dat")[1] )
+           fname="")[1] )
 end

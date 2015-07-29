@@ -3,6 +3,8 @@
 #
 # Controls the learning process
 
+abstract AbstractTeacher
+
 type Teacher{R <: AbstractRule, N <: AbstractNetwork} <: AbstractTeacher
     rule::R  # The rule the teacher shall apply for learning
     net::N   # The pupil of the teacher

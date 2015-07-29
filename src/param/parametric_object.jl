@@ -1,8 +1,6 @@
-# interface defintion
-export AbstractParametricObject
-export ParameterContainer
-export export_params
-export import_params!
+#
+# OPTIMIZER - PARAMETRIC OBJECT
+#
 
 abstract AbstractParametricObject
 
@@ -32,33 +30,6 @@ function import_params!( pob::AbstractParametricObject, params::Vector{AbstractP
   pob.params = deepcopy(params)
 end
 
-# export all parameter values into a Float64 Array if possible
-function get_values(pob::AbstractParametricObject)
-  result = Dict{UTF8String, Any}
-  valarray = export_params(pob)
-  for p in valarray
-    result[get_name(p)] = get_value(p)
-  end
-  return result
-end
-
-# mutation function
-# TODO add more parameters, e.g. mutation probability and strength
-function mutate{T<:AbstractParametricObject}( rng::AbstractRNG, source::T )
-  # load parameters
-  params = export_params( source )
-  # choose parameter-index to mutate
-  id = rand( rng, 1:length(params) )
-  # make the mutation
-  params[id] = random_param( params[id], rng )
-  # and reimport them
-  target = deepcopy(source) # this assumes that source and target are equivalent!
-  import_params!( target, params )
-  return target
-end
-
-# helpers
-
 # functions operating on arrays of parameters useable to implement parameter import/export of higher level objects
 function export_params( pobs::Vector{AbstractParametricObject} )
   # parameter export is simple deepcopy per default
@@ -69,8 +40,8 @@ function import_params!( pobs::Vector{AbstractParametricObject}, params::Vector{
   # if it is then hand over a copy to the generator
   lp = 0
   for i in 1:length(pobs)
-    len = length(export_params(pobs[i])) # it is unfortunate that we need to use export here,
-                                         # but unless we want to add another function hierarchy
+    len = length(export_params(pobs[i])) # it is unfortunate that we need to use export here, 
+                                         # but unless we want to add another function hierarchy 
                                          # just to get a parameter count, it cannot be helped
     import_params!(pobs[i], params[(lp+1):(lp+len)])
     lp += len

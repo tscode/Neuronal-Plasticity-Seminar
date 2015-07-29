@@ -1,8 +1,12 @@
 #
 # TASK
 #
-# Tasks the network can be forced to learn
+# A single task a single network can be forced to learn
 #
+
+abstract AbstractTask
+
+
 type FunctionTask <: AbstractTask
   time::Float64            # current time
   ofuncs::Array{Function}   # collection of functions
@@ -73,3 +77,16 @@ function make_periodic_function_task( out::Int, ifuncs::Array{Function};
   tfuncs = [ make_periodic_function(rng) for i = 1:out ]
   return FunctionTask( tfuncs, ifuncs, rng=rng )
 end
+
+
+# compares out with the output the task desires
+function compare_result( task::AbstractTask, out::Array{Float64} )  # returns Array{Float64}
+  return out - get_expected(task)  # default implementation: difference between expected and generated
+end
+
+# checks the quality of the generated output
+function eval_result( task::AbstractTask, out::Array{Float64} ) # returns Float64
+  return norm( compare_result( task, out ) ) # default implementation: norm of the difference vector
+end
+
+

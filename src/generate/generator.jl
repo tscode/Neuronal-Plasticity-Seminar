@@ -2,8 +2,7 @@
 # GENERATOR
 #
 
-import optimize.import_params!
-import optimize.export_params
+abstract AbstractGenerator <: AbstractParametricObject
 
 # generator for the type 'LRNetwork'
 type SparseLRGenerator <: AbstractGenerator
@@ -98,6 +97,8 @@ function generate( gen::SparseLRGenerator; seed::Integer = randseed(),
   end
 end
 
+
+import EvoNet.Param.export_params
 
 # allow the parameters to be exported
 function export_params( gen::SparseLRGenerator )

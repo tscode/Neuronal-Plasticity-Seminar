@@ -1,4 +1,4 @@
-module optimize
+
 import EvoNet
 
 # import helper types

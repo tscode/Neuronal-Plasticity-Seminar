@@ -1,6 +1,6 @@
-# interface
-export AnnealingOptimizer
-export anneal
+#
+# OPTIMIZE - ANNEALING OPTIMIZER
+#
 
 # alternate optimizer, might actually be better suited....
 type AnnealingOptimizer{T <: AbstractParametricObject} <: AbstractOptimizer{T}
