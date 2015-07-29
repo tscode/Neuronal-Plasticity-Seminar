@@ -42,6 +42,7 @@ function init_population!( opt::GeneticOptimizer, base_element::AbstractGenerato
   opt.population = AbstractGenerator[ deepcopy(base_element) for i in 1:N ]
   # load parameters
   params = export_params( base_element ) # Vector of AbstractParameters
+  filter!( p -> get_name(p) ∉ opt.env.blacklist, params )
   # randomize the generators in the population (genome-pool)
   for gen in opt.population
     import_params!( gen, AbstractParameter[random_param(p, opt.rng, s = 0.5 ) for p in params] )
@@ -59,7 +60,7 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
   survivors = fight_till_death(opt, opt.population)
 
   # two stage population generation:
-  newborns = calculate_next_generation(opt.rng, survivors, 2*length(opt.population) )
+  newborns = calculate_next_generation(opt.rng, survivors, 2*length(opt.population), opt.env.blacklist )
   opt.population = infancy_death(opt, newborns, length(opt.population))
 
   opt.generation += 1
@@ -163,12 +164,12 @@ function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::V
 end
 
 # performs recombination and mutation / currently mutually exclusive
-function calculate_next_generation( rng::AbstractRNG, parents::Vector{AbstractGenerator}, N::Integer)
+function calculate_next_generation( rng::AbstractRNG, parents::Vector{AbstractGenerator}, N::Integer, lock = [])
   offspring = AbstractGenerator[]
   lidx = 1
   for t in 1:N
     if randbool(rng)
-      push!(offspring, mutate(rng, parents[lidx]))
+      push!(offspring, mutate(rng, parents[lidx], lock))
     else
       push!(offspring, recombine(rng, parents[lidx], parents[lidx % length(parents) + 1]))
     end
