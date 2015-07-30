@@ -12,8 +12,13 @@ type ParameterContainer <: AbstractParametricObject
   end
 end
 
-# assume that
+#convenience function, returns a list of the names of the parameters of a POB
+function get_parameter_names( pob::AbstractParametricObject )
+  return [get_name(p) for p in export_params(pob)]
+end
 
+# assume that pob has a data member params by default, otherwise, this function
+# has to be reimplemented
 function export_params( pob::AbstractParametricObject )
   # parameter export is simple deepcopy per default
   return deepcopy(pob.params)
@@ -40,8 +45,8 @@ function import_params!( pobs::Vector{AbstractParametricObject}, params::Vector{
   # if it is then hand over a copy to the generator
   lp = 0
   for i in 1:length(pobs)
-    len = length(export_params(pobs[i])) # it is unfortunate that we need to use export here, 
-                                         # but unless we want to add another function hierarchy 
+    len = length(export_params(pobs[i])) # it is unfortunate that we need to use export here,
+                                         # but unless we want to add another function hierarchy
                                          # just to get a parameter count, it cannot be helped
     import_params!(pobs[i], params[(lp+1):(lp+len)])
     lp += len
