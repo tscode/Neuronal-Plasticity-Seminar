@@ -1,5 +1,4 @@
 push!(LOAD_PATH, "/scratch01/eriks/neural/Neuronal-Plasticity-Seminar/src/")
-println(LOAD_PATH)
 
 using EvoNet
 ev = EvoNet
