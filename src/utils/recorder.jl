@@ -56,7 +56,7 @@ function show(io::IO, rec::Recorder)
     if isempty(rec.__dict__)
         print(io, "Empty Recorder")
     else
-        print(io, "Recorder with records for:", join((keys(rec.__dict__)...), " "))
+        print(io, "Recorder with records for: ", join([keys(rec.__dict__)...], " "))
     end
 end
 

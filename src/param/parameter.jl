@@ -53,7 +53,7 @@ end
 
 
 # absolute Parameter: changes proportional to a predefined delta
-immutable type AbsoluteParameter{T} <: AbstractParameter
+type AbsoluteParameter{T} <: AbstractParameter
     name::UTF8String
     min::T
     max::T

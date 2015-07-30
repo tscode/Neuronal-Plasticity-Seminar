@@ -87,7 +87,6 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
 
   # collection of all generators that survive
   survivors = fight_till_death(opt, opt.population)
-  println("survivors: ", survivors)
 
   # two stage population generation:
   newborns = calculate_next_generation(opt.rng, survivors, 2*length(opt.population), opt.env.blacklist )
@@ -127,7 +126,8 @@ function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGen
   end
 
   # it is not really nice to record here :(
-  record_population(opt.recorder, population, success, opt.generation)
+  record_population_(opt.recorder, population, success, opt.generation)
+  #=record_population(opt.recorder, population, success, opt.generation)=#
 
   wins = zeros(length(population))
   NUM_FIGHTS = 10
@@ -172,6 +172,19 @@ function mean_success(suc::Vector{AbstractRating})
   return mean::Float64, sqrt(variance)::Float64
 end
 
+function record_population_(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractRating}, generation::Integer)
+  # get all parameters that occur for the generators
+  #
+  for i = 1:length(pop)
+    record(rec, "G", generation)
+    record(rec, "QT", suc[i].quota)
+    record(rec, "QL", suc[i].quality)
+    record(rec, "TS", suc[i].timeshift)
+    for p in export_params(pop[i])
+      record(rec, p.name, p.val) 
+    end
+  end
+end
 
 # writes info about a population
 function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractRating}, generation::Integer)
@@ -263,8 +276,26 @@ function recombine( rng::AbstractRNG, A::AbstractGenerator, B::AbstractGenerator
   return new_gen
 end
 
-function save_evolution(file, opt::GeneticOptimizer)
-  writedlm(file, hcat(opt.recorder[1]...)')
+function save_evolution(file, opt::EvoNet.GeneticOptimizer)
+  names = EvoNet.Param.get_parameter_names(opt.population[1])
+  output = [opt.recorder["G"] opt.recorder["QT"] opt.recorder["QL"] opt.recorder["TS"]]
+  names2 = UTF8String[]
+  for name in names
+    output = hcat(output, hcat(opt.recorder[name]...)')
+    if typeof(opt.recorder[name][1]) <: AbstractArray
+      for i in 1:length(opt.recorder[name][1])
+        push!(names2, name*string(i))
+      end
+    else
+      push!(names2, name)
+    end
+  end
+  i = 4
+  names = UTF8String[ name*"($(i+=1))" for name in names2 ]
+  f = open(file, "w")
+  write(f, "#"*"G(1) | QT(2) | QL(3) | TS(4) | "*join(names, " | ")*"\n")
+  writedlm(f, output, )
+  close(f)
 #  writedlm(join(("mean_",file)), hcat(opt.recorder[2]...)')
 end
 
