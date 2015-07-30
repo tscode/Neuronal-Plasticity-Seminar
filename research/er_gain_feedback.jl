@@ -1,6 +1,8 @@
+push!(LOAD_PATH, "/scratch01/eriks/neural/Neuronal-Plasticity-Seminar/src/")
+println(LOAD_PATH)
+
 using EvoNet
 ev = EvoNet
-
 #optimize secondary parameters (feedback, gain)
 
 
@@ -12,17 +14,17 @@ env  = ev.Environment(challenge=ch, blacklist=["size", "percentage"])
 gopt = ev.GeneticOptimizer( ev.fitness_in_environment, ev.compare_fitness, env=env )
 
 # initialize the population by using the
-N = 10 # use 100 for final run
+N = 100 # use 100 for final run
 p = 0.1
 ertop = ev.ErdösRenyiTopology(p)
 gen  = ev.SparseFRGenerator( N, topology = ertop )
-ev.init_population!(gopt, gen, 10)
+ev.init_population!(gopt, gen, 50)
 
 if N != 100
   info("this seems to be a test run. use N=100 to create final results")
 end
 
-for i = 1:25
+for i = 1:5
   ev.step!(gopt)
   ev.save_evolution("er_gain_feedback.dat", gopt)
 end
