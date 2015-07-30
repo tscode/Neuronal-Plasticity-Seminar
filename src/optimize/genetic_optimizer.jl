@@ -54,6 +54,30 @@ function init_population!( opt::GeneticOptimizer, base_element::AbstractGenerato
   end
 end
 
+
+function init_population!( opt::GeneticOptimizer, base_elements::AbstractVector, N::Integer; fracs=ones(length(base_elements)) )
+  # normalize the fractions
+  cumratios = cumsum(fracs/sum(fracs))
+  cumsizes = Int[ round(r*N) for r in cumratios ] # e.g. [2, 5, 9]
+  prepend!(cumsizes, Int[0] )
+  sizes = cumsizes[2:end] - cumsizes[1:end-1]
+  f(ele) = typeof(ele) <: AbstractGenerator ? (ele, 0.5) : ele
+  base_elements = (AbstractGenerator, Float64)[ f(ele) for ele in base_elements  ]
+  opt.population = AbstractGenerator[]
+  for i in 1:length(sizes)
+      pop = AbstractGenerator[ deepcopy(base_elements[i][1]) for j in 1:sizes[i] ]
+      params = export_params( base_elements[i][1] )
+      valid = filter( j -> get_name(params[j]) ∉ opt.env.blacklist, 1:length(params))
+      for gen in pop
+          import_params!( gen, AbstractParameter[j ∈ valid ? random_param(params[j], opt.rng, s = base_elements[i][2]) :
+                                                             deepcopy(params[j])
+                                                 for j in 1:length(params)]
+                        )
+      end
+          append!( opt.population, pop )
+  end
+end
+
 function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
   # provide the impatient programmer with some information
   println("processing generation $(opt.generation)")
@@ -63,6 +87,7 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
 
   # collection of all generators that survive
   survivors = fight_till_death(opt, opt.population)
+  println("survivors: ", survivors)
 
   # two stage population generation:
   newborns = calculate_next_generation(opt.rng, survivors, 2*length(opt.population), opt.env.blacklist )
@@ -74,7 +99,7 @@ end
 # lets the members of a population fight
 function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGenerator};
                           rng::AbstractRNG = opt.rng, compare::Function = opt.compare,
-                          reduction_rate::Float64 = 0.9, max_samples = 100
+                          reduction_rate::Float64 = 0.5, max_samples = 100
                           )
    # collection of all generators that survive
   success = rate_population_parallel(opt, seed=randseed(rng), pop = population, samples = 20)
