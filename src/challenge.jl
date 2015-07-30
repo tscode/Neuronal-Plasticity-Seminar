@@ -57,8 +57,8 @@ function simple_periodic( f::Function; amplitude=(0.5, 1.5), frequency=(0.025, 2
     return complex_periodic( f, n=1, frequency=frequency, amplitude=amplitude; args... )
 end
 
-simple_wave(; args...)  = simple_periodic(sin; args...)
-complex_wave(; args...) = complex_periodic(sin; args...)
+simple_wave(; args...)  = simple_periodic(x -> sin(2π*x); args...)
+complex_wave(; args...) = complex_periodic(x -> sin(2π*x); args...)
 
 simple_sawtooth(; args...) = simple_periodic(sawtooth_function; args...)
 complex_sawtooth(; args...) = complex_periodic(sawtooth_function; args...)
