@@ -49,7 +49,7 @@ function test_fitness_for_task( net::AbstractNetwork, rule::AbstractRule,
     if fname != ""
         record(recorder, 1, net.time)
         record(recorder, 2, net.time)
-        record(recorder, 3, get_expected(task))
+        record(recorder, 3, get_expected(task)[1])
         for i = 1:length(net.output)
            record(recorder, 3+i, net.output[1])
         end
