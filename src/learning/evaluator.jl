@@ -98,7 +98,7 @@ function evaluate(evl::Evaluator, task::AbstractTask, duration::Real; rec::Bool=
     if rec
       record(recorder, 1, evl.net.time)
       record(recorder, 2, evl.net.time - evl.timeshift)
-      record(recorder, 3, get_expected(task))
+      record(recorder, 3, get_expected(task)[1])
       for i = 1:length(evl.net.output)
         record(recorder, 3+i, evl.net.output[i])
       end
