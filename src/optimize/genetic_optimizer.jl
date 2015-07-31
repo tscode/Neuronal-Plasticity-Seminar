@@ -54,6 +54,30 @@ function init_population!( opt::GeneticOptimizer, base_element::AbstractGenerato
   end
 end
 
+
+function init_population!( opt::GeneticOptimizer, base_elements::AbstractVector, N::Integer; fracs=ones(length(base_elements)) )
+  # normalize the fractions
+  cumratios = cumsum(fracs/sum(fracs))
+  cumsizes = Int[ round(r*N) for r in cumratios ] # e.g. [2, 5, 9]
+  prepend!(cumsizes, Int[0] )
+  sizes = cumsizes[2:end] - cumsizes[1:end-1]
+  f(ele) = typeof(ele) <: AbstractGenerator ? (ele, 0.5) : ele
+  base_elements = (AbstractGenerator, Float64)[ f(ele) for ele in base_elements  ]
+  opt.population = AbstractGenerator[]
+  for i in 1:length(sizes)
+      pop = AbstractGenerator[ deepcopy(base_elements[i][1]) for j in 1:sizes[i] ]
+      params = export_params( base_elements[i][1] )
+      valid = filter( j -> get_name(params[j]) ∉ opt.env.blacklist, 1:length(params))
+      for gen in pop
+          import_params!( gen, AbstractParameter[j ∈ valid ? random_param(params[j], opt.rng, s = base_elements[i][2]) :
+                                                             deepcopy(params[j])
+                                                 for j in 1:length(params)]
+                        )
+      end
+          append!( opt.population, pop )
+  end
+end
+
 function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
   # provide the impatient programmer with some information
   println("processing generation $(opt.generation)")
@@ -74,7 +98,7 @@ end
 # lets the members of a population fight
 function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGenerator};
                           rng::AbstractRNG = opt.rng, compare::Function = opt.compare,
-                          reduction_rate::Float64 = 0.9, max_samples = 100
+                          reduction_rate::Float64 = 0.5, max_samples = 100
                           )
    # collection of all generators that survive
   success = rate_population_parallel(opt, seed=randseed(rng), pop = population, samples = 20)
@@ -102,7 +126,8 @@ function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGen
   end
 
   # it is not really nice to record here :(
-  record_population(opt.recorder, population, success, opt.generation)
+  record_population_(opt.recorder, population, success, opt.generation)
+  #=record_population(opt.recorder, population, success, opt.generation)=#
 
   wins = zeros(length(population))
   NUM_FIGHTS = 10
@@ -147,6 +172,19 @@ function mean_success(suc::Vector{AbstractRating})
   return mean::Float64, sqrt(variance)::Float64
 end
 
+function record_population_(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractRating}, generation::Integer)
+  # get all parameters that occur for the generators
+  #
+  for i = 1:length(pop)
+    record(rec, "G", generation)
+    record(rec, "QT", suc[i].quota)
+    record(rec, "QL", suc[i].quality)
+    record(rec, "TS", suc[i].timeshift)
+    for p in export_params(pop[i])
+      record(rec, p.name, p.val) 
+    end
+  end
+end
 
 # writes info about a population
 function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractRating}, generation::Integer)
@@ -239,7 +277,25 @@ function recombine( rng::AbstractRNG, A::AbstractGenerator, B::AbstractGenerator
 end
 
 function save_evolution(file, opt::GeneticOptimizer)
-  writedlm(file, hcat(opt.recorder[1]...)')
+  names = Param.get_parameter_names(opt.population[1])
+  output = [opt.recorder["G"] opt.recorder["QT"] opt.recorder["QL"] opt.recorder["TS"]]
+  names2 = UTF8String[]
+  for name in names
+    output = hcat(output, hcat(opt.recorder[name]...)')
+    if typeof(opt.recorder[name][1]) <: AbstractArray
+      for i in 1:length(opt.recorder[name][1])
+        push!(names2, name*string(i))
+      end
+    else
+      push!(names2, name)
+    end
+  end
+  i = 4
+  names = UTF8String[ name*"($(i+=1))" for name in names2 ]
+  f = open(file, "w")
+  write(f, "#"*"G(1) | QT(2) | QL(3) | TS(4) | "*join(names, " | ")*"\n")
+  writedlm(f, output, )
+  close(f)
 #  writedlm(join(("mean_",file)), hcat(opt.recorder[2]...)')
 end
 

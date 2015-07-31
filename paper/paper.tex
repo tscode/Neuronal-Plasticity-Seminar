@@ -1,0 +1,172 @@
+\documentclass[letter,scriptaddress,twocolumn, prl,showkeys]{revtex4-1}
+
+    \usepackage{microtype}
+    \usepackage{blindtext}
+
+	\usepackage{amsmath}%,amssymb} 
+	\usepackage{makeidx}
+	\usepackage{amsfonts}
+	\usepackage[ansinew]{inputenc}
+	\usepackage[usenames,dvipsnames]{pstricks}
+	\usepackage{subfigure}
+	\usepackage{epsfig}
+%	\usepackage{pst-grad} % For gradients
+	\usepackage{pst-plot} % For axes
+	\usepackage[colorlinks,hyperindex]{hyperref}
+	\hypersetup
+	{
+		colorlinks,%
+		citecolor=black,%
+		linkcolor=black,%
+		urlcolor=black,%
+	}
+
+%--- Theorem like environments ----
+	\newtheorem{theorem}{Theorem}
+	\newtheorem{corolary}{Corolary}
+	\newtheorem{prop}{Proposition}
+	\newtheorem{definition}{Definition}
+	\newtheorem{example}{Example}
+	\newtheorem{exercise}{Exercise}
+	\newtheorem{lemma}{Lemma}
+
+%--- Definindo algumas frescuras.
+%\numberwithin{equation}{subsection}
+	%\numberwithin{equation}{section}
+
+	\setlength\textheight{24.5cm}
+	
+\makeindex
+
+%--------------------------------------------------------
+\begin{document}
+
+\title{Optimizing Structural Properties Of Neural Networks With Genetic Algorithms}
+
+\author{T. Staudt, E. Schultheis}
+\email{thomas.staudt@stud.uni-goettingen.de, erik.schultheis@uni-goettingen.de}
+\affiliation{University of Göttingen}
+
+\date{today}
+
+\begin{abstract}
+    In this article we examine how structural properties of neural
+    networks, like the size or local synapse densities, affect their
+    learning success for various tasks. To do so, we look at a rate based
+    model for neural networks and apply the FORCE rule for the learning
+    process. A sophisticated matching algorithm
+    allows us to quantify the learning success of a network so that the
+    fitness of structural characteristics, expressed by integer or
+    floating-point parameters, can be evaluated. We then use evolutionary
+    optimization methods on these parameters to show that (1) ring
+    topologies are generally more successful than strictly random
+    topologies, (2) *FAT
+    LIST OF INCREDIBLE RESULTS THAT CHANGE THE UNIVERSE*
+\end{abstract}
+
+\keywords{genetic algorithms, evolutionary algorithms, FORCE learning, rate networks}
+
+\maketitle
+
+\section{Introduction}
+In contemporary artificial neuronal network science a vast number of
+different models for describing both the dynamic of networks as well as
+their plasticities are applied. 
+But what exactly makes artificial neuronal networks learn successfully? And
+why are certain types of networks and certain learning rules effective for
+some problems, but fail at solving others? Confronting and eventually
+answering these questions is critical when trying to gain a deep
+understanding of neural networks and artificial intelligence. 
+
+Using the above questions as a guideline,
+we decided to analyze the FORCE algorithm introduced in \cite{FORCE} that
+is especially suitable for learning periodic patterns. More precisely, we
+wanted to identify which properties of a network are important for its
+learning success, and how to choose these properties' values for an optimal
+result.  To this end, one option would be to take an initial network and
+an adequate periodic pattern to be learned, and to optimize the network's
+internals for this very task. Then patterns may emerge that hint at how an
+optimal network design looks like. 
+
+However, we took a different approach:
+Instead of fine tuning single internal weights, we were concerned with the
+general rules of the network's structure. So we wanted our networks to
+be random to a certain degree, which seems biologically plausible, but we
+also wanted them to follow certain patterns and allow for specialization:
+How dense are the synapses distributed? Is there a strong compartmentalization?
+Are recurrent structures frequent? How strong should the feedback signal
+be, and how strong should the synapses fire on average?
+
+To address these issues we looked at \emph{parameterized random networks}, or
+in the language of genetics, at different \emph{network genotypes}. These
+genotypes contain parametric information about the networks to be created,
+the \emph{phenotypes}. Different phenotypes with the same genotype may thus
+have strong quantitative differences, but they share structural qualities
+whose fitness for a preassigned task we wanted to analyze and improve.
+
+Since calculating the fitness of a genotype required the evaluation of many
+different phenotypes and because of the resulting stochastic nature of the
+problems we faced, we decided to use genetic algorithms for the
+optimization process. Other more direct optimization methods like simulated
+annealing or gradient descent seemed unfeasible for this.
+
+
+\section{Concepts and Methods}
+\paragraph{Basic Network Dynamics} As our neuronal network model we choose
+basic rate networks that are also used in the original FORCE publication
+\cite{FORCE} and the publication \cite{FORCE}, where our notation of this
+paragraph mainly stems from. So we look at 
+
+- describe network dynamic
+- describe learning and tasks
+- describe sucess of network
+
+- We chose rate networks in order to apply FORCE rule
+- borrow notation from reward modulation rule paper
+Basic Network dynamics:
+    - Introduce single neuronal network as collection of matrices with specified
+    dynamics
+    - Briefly describe the learning rule (FORCE)
+
+\paragraph{Genes and Challenges}
+    - Introduce parameterized random networks as generators of these networks
+    - Introduce challenges, and the expected success values when paring
+    generators with challenges.
+
+\paragraph{Genetic Optimization}
+Genetic Optimization:
+
+- Hint / vague description of the codebase
+
+\paragraph{Tasks}
+For the optimization to work properly, the problems presented to the networks 
+have (for the most part) to solvable by FORCE learning. While it was shown \cite{}
+that large recurrent neural networks are capable of learning very complex functions
+using the FORCE algorithm, the optimization requires a large number of learnings.
+Therefore, the networks have to be restricted to being quite small ($\approx 100$ neurons)
+and as such are less powerful. 
+
+To get a simple criterion to estimate whether it might be possible to learn a given function 
+using FORCE with 100 neurons, we look at a single sinusoidal of frequency $\omega$ and 
+determine the range of $\omega$ in which an (unoptimized) network (i.e. GAIN, 
+FEEDBACK, p, Erdös Renyi) is able to learn the function (see fig. \ref{}). 
+ 
+
+\section{Results}
+
+\section{Discussion}
+
+\blindtext
+
+
+\begin{thebibliography}{}
+
+\bibitem{mcdermott}
+  Y.-F.~Chen {\it et al.},
+  %``Microwave Photon Counter Based on Josephson Junctions,''
+  Phys.\ Rev.\ Lett.\  {\bf 107}, 217401 (2011).
+ 
+
+\end{thebibliography}
+
+\end{document}
