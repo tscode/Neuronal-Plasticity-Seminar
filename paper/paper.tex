@@ -1,0 +1,132 @@
+\documentclass[letter,scriptaddress,twocolumn, prl,showkeys]{revtex4-1}
+
+    \usepackage{microtype}
+    \usepackage{blindtext}
+
+	\usepackage{amsmath}%,amssymb} 
+	\usepackage{makeidx}
+	\usepackage{amsfonts}
+	\usepackage[ansinew]{inputenc}
+	\usepackage[usenames,dvipsnames]{pstricks}
+	\usepackage{subfigure}
+	\usepackage{epsfig}
+	\usepackage{pst-grad} % For gradients
+	\usepackage{pst-plot} % For axes
+	\usepackage[colorlinks,hyperindex]{hyperref}
+	\hypersetup
+	{
+		colorlinks,%
+		citecolor=black,%
+		linkcolor=black,%
+		urlcolor=black,%
+	}
+
+%--- Theorem like environments ----
+	\newtheorem{theorem}{Theorem}
+	\newtheorem{corolary}{Corolary}
+	\newtheorem{prop}{Proposition}
+	\newtheorem{definition}{Definition}
+	\newtheorem{example}{Example}
+	\newtheorem{exercise}{Exercise}
+	\newtheorem{lemma}{Lemma}
+
+%--- Definindo algumas frescuras.
+%\numberwithin{equation}{subsection}
+	%\numberwithin{equation}{section}
+
+	\setlength\textheight{24.5cm}
+	
+\makeindex
+
+%--------------------------------------------------------
+\begin{document}
+
+\title{Optimizing Structural Properties Of Neural Networks With Evolutionary Algorithms}
+
+\author{T. Staudt, E. Schultheis}
+\email{thomas.staudt@stud.uni-goettingen.de, erik.schultheis@uni-goettingen.de}
+\affiliation{University of Göttingen}
+
+\date{today}
+
+\begin{abstract}
+    In this article we examine how structural properties of neural
+    networks, like the size or local synapse densities, affect their
+    learning success for various tasks. To do so, we look at a rate based
+    model for neural networks and apply the FORCE rule for the learning
+    process. A sophisticated matching algorithm
+    allows us to quantify the learning success of a network so that the
+    fitness of structural characteristics, expressed by integer or
+    floating-point parameters, can be evaluated. We then use evolutionary
+    optimization methods on these parameters to show that (1) ring
+    topologies are generally more successful than strictly random
+    topologies, (2) *FAT
+    LIST OF INCREDIBLE RESULTS THAT CHANGE THE UNIVERSE*
+\end{abstract}
+
+\keywords{genetic algorithms, evolutionary algorithms, FORCE learning, rate networks}
+
+\maketitle
+
+\section{Introduction}
+What makes artificial neuronal networks learn successfully? And why are
+certain types of networks and certain learning rules effective for some
+problems, but fail at solving others?
+Confronting and eventually answering these questions is critical when trying
+to gain a deep understanding of neural networks and artificial
+intelligence. 
+
+*MISSING*
+
+Instead of fine tuning single internal weights in order to obtain a network
+perfectly fit for the task, however, we are concerned with the rules that
+generate the structure of the networks. So we still want our networks to be
+random to a certain degree, which seems biologically plausible, but we also
+want them to follow certain patterns and allow specialization: How dense
+are the synapses distributed? Is there a strong compartimization?  Are
+recurrent structures frequent? How strong should the feedback signal be,
+and how strong should the synapses be on average?
+
+\section{Concepts and Methods}
+\paragraph{Basic Network Dynamics} As our neuronal network model we choose
+basic rate networks that are also used in the original FORCE publication
+\cite{FORCE} and the publication \cite{FORCE}, where our notation of this
+paragraph mainly stems from. So we look at 
+
+- We chose rate networks in order to apply FORCE rule
+- borrow notation from reward modulation rule paper
+Basic Network dynamics:
+    - Introduce single neuronal network as collection of matrices with specified
+    dynamics
+    - Briefly describe the learning rule (FORCE)
+
+\paragraph{Genes and Challenges}
+    - Introduce parameterized random networks as generators of these networks
+    - Introduce challenges, and the expected success values when paring
+    generators with challenges.
+
+\paragraph{Genetic Optimization}
+Genetic Optimization:
+
+
+
+- Hint / vague description of the codebase
+
+\section{Results}
+
+\section{Discussion}
+
+\blindtext
+
+
+\begin{thebibliography}{}
+
+\bibitem{mcdermott}
+  Y.-F.~Chen {\it et al.},
+  %``Microwave Photon Counter Based on Josephson Junctions,''
+  Phys.\ Rev.\ Lett.\  {\bf 107}, 217401 (2011).
+ 
+
+\end{thebibliography}
+
+\end{document}
