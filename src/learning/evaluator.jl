@@ -53,7 +53,7 @@ end
 function calculate_correlation!( evl::Evaluator )
   @assert evl.T == evl.chunksize + 1 "trying to calculate correlation before chunk was filled"
   # now evaluate the collected chunk.
-  # first, we remove a costant phase shift. to do that, 
+  # first, we remove a costant phase shift. to do that,
   # we look at the crosscorrelation of expected and received
   # and choose Δt such that it is maximized
   mxsum = -Inf
@@ -97,8 +97,9 @@ function evaluate(evl::Evaluator, task::AbstractTask, duration::Real; rec::Bool=
     evaluate_step!(evl, task)
     if rec
       record(recorder, 1, evl.net.time)
+      record(recorder, 2, evl.net.time - evl.timeshift)
       for i = 1:length(evl.net.output)
-        record(recorder, 1+i, evl.net.output[i])
+        record(recorder, 2+i, evl.net.output[i])
       end
     end
   end
