@@ -48,8 +48,9 @@ function test_fitness_for_task( net::AbstractNetwork, rule::AbstractRule,
     # record in case that a filename was given
     if fname != ""
         record(recorder, 1, net.time)
+        record(recorder, 2, net.time)
         for i = 1:length(net.output)
-           record(recorder, 1+i, net.output[1])
+           record(recorder, 2+i, net.output[1])
         end
     end
   end
