@@ -81,6 +81,9 @@ function calculate_correlation!( evl::Evaluator )
 
   # just nice variable names
   evl.timeshift += dtime * dt
+  if mxsum / recvn / norm(evl.expected) > 0.1
+      println("$mxsum $recvn $(evl.timeshift)")
+  end
   evl.last_result = mxsum / norm(evl.expected) / recvn
   evl.sumcor += evl.last_result
   evl.chunkcount += 1
@@ -91,6 +94,7 @@ end
 
 function evaluate(evl::Evaluator, task::AbstractTask, duration::Real; rec::Bool=false, recorder=REC)
   start_time = evl.net.time
+  println(start_time)
   while evl.net.time < start_time + duration
     prepare_task!(task, evl.net.time  + dt, false) # non deterministic: allows noise in input
     update!(evl.net, get_input(task))
