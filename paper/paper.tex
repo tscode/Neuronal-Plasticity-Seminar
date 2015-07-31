@@ -10,7 +10,7 @@
 	\usepackage[usenames,dvipsnames]{pstricks}
 	\usepackage{subfigure}
 	\usepackage{epsfig}
-	\usepackage{pst-grad} % For gradients
+%	\usepackage{pst-grad} % For gradients
 	\usepackage{pst-plot} % For axes
 	\usepackage[colorlinks,hyperindex]{hyperref}
 	\hypersetup
@@ -108,9 +108,19 @@ Basic Network dynamics:
 \paragraph{Genetic Optimization}
 Genetic Optimization:
 
-
-
 - Hint / vague description of the codebase
+
+\paragraph{Tasks}
+For the optimization to work properly, the problems presented to the networks 
+have (for the most part) to solvable by FORCE learning. While it was shown \cite{}
+that large recurrent neural networks are capable of learning very complex functions
+using the FORCE algorithm, the optimization requires a large number of learnings.
+Therefore, the networks have to be restricted to being quite small ($\approx 100$ neurons)
+and as such are less powerful. 
+
+To get a simple criterion to estimate whether it might be possible to learn a given function 
+using FORCE with 100 neurons, we look at 
+ 
 
 \section{Results}
 
