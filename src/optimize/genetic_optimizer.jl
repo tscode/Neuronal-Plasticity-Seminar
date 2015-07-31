@@ -276,8 +276,8 @@ function recombine( rng::AbstractRNG, A::AbstractGenerator, B::AbstractGenerator
   return new_gen
 end
 
-function save_evolution(file, opt::EvoNet.GeneticOptimizer)
-  names = EvoNet.Param.get_parameter_names(opt.population[1])
+function save_evolution(file, opt::GeneticOptimizer)
+  names = Param.get_parameter_names(opt.population[1])
   output = [opt.recorder["G"] opt.recorder["QT"] opt.recorder["QL"] opt.recorder["TS"]]
   names2 = UTF8String[]
   for name in names
