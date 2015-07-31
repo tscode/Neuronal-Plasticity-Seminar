@@ -41,7 +41,7 @@
 %--------------------------------------------------------
 \begin{document}
 
-\title{Optimizing Structural Properties Of Neural Networks With Evolutionary Algorithms}
+\title{Optimizing Structural Properties Of Neural Networks With Genetic Algorithms}
 
 \author{T. Staudt, E. Schultheis}
 \email{thomas.staudt@stud.uni-goettingen.de, erik.schultheis@uni-goettingen.de}
@@ -69,29 +69,57 @@
 \maketitle
 
 \section{Introduction}
-What makes artificial neuronal networks learn successfully? And why are
-certain types of networks and certain learning rules effective for some
-problems, but fail at solving others?
-Confronting and eventually answering these questions is critical when trying
-to gain a deep understanding of neural networks and artificial
-intelligence. 
+In contemporary artificial neuronal network science a vast number of
+different models for describing both the dynamic of networks as well as
+their plasticities are applied. 
+But what exactly makes artificial neuronal networks learn successfully? And
+why are certain types of networks and certain learning rules effective for
+some problems, but fail at solving others? Confronting and eventually
+answering these questions is critical when trying to gain a deep
+understanding of neural networks and artificial intelligence. 
 
-*MISSING*
+Using the above questions as a guideline,
+we decided to analyze the FORCE algorithm introduced in \cite{FORCE} that
+is especially suitable for learning periodic patterns. More precisely, we
+wanted to identify which properties of a network are important for its
+learning success, and how to choose these properties' values for an optimal
+result.  To this end, one option would be to take an initial network and
+an adequate periodic pattern to be learned, and to optimize the network's
+internals for this very task. Then patterns may emerge that hint at how an
+optimal network design looks like. 
 
-Instead of fine tuning single internal weights in order to obtain a network
-perfectly fit for the task, however, we are concerned with the rules that
-generate the structure of the networks. So we still want our networks to be
-random to a certain degree, which seems biologically plausible, but we also
-want them to follow certain patterns and allow specialization: How dense
-are the synapses distributed? Is there a strong compartimization?  Are
-recurrent structures frequent? How strong should the feedback signal be,
-and how strong should the synapses be on average?
+However, we took a different approach:
+Instead of fine tuning single internal weights, we were concerned with the
+general rules of the network's structure. So we wanted our networks to
+be random to a certain degree, which seems biologically plausible, but we
+also wanted them to follow certain patterns and allow for specialization:
+How dense are the synapses distributed? Is there a strong compartmentalization?
+Are recurrent structures frequent? How strong should the feedback signal
+be, and how strong should the synapses fire on average?
+
+To address these issues we looked at \emph{parameterized random networks}, or
+in the language of genetics, at different \emph{network genotypes}. These
+genotypes contain parametric information about the networks to be created,
+the \emph{phenotypes}. Different phenotypes with the same genotype may thus
+have strong quantitative differences, but they share structural qualities
+whose fitness for a preassigned task we wanted to analyze and improve.
+
+Since calculating the fitness of a genotype required the evaluation of many
+different phenotypes and because of the resulting stochastic nature of the
+problems we faced, we decided to use genetic algorithms for the
+optimization process. Other more direct optimization methods like simulated
+annealing or gradient descent seemed unfeasible for this.
+
 
 \section{Concepts and Methods}
 \paragraph{Basic Network Dynamics} As our neuronal network model we choose
 basic rate networks that are also used in the original FORCE publication
 \cite{FORCE} and the publication \cite{FORCE}, where our notation of this
 paragraph mainly stems from. So we look at 
+
+- describe network dynamic
+- describe learning and tasks
+- describe sucess of network
 
 - We chose rate networks in order to apply FORCE rule
 - borrow notation from reward modulation rule paper
