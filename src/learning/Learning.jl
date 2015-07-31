@@ -14,4 +14,4 @@ export AbstractTask, FunctionTask,
        AbstractTeacher, Teacher,
        AbstractEvaluator, Evaluator
 # functions
-export evaluate, reset, learn!
+export evaluate, reset, learn!, get_expected
