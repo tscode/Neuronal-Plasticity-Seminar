@@ -84,7 +84,7 @@ function complex_periodic( f::Function;
     amps = Function[ rng -> normal(rng, amplitude...) * 3/(3i) for i in 1:n ]
     # the frequencies
     if logfreq
-      freqs = Function[ rng -> exp(unif(rng, map(log, frequency...))) ]
+      freqs = Function[ rng -> exp(unif(rng, map(log, frequency)...)) ]
     else
       freqs = Function[ rng -> unif(rng, frequency...) ]
     end
