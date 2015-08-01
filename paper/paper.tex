@@ -150,6 +150,22 @@ To get a simple criterion to estimate whether it might be possible to learn a gi
 using FORCE with 100 neurons, we look at a single sinusoidal of frequency $\omega$ and 
 determine the range of $\omega$ in which an (unoptimized) network (i.e. GAIN, 
 FEEDBACK, p, Erdös Renyi) is able to learn the function (see fig. \ref{}). 
+
+\paragraph{Assessing the quality of reconstructed functions}
+In order to optimize the function reconstruction of a force network, a measure $f(g, g^\prime)$ for
+the concordance of target $g$ and network output $g^\prime$ is necessary. Simply using the difference
+$f_d(g, g^\prime) = \left\| g-g^\prime \right\|_2$ has the drawback that small phase differences could 
+produce huge differences in quality, even though $g^\prime$ has the exact same shape as $g$. 
+
+A measure that is timeshift independent and maximized for functions of identical shape is the 
+maximum of the cross correlation 
+\begin{align}
+f_c(g, g^\prime) = \max_t \left<g, g^\prime(\cdot - t)\right> / \sqrt{\left< g, g\right> \left<g^\prime, g^\prime \right>}.
+\end{align}
+Algorithmically, the signals are split into chunks which are correlated separately. This saves computational power and 
+prevents minute differences in frequency to accumulate into a huge phase shift, i.e. the phase only has to remain relatively
+constant over the timescale of a single chunk.
+
  
 
 \section{Results}
