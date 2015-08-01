@@ -6,7 +6,7 @@ ev = EvoNet
 
 
 # here we need to set up our final task set
-ch   = ev.complex_wave(n = 1)
+ch   = EvoNet.simple_wave(amplitude=1, frequency=(0.5e-2, 5e1))
 # blacklist all but gain and feedback
 env  = ev.Environment(challenge=ch, blacklist=["size", "percentage"])
 # create the optimizer
@@ -23,7 +23,7 @@ if N != 100
   info("this seems to be a test run. use N=100 to create final results")
 end
 
-for i = 1:5
+for i = 1:50
   ev.step!(gopt)
   ev.save_evolution("er_gain_feedback.dat", gopt)
 end

@@ -217,9 +217,14 @@ maximum of the cross correlation
 \begin{align}
 f_c(g, g^\prime) = \max_t \left<g, g^\prime(\cdot - t)\right> / \sqrt{\left< g, g\right> \left<g^\prime, g^\prime \right>}.
 \end{align}
-Algorithmically, the signals are split into chunks which are correlated separately. This saves computational power and 
-prevents minute differences in frequency to accumulate into a huge phase shift, i.e. the phase only has to remain relatively
-constant over the timescale of a single chunk.
+Algorithmically, the signals are split into overlapping chunks which are correlated separately. 
+This saves computational power and prevents minute differences in frequency to accumulate into 
+a huge phase shift, i.e. the phase only has to remain relatively
+constant over the timescale of a single chunk (i.e. about 10 seconds of simulated time).
+
+This measure becomes problematic for functions that are very close to zero for a longer time 
+(order of chunk size), but since we are going to work with superpositions of sinusoidals of 
+different frequencies, this drawback is unproblematic.
 
  
 
