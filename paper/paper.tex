@@ -206,6 +206,11 @@ using FORCE with 100 neurons, we look at a single sinusoidal of frequency $\omeg
 determine the range of $\omega$ in which an (unoptimized) network (i.e. GAIN, 
 FEEDBACK, p, Erdös Renyi) is able to learn the function (see fig. \ref{}). 
 
+Since we expect/hope that the optimized network extends this range of possible frequencies,
+we choose the frequencies for the optimiztion tasks from the slighly larger interval 
+$[0.6e-2, 4]$ such that their logarithms are uniformly spaced. This allows for good resolution 
+for both high and low frequencies.
+
 \paragraph{Assessing the quality of reconstructed functions}
 In order to optimize the function reconstruction of a force network, a measure $f(g, g^\prime)$ for
 the concordance of target $g$ and network output $g^\prime$ is necessary. Simply using the difference
