@@ -30,7 +30,7 @@ end
 
 # this function does not advance network time
 # returns true is we have collected a full chunk and updated the error
-function evaluate_step!(evl::Evaluator, task::AbstractTask) # ::Bool
+function evaluate_step!(evl::Evaluator, task::AbstractTask, allow_shift::Bool=true) # ::Bool
   # update task for currently needed time
   old_time = task.time
   old_det  = task.deterministic
@@ -44,49 +44,37 @@ function evaluate_step!(evl::Evaluator, task::AbstractTask) # ::Bool
 
   evl.T += 1
   if evl.T > evl.chunksize
-    calculate_correlation!(evl)
+    calculate_correlation!(evl, allow_shift)
     return true
   end
   return false
 end
 
-function calculate_correlation!( evl::Evaluator )
+function calculate_correlation!( evl::Evaluator, allow_shift = true )
   @assert evl.T == evl.chunksize + 1 "trying to calculate correlation before chunk was filled"
   # now evaluate the collected chunk.
   # first, we remove a costant phase shift. to do that,
   # we look at the crosscorrelation of expected and received
   # and choose Δt such that it is maximized
-  mxsum = -Inf
-  dtime = 0
-  recvn = norm(evl.received)
-  # in case the network died down, we can skip all the computations (and avoid NaN)
-  if recvn == 0
-     # dead network counts as fully failed
-    evl.last_result = 0
-    evl.chunkcount += 1
-    evl.T = 1
-    return
+
+  mshift =  div(evl.chunksize, 10)
+  if !allow_shift
+    mshift = 0
   end
-  for ΔT = -div(evl.chunksize, 10):div(evl.chunksize, 10)
-    summed = 0.0
-    for i = 1+max(0,-ΔT):evl.chunksize-max(0, ΔT)
-      #println(i, i+ΔT)
-      summed += sum(evl.expected[i] .* evl.received[i + ΔT])
-    end
-    if summed > mxsum
-      mxsum = summed
-      dtime = ΔT
-    end
-  end
+
+  ΔT, corr = best_shift(evl.received, evl.expected, mshift)
 
   # just nice variable names
-  evl.timeshift += dtime * dt
-  evl.last_result = mxsum / norm(evl.expected) / recvn
-  evl.sumcor += evl.last_result
-  evl.chunkcount += 1
+  evl.timeshift   += ΔT * dt
+  evl.last_result  = corr
+  evl.sumcor      += evl.last_result
+  evl.chunkcount  += 1
 
   # reset chunks
-  evl.T = 1
+  # copy right boundary to left boundary
+  evl.received[1:mshift] = evl.received[end-mshift+1:end]
+  evl.expected[1:mshift] = evl.expected[end-mshift+1:end]
+  evl.T = 1 + mshift
 end
 
 function evaluate(evl::Evaluator, task::AbstractTask, duration::Real; rec::Bool=false, recorder=REC)
@@ -122,4 +110,61 @@ function reset(evl::Evaluator)
   evl.last_result = -1
   evl.sumcor = 0
   evl.chunkcount = 0
+end
+
+
+####################################################################
+#            helpers for time-shift detection                      #
+####################################################################
+
+# TODO do these functions belong into util
+
+function mxcorr{T}(a::Array{T}, b::Array{T}, max_shift::Integer)
+  @assert( length(a) <= length(b) )
+  @assert( max_shift <= length(b) - length(a))
+
+  len::Integer = length(a)
+  dtime::Integer = 0     # shift for maximum cross correlation
+  mxsum::Float64 = -Inf  # maximum value of cross correlation
+
+  for ΔT = 0:max_shift
+    summed::Float64 = 0.0
+    bnorm::Float64 = 0.0
+    for i = 1:len
+      #println(i, i+ΔT)
+      summed += sum(a[i] .* b[i + ΔT])
+      bnorm += sum(b[i + ΔT] .* b[i + ΔT])
+    end
+    summed /= sqrt(bnorm)
+    if summed > mxsum
+      mxsum = summed
+      dtime = ΔT
+    end
+  end
+
+  return dtime, mxsum
+end
+
+# returns best timeshift and correlation at best timeshift.
+function best_shift{T}(a::Array{T}, b::Array{T}, boundary::Integer)
+  # take the inner part of a
+  kernel = a[boundary+1:length(a)-boundary]
+  knorm = norm(kernel)
+  if knorm == 0
+    return 0, 0
+  end
+  shift, corr = mxcorr(kernel, b, 2*boundary)
+  return -(shift - boundary), corr / knorm
+end
+
+# test code: when this function es executed, no asserts should fire :)
+function test_mxcorr()
+  # this is the cricical situation
+  for ts = -5:1:5
+    data = [cos((x)/100) for x in 0:99]
+    ref =  [cos((x+ts)/100) for x in 0:99]
+    s, mx = best_shift(data, ref, 10)
+    #writedlm("xcorr2", [dc data ref])
+    @assert( s == ts, "$(s) timeshift is wrong, expected $(ts)" )
+  end
 end
