@@ -19,6 +19,6 @@ ev = EvoNet
   return EvoNet.get_value(s)
 end
 
-freq = logspace(-2, 1, 100)
+freq = logspace(-3, 0.5, 200)
 result = pmap(x->rating(x), freq)
 writedlm("freqrange.txt", [freq result])

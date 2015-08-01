@@ -65,20 +65,25 @@ complex_sawtooth(; args...) = complex_periodic(sawtooth_function; args...)
 
 # generating periodics with specified amplitudes, frequencies and phases by taking a
 # periodic f. The user must assure that f indeed is periodic with periode length 1 !
-function complex_periodic( f::Function; 
-                           n=4, amplitude=(0.75, 1.5), frequency=(0.1, 1.0), 
+function complex_periodic( f::Function;
+                           n=4, amplitude=(0.75, 1.5), frequency=(0.1, 1.0),
                            phase=(0., 1.),             offset=(-0.2, 0.2),
                            clock=false,                clock_frequency=1., # relative freq
                            clock_width=(0.05, 0.1),    clock_amplitude=(0.4, 0.6),
                            clock_phase=(0,1),          clock_offset=(0., 0.) )
+
+    # if this is false, we get less than two samples per period!!!!!!
+    @assert( maximum(frequency) < 0.5 / dt, "frequency impossible for current dt" )
+
     # define the parameter-distributions
     # the number of waves
     num_waves(rng) = n
     # the wave amplitudes
     amps = Function[ rng -> normal(rng, amplitude...) * 3/(3i) for i in 1:n ]
     # the frequencies
-    freqs = Function[ rng -> unif(rng, frequency...) ] 
-    for i in 2:n push!( freqs, rng -> rand(rng, 0.0:0.25:1) + rand(rng, 1:min(8,2i)) ) end 
+    freqs = Function[ rng -> unif(rng, frequency...) ]
+    for i in 2:n push!( freqs, rng -> rand(rng, 0.0:0.25:1) + rand(rng, 1:min(8,2i)) ) end
+
     # the phases
     phases = Function[ rng -> unif(rng, phase...) for i in 1:n ]
     # the offsets
@@ -88,13 +93,13 @@ function complex_periodic( f::Function;
         n = convert(Int, params[1])
         result = params[2] * f( time * params[2+n] + params[2+2n] ) + params[1+3n+1]
         for i in 2:n
-            result += params[1+i] * f( time * params[1+n+i] * params[2+n] + params[1+2n+i] ) 
+            result += params[1+i] * f( time * params[1+n+i] * params[2+n] + params[1+2n+i] )
         end
         return result
     end
 
     # the clock distributions for the input
-    clock_dists = clock_param_dists( clock_amplitude, clock_frequency, clock_width, 
+    clock_dists = clock_param_dists( clock_amplitude, clock_frequency, clock_width,
                                      clock_phase, clock_offset )
     # clock input function
     if clock itemplates = Function[ clock_template( 2+n, 3n+3 ) ]
@@ -102,8 +107,8 @@ function complex_periodic( f::Function;
     # collect all parameters
     param_dists = Function[ num_waves, amps..., freqs..., phases..., off, clock_dists... ]
     # return the brand new challenge
-    return EvoNet.ParametricChallenge( Function[ otemplate ], 
-                                       itemplates, 
+    return EvoNet.ParametricChallenge( Function[ otemplate ],
+                                       itemplates,
                                        param_dists )
 end
 
@@ -183,7 +188,7 @@ function clock_template( freq_pos::Integer, param_pos::Integer )
         time_ = time - floor(time*orig_freq*rel_freq) / (orig_freq*rel_freq) + phase/orig_freq/rel_freq
         # use them to calculate the function value of the clock; use three elements of the sum to do so.
         # save for 0 <= phase <= 1, no guarantee for other phases
-        return amp * exp( -((time_ + 0/orig_freq/rel_freq) * orig_freq / 0.5width)^2 ) + 
+        return amp * exp( -((time_ + 0/orig_freq/rel_freq) * orig_freq / 0.5width)^2 ) +
                amp * exp( -((time_ - 1/orig_freq/rel_freq) * orig_freq / 0.5width)^2 ) +
                amp * exp( -((time_ - 2/orig_freq/rel_freq) * orig_freq / 0.5width)^2 ) + offset
     end

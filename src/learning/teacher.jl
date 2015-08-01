@@ -18,15 +18,15 @@ type Teacher{R <: AbstractRule, N <: AbstractNetwork} <: AbstractTeacher
     precision::Float64      # threshold precision for the decision whether to change the learing rate
     finished::Bool          # flag to indicate if learning is over
 
-    function Teacher(rule::R, net::N, period::Real, next::Real, max_time::Real, 
+    function Teacher(rule::R, net::N, period::Real, next::Real, max_time::Real,
                      evl::AbstractEvaluator, adaptive_stepping::Bool, precision::Float64 = 0.001)
         @assert period >= dt "the teaching period must be > dt = $dt"
         new(rule, net, period, next, max_time, evl, adaptive_stepping, false, precision, false)
     end
 end
 
-function Teacher(rule::AbstractRule,      evl::AbstractEvaluator; 
-                 next::Real=evl.net.time, period::Real=dt, 
+function Teacher(rule::AbstractRule,      evl::AbstractEvaluator;
+                 next::Real=evl.net.time, period::Real=dt,
                  max_time::Real=Inf,      adaptive = false)
     return Teacher{typeof(rule), typeof(evl.net)}(rule, evl.net, period, next, max_time, evl, adaptive)
 end
@@ -36,14 +36,14 @@ end
 function learn!( net::AbstractNetwork, teacher::Teacher, task::AbstractTask )
     @assert net == teacher.evl.net
 
-    # we need to set time to net.time + dt, so that after update 
+    # we need to set time to net.time + dt, so that after update
     # (i.e. when we test the result) task and net have the same time
     # we also need to set it before update so we get the correct input
     prepare_task!(task, net.time + dt, false)
     update!(net, get_input(task))
 
      # adaptive stepping
-     if teacher.adaptive_stepping && evaluate_step!(teacher.evl, task)
+     if teacher.adaptive_stepping && evaluate_step!(teacher.evl, task, false)
        # we need to make sure period does not grow to large. for now we just use an upper bound
        if get_current_score(teacher.evl) > (1-teacher.precision/2)  && teacher.can_adapt
          teacher.period += dt
