@@ -53,8 +53,9 @@ end
 
 # Helper type
 
-function simple_periodic( f::Function; amplitude=(0.5, 1.5), frequency=(0.025, 2.), args... )
-    return complex_periodic( f, n=1, frequency=frequency, amplitude=amplitude; args... )
+
+function simple_periodic( f::Function; amplitude=(0.5, 1.5), args... )
+    return complex_periodic( f, n=1, amplitude=amplitude; args... )
 end
 
 simple_wave(; args...)  = simple_periodic(x -> sin(2π*x); args...)
@@ -68,6 +69,7 @@ complex_sawtooth(; args...) = complex_periodic(sawtooth_function; args...)
 function complex_periodic( f::Function;
                            n=4, amplitude=(0.75, 1.5), frequency=(0.1, 1.0),
                            phase=(0., 1.),             offset=(-0.2, 0.2),
+                           logfreq=true,
                            clock=false,                clock_frequency=1., # relative freq
                            clock_width=(0.05, 0.1),    clock_amplitude=(0.4, 0.6),
                            clock_phase=(0,1),          clock_offset=(0., 0.) )
@@ -81,7 +83,11 @@ function complex_periodic( f::Function;
     # the wave amplitudes
     amps = Function[ rng -> normal(rng, amplitude...) * 3/(3i) for i in 1:n ]
     # the frequencies
-    freqs = Function[ rng -> unif(rng, frequency...) ]
+    if logfreq
+      freqs = Function[ rng -> exp(unif(rng, map(log, frequency...))) ]
+    else
+      freqs = Function[ rng -> unif(rng, frequency...) ]
+    end
     for i in 2:n push!( freqs, rng -> rand(rng, 0.0:0.25:1) + rand(rng, 1:min(8,2i)) ) end
 
     # the phases
