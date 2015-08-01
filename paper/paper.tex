@@ -90,14 +90,14 @@ answering these questions is critical when trying to gain a deep
 understanding of neural networks and artificial intelligence. 
 
 Using the above questions as a guideline, we decided to analyze what
-network characteristics makes the FORCE algorithm, introduced in
+network characteristics make the FORCE algorithm, introduced in
 \citep{FORCE}, especially suitable for learning periodic patterns.  More
 precisely, we wanted to identify which properties of a network are
-important for its learning success, and how to choose these properties'
+important for its learning success, and how to choose their
 values for an optimal result.  To this end, one option would be to take an
-initial network and an adequate periodic pattern to be learned, and to
+initial network and an adequate periodic pattern to be learned, and
 optimize the network's internals for this very task. Then patterns may
-emerge that hint at how an optimal network design looks like. 
+emerge that hint at how an optimal network design looks. 
 
 However, we took a different approach:
 Instead of fine tuning single internal weights, we were concerned with the
@@ -110,24 +110,26 @@ be, and how strong should the synapses fire on average?
 
 To address these issues we looked at \emph{parameterized random networks}, or
 in the language of genetics, at different \emph{network genotypes}. These
-genotypes contain parametric information about the networks to be created,
-the \emph{phenotypes}. Different phenotypes with the same genotype may thus
+genotypes contain parametric information about the networks (\emph{phenotypes}) to be created. 
+Different phenotypes with the same genotype may thus
 have strong quantitative differences, but they share structural qualities
 whose fitness for a preassigned task we wanted to analyze and improve.
 
 Since calculating the fitness of a genotype required the evaluation of many
 different phenotypes and because of the resulting stochastic nature of the
 problems we faced, we decided to use genetic algorithms for the
-optimization process. Other more direct optimization methods like simulated
-annealing or gradient descent seemed unfeasible for this.
+optimization process. 
 
+\section{Concepts and Model}
+\paragraph{Network Model} 
 
-\section{Concepts and Methods}
-\paragraph{Network Model} We chose the same rate based network architecture
+MAYBE WE SHOULD MOTIVATE FORCE HERE, WHICH THEN NATURALLY LEADS TO THE CHOICE OF NETWORK BELOW.
+
+We chose the same rate based network architecture
 that is used in the original FORCE publication \citep{FORCE} (denoted as
 architecture A) and also in \citep{RM}, where our notation mainly stems
 from. So we look at a network $\mathcal{N}$ with $N$ internal neurons and
-states $x_i$ for $1 \le i \le N$ that loosely represent the neurons
+states $x_i$ for $1 \le i \le N$ that loosely represent the neurons'
 membrane potential. The firing rate $r_i$ of the $i$-th internal neuron is
 given by $r_i = \tanh x_i$.  Further, the network contains $R$ readout
 neurons with states $z_i$ for $1 \le i \le R$, where
@@ -167,7 +169,42 @@ for performance reasons, as the single learning steps proved to be the main
 computational bottleneck, but we also found that the long time network
 dynamics tended to be slightly more accurate for adaptive learning steps.
 
-\paragraph{Tasks and Challenges}
+\paragraph{Parametric Random Networks -- Genotypes} Since we are not
+interested in single network properties but rather want to find out which
+structural elements of networks are important for learning success, we
+introduced \emph{parametric random networks}, or \emph{network genotypes}.
+Such a genotype $G$ consists of a set $\Theta$ of parameters that determine
+which concrete networks are created when $G$ is expressed in a single
+phenotype. Technically $G$ may be understood as a stochastic network
+generator that returns a network $\mathcal{N}=G(\omega)$ for every seed
+value $\omega$.
+The genotypes' parameters $\theta\in\Theta$ were either integer or floating
+point values and can be classified as affecting either (1) the topology of
+$\omega\Ix{rec}$ or (2) the weight values of $\omega\Ix{rec}$ and
+$\omega\Ix{fb}$. Important examples for (1) are the networks size $N$, the
+occupation probability $p$ (for random Erdös-Renyi networks), the
+neighborhood range $k$ (for ring topologies), or the number $l$ of layers
+(for feed-forward networks). We furthermore introduced ratio parameters
+that allowed us to interpolate between different topologies.  Parameters of
+type (2) were the feedback strength $\texttt{feedback}$ (scaling of
+$\omega\Ix{fb}$) and the gain value \gain (scaling of
+$\omega\Ix{rec}$ by ).
+
+
+\paragraph{Fitness} For a given genotype $G$ and a given challenge $C$, the
+fitness $f_C(G)$ of $G$ for $C$ is taken to be the expected value of
+the success rates of $G$'s phenotypes when solving the tasks of the
+challenge $C$. In our simulations, $f_C(G)$ was of course only
+approximated; this was usually done by taking 20 to 100 sample phenotypes
+and sample tasks, where the exact number depended on the standard deviation
+of the previously drawn samples' success rates.
+
+
+
+\section{Methods and Implementation}
+
+
+\paragraph{Tasks}
 For the learning to work properly, the problems presented to the
 networks have (for the most part) to be solvable by FORCE. While
 it was shown \citep{FORCE} that large recurrent neural networks are capable of
@@ -181,7 +218,7 @@ determine the range of $\omega$ in which an (unoptimized) network (i.e. \gain,
 \feedback, \ERprob) is able to learn the function (see fig. \ref{}). 
 
 Since we expect/hope that the optimized network extends this range of possible frequencies,
-we choose the frequencies for the optimiztion tasks from the slighly larger interval 
+we choose the frequencies for the optimization tasks from the slightly larger interval 
 $[0.6e-2, 4]$ such that their logarithms are uniformly spaced. This allows for good resolution 
 for both high and low frequencies.
 
@@ -207,34 +244,6 @@ constant over the timescale of a single chunk (about 10 seconds of simulated tim
 This measure becomes problematic for functions that are very close to zero for a longer time 
 (order of chunk size), but since we are going to work with superpositions of sinusoidals of 
 different frequencies, this drawback is unproblematic.
-\paragraph{Parametric Random Networks -- Genotypes} Since we are not
-interested in single network properties but rather want to find out which
-structural elements of networks are important for learning success, we
-introduced \emph{parametric random networks}, or \emph{network genotypes}.
-Such a genotype $G$ consists of a set $\Theta$ of parameters that determine
-which concrete networks are created when $G$ is expressed in a single
-phenotype. Technically $G$ may be understood as a stochastic network
-generator that returns a network $\mathcal{N}=G(\omega)$ for every seed
-value $\omega$.
-The genotypes' parameters $\theta\in\Theta$ were either integer or floating
-point values and can be classified as affecting either (1) the topology of
-$\omega\Ix{rec}$ or (2) the weight values of $\omega\Ix{rec}$ and
-$\omega\Ix{fb}$. Important examples for (1) are the networks size $N$, the
-occupation probability $p$ (for random Erdös-Renyi networks), the
-neighborhood range $k$ (for ring topologies), or the number $l$ of layers
-(for feed-forward networks). We furthermore introduced ratio parameters
-that allowed us to interpolate between different topologies.  Parameters of
-type (2) were the feedback strength $\texttt{feedback}$ (scaling of
-$\omega\Ix{fb}$) and the gain value \gain (scaling of
-$\omega\Ix{rec}$ by ).
-
-\paragraph{Fitness} For a given genotype $G$ and a given challenge $C$, the
-fitness $f_C(G)$ of $G$ for $C$ is taken to be the expected value of
-the success rates of $G$'s phenotypes when solving the tasks of the
-challenge $C$. In our simulations, $f_C(G)$ was of course only
-approximated; this was usually done by taking 20 to 100 sample phenotypes
-and sample tasks, where the exact number depended on the standard deviation
-of the previously drawn samples' success rates.
 
 \paragraph{Genetic Optimization}
 Genetic Optimization:
