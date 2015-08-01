@@ -34,6 +34,9 @@
 %\numberwithin{equation}{subsection}
 	%\numberwithin{equation}{section}
 
+    \newcommand{\ix}[1]{_\mathrm{#1}}
+    \newcommand{\Ix}[1]{^\mathrm{#1}}
+
 	\setlength\textheight{24.5cm}
 	
 \makeindex
@@ -69,24 +72,24 @@
 \maketitle
 
 \section{Introduction}
-In contemporary artificial neuronal network science a vast number of
-different models for describing both the dynamic of networks as well as
-their plasticities are applied. 
+Looking at the field of artificial neuronal networks, one finds a great
+variety of different models describing both the dynamic of networks as well
+as their plasticities, i.e.\ their learning behavior.
 But what exactly makes artificial neuronal networks learn successfully? And
 why are certain types of networks and certain learning rules effective for
 some problems, but fail at solving others? Confronting and eventually
 answering these questions is critical when trying to gain a deep
 understanding of neural networks and artificial intelligence. 
 
-Using the above questions as a guideline,
-we decided to analyze the FORCE algorithm introduced in \cite{FORCE} that
-is especially suitable for learning periodic patterns. More precisely, we
-wanted to identify which properties of a network are important for its
-learning success, and how to choose these properties' values for an optimal
-result.  To this end, one option would be to take an initial network and
-an adequate periodic pattern to be learned, and to optimize the network's
-internals for this very task. Then patterns may emerge that hint at how an
-optimal network design looks like. 
+Using the above questions as a guideline, we decided to analyze what
+network characteristics makes the FORCE algorithm, introduced in
+\citep{FORCE}, especially suitable for learning periodic patterns.  More
+precisely, we wanted to identify which properties of a network are
+important for its learning success, and how to choose these properties'
+values for an optimal result.  To this end, one option would be to take an
+initial network and an adequate periodic pattern to be learned, and to
+optimize the network's internals for this very task. Then patterns may
+emerge that hint at how an optimal network design looks like. 
 
 However, we took a different approach:
 Instead of fine tuning single internal weights, we were concerned with the
@@ -112,35 +115,87 @@ annealing or gradient descent seemed unfeasible for this.
 
 
 \section{Concepts and Methods}
-\paragraph{Basic Network Dynamics} As our neuronal network model we choose
-basic rate networks that are also used in the original FORCE publication
-\cite{FORCE} and the publication \cite{FORCE}, where our notation of this
-paragraph mainly stems from. So we look at 
+\paragraph{Network Model} We chose the same rate based network architecture
+that is used in the original FORCE publication \citep{FORCE} (denoted as
+architecture A) and also in \citep{RM}, where our notation mainly stems
+from. So we look at a network $\mathcal{N}$ with $N$ internal neurons and
+states $x_i$ for $1 \le i \le N$ that loosely represent the neurons
+membrane potential. The firing rate $r_i$ of the $i$-th internal neuron is
+given by $r_i = \tanh x_i$.  Further, the network contains $R$ readout
+neurons with states $z_i$ for $1 \le i \le R$, where
+\begin{equation} 
+    z_i = \sum_{j=1}^{N}\omega\Ix{read}_{ij}\,r_j~.
+\end{equation}
+Taking into account both internal dynamics as well as an external feedback
+pathway, the dynamics $t \mapsto x_i(t)$ of the single neurons are governed
+by \footnote{~Note that we did not include external input signals in this
+formula, as is done in \citep{FORCE} and \citep{RM}. We in fact enabled
+inputs in our code base, but did not use them for the main results.}
+\begin{equation}
+    \dot{x}_i(t) = -x_i(t) + \sum_{i=1}^N \omega\Ix{rec}_{ij}\, r_j(t) + 
+                   \sum_{i=1}^R \omega\Ix{fb}_{ij}\, z_j(t)~,
+\end{equation}
+where we introduce the internal recurrent synapse weights
+$\omega\Ix{rec}_{ij}$ and the feedback synapse weights
+$\omega\Ix{fb}_{ij}$. One can see that the neurons exponentially
+decay if they are not presented stimulus by other neurons. 
+We solved this system of differential equations by
+a simple Newton method with integration time steps $dt = 0.01$, which was
+also used in \citep{FORCE}. (How we constructed $\omega\Ix{rec}$ and
+$\omega\Ix{fb}$ will be discussed in \emph{Parametric Random Networks})
 
-- describe network dynamic
-- describe learning and tasks
-- describe sucess of network
+\paragraph{Learning} Learning took place by stepwisely adapting the weights
+$\omega\Ix{read}$ so that the dynamics $t\mapsto r_i(t)$ of the readout
+rates should eventually match a given periodic input pattern $t\mapsto
+a_i(t)$ as accurately as possible. To update $\omega\Ix{read}$ we chose
+a variant of the FORCE algorithm \citep{FORCE} that rapidly modifies the
+feedback loop to keep the errors $|r_i(t) - a_i(t)|$ small from the
+beginning on.
 
-- We chose rate networks in order to apply FORCE rule
-- borrow notation from reward modulation rule paper
-Basic Network dynamics:
-    - Introduce single neuronal network as collection of matrices with specified
-    dynamics
-    - Briefly describe the learning rule (FORCE)
+While the authors of \citep{FORCE} update the weights $\omega\Ix{read}$ in
+fixed intervals (every second time step), we used an adaptive mechanism to
+determine how often learning should occur. This was initially introduced
+for performance reasons, as the single learning steps proved to be the main
+computational bottleneck, but we also found that the long time network
+dynamics tended to be slightly more accurate for adaptive learning steps.
 
-\paragraph{Genes and Challenges}
-    - Introduce parameterized random networks as generators of these networks
-    - Introduce challenges, and the expected success values when paring
-    generators with challenges.
+\paragraph{Parametric Random Networks -- Genotypes} Since we are not
+interested in single network properties but rather want to find out which
+structural elements of networks are important for learning success, we
+introduced \emph{parametric random networks}, or \emph{network genotypes}.
+Such a genotype $G$ consists of a set $\Theta$ of parameters that determine
+which concrete networks are created when $G$ is expressed in a single
+phenotype. Technically $G$ may be understood as a stochastic network
+generator that returns a network $\mathcal{N}=G(\omega)$ for every seed
+value $\omega$.
+The genotypes' parameters $\theta\in\Theta$ were either integer or floating
+point values and can be classified as affecting either (1) the topology of
+$\omega\Ix{rec}$ or (2) the weight values of $\omega\Ix{rec}$ and
+$\omega\Ix{fb}$. Important examples for (1) are the networks size $N$, the
+occupation probability $p$ (for random Erdös-Renyi networks), the
+neighborhood range $k$ (for ring topologies), or the number $l$ of layers
+(for feed-forward networks). We furthermore introduced ratio parameters
+that allowed us to interpolate between different topologies.  Parameters of
+type (2) were the feedback strength \texttt{feedback} (scaling of
+$\omega\Ix{fb}$) and the gain value \texttt{gain} (scaling of
+$\omega\Ix{rec}$ by ).
+
+\paragraph{Fitness} For a given genotype $G$ and a given challenge $C$, the
+fitness $f_C(G)$ of $G$ for $C$ is taken to be the expected value of
+the success rates of $G$'s phenotypes when solving the tasks of the
+challenge $C$. In our simulations, $f_C(G)$ was of course only
+approximated; this was usually done by taking 20 to 100 sample phenotypes
+and sample tasks, where the exact number depended on the standard deviation
+of the previously drawn samples' success rates.
 
 \paragraph{Genetic Optimization}
 Genetic Optimization:
 
 - Hint / vague description of the codebase
 
-\paragraph{Tasks}
+\paragraph{Tasks and Challenges}
 For the optimization to work properly, the problems presented to the networks 
-have (for the most part) to solvable by FORCE learning. While it was shown \cite{}
+have (for the most part) to solvable by FORCE learning. While it was shown \citep{}
 that large recurrent neural networks are capable of learning very complex functions
 using the FORCE algorithm, the optimization requires a large number of learnings.
 Therefore, the networks have to be restricted to being quite small ($\approx 100$ neurons)
@@ -159,14 +214,7 @@ FEEDBACK, p, Erdös Renyi) is able to learn the function (see fig. \ref{}).
 \blindtext
 
 
-\begin{thebibliography}{}
 
-\bibitem{mcdermott}
-  Y.-F.~Chen {\it et al.},
-  %``Microwave Photon Counter Based on Josephson Junctions,''
-  Phys.\ Rev.\ Lett.\  {\bf 107}, 217401 (2011).
- 
-
-\end{thebibliography}
+\bibliography{sources}
 
 \end{document}
