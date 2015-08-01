@@ -37,6 +37,14 @@
     \newcommand{\ix}[1]{_\mathrm{#1}}
     \newcommand{\Ix}[1]{^\mathrm{#1}}
 
+    \newcommand{\param}[1]{\texttt{#1}}
+    \newcommand{\feedback}{\param{feedback}}
+    \newcommand{\gain}{\param{gain}}
+    \newcommand{\size}{N}
+    \newcommand{\ERprob}{p}
+    \newcommand{\RINGk}{k}
+    \newcommand{\FFlayers}{l}
+
 	\setlength\textheight{24.5cm}
 	
 \makeindex
@@ -159,41 +167,7 @@ for performance reasons, as the single learning steps proved to be the main
 computational bottleneck, but we also found that the long time network
 dynamics tended to be slightly more accurate for adaptive learning steps.
 
-\paragraph{Parametric Random Networks -- Genotypes} Since we are not
-interested in single network properties but rather want to find out which
-structural elements of networks are important for learning success, we
-introduced \emph{parametric random networks}, or \emph{network genotypes}.
-Such a genotype $G$ consists of a set $\Theta$ of parameters that determine
-which concrete networks are created when $G$ is expressed in a single
-phenotype. Technically $G$ may be understood as a stochastic network
-generator that returns a network $\mathcal{N}=G(\omega)$ for every seed
-value $\omega$.
-The genotypes' parameters $\theta\in\Theta$ were either integer or floating
-point values and can be classified as affecting either (1) the topology of
-$\omega\Ix{rec}$ or (2) the weight values of $\omega\Ix{rec}$ and
-$\omega\Ix{fb}$. Important examples for (1) are the networks size $N$, the
-occupation probability $p$ (for random Erdös-Renyi networks), the
-neighborhood range $k$ (for ring topologies), or the number $l$ of layers
-(for feed-forward networks). We furthermore introduced ratio parameters
-that allowed us to interpolate between different topologies.  Parameters of
-type (2) were the feedback strength \texttt{feedback} (scaling of
-$\omega\Ix{fb}$) and the gain value \texttt{gain} (scaling of
-$\omega\Ix{rec}$ by ).
-
-\paragraph{Fitness} For a given genotype $G$ and a given challenge $C$, the
-fitness $f_C(G)$ of $G$ for $C$ is taken to be the expected value of
-the success rates of $G$'s phenotypes when solving the tasks of the
-challenge $C$. In our simulations, $f_C(G)$ was of course only
-approximated; this was usually done by taking 20 to 100 sample phenotypes
-and sample tasks, where the exact number depended on the standard deviation
-of the previously drawn samples' success rates.
-
-\paragraph{Genetic Optimization}
-Genetic Optimization:
-
-- Hint / vague description of the codebase
-
-\paragraph{Tasks and Challenges}
+\paragraph{Tasks}
 For the optimization to work properly, the problems presented to the networks 
 have (for the most part) to solvable by FORCE learning. While it was shown \citep{}
 that large recurrent neural networks are capable of learning very complex functions
@@ -203,10 +177,10 @@ and as such are less powerful.
 
 To get a simple criterion to estimate whether it might be possible to learn a given function 
 using FORCE with 100 neurons, we look at a single sinusoidal of frequency $\omega$ and 
-determine the range of $\omega$ in which an (unoptimized) network (i.e. GAIN, 
-FEEDBACK, p, Erdös Renyi) is able to learn the function (see fig. \ref{}). 
+determine the range of $\omega$ in which an (unoptimized) network (i.e. \gain, 
+\feedback, \ERprob) is able to learn the function (see fig. \ref{}). 
 
-\paragraph{Assessing the quality of reconstructed functions}
+\paragraph{Success}
 In order to optimize the function reconstruction of a force network, a measure $f(g, g^\prime)$ for
 the concordance of target $g$ and network output $g^\prime$ is necessary. Simply using the difference
 $f_d(g, g^\prime) = \left\| g-g^\prime \right\|_2$ has the drawback that small phase differences could 
@@ -225,6 +199,40 @@ constant over the timescale of a single chunk (i.e. about 10 seconds of simulate
 This measure becomes problematic for functions that are very close to zero for a longer time 
 (order of chunk size), but since we are going to work with superpositions of sinusoidals of 
 different frequencies, this drawback is unproblematic.
+\paragraph{Parametric Random Networks -- Genotypes} Since we are not
+interested in single network properties but rather want to find out which
+structural elements of networks are important for learning success, we
+introduced \emph{parametric random networks}, or \emph{network genotypes}.
+Such a genotype $G$ consists of a set $\Theta$ of parameters that determine
+which concrete networks are created when $G$ is expressed in a single
+phenotype. Technically $G$ may be understood as a stochastic network
+generator that returns a network $\mathcal{N}=G(\omega)$ for every seed
+value $\omega$.
+The genotypes' parameters $\theta\in\Theta$ were either integer or floating
+point values and can be classified as affecting either (1) the topology of
+$\omega\Ix{rec}$ or (2) the weight values of $\omega\Ix{rec}$ and
+$\omega\Ix{fb}$. Important examples for (1) are the networks size $N$, the
+occupation probability $p$ (for random Erdös-Renyi networks), the
+neighborhood range $k$ (for ring topologies), or the number $l$ of layers
+(for feed-forward networks). We furthermore introduced ratio parameters
+that allowed us to interpolate between different topologies.  Parameters of
+type (2) were the feedback strength $\texttt{feedback}$ (scaling of
+$\omega\Ix{fb}$) and the gain value \gain (scaling of
+$\omega\Ix{rec}$ by ).
+
+\paragraph{Fitness} For a given genotype $G$ and a given challenge $C$, the
+fitness $f_C(G)$ of $G$ for $C$ is taken to be the expected value of
+the success rates of $G$'s phenotypes when solving the tasks of the
+challenge $C$. In our simulations, $f_C(G)$ was of course only
+approximated; this was usually done by taking 20 to 100 sample phenotypes
+and sample tasks, where the exact number depended on the standard deviation
+of the previously drawn samples' success rates.
+
+\paragraph{Genetic Optimization}
+Genetic Optimization:
+
+- Hint / vague description of the codebase
+
 
  
 
