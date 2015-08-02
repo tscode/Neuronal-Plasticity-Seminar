@@ -259,7 +259,19 @@ on the challenge $C$. This would mitigate the effects, but not solve the problem
 
 Therefore, we optimized using a genetic algorithm, which is inherently capable of coping with the stochastic fitness function.
 
+In each iteration of the algorithm, a generation (set) of $N$ individuals (Generators) $G_t = \left\{ g_i \right\}$ is converted into
+a new one $G_{t+1}$ according to the following scheme:
+\begin{description}
+ \item[Evaluation] The fitness $f_i = F_C(g_i)$ of each individual is mesasured using at least 20 samples (and adaptively more if the $f_i$ are spaced closely, to at msot 100).
+ \item[Selection] All individuals are grouped into disjunct pairs for which we check which one has the higher $f$. This is repeated $K=10$ times, counting the wins of each individual. Based thereon we use the $p=50\%$ best individuals $S$ to build the next generation.
 
+By using pair comparisons instead of simple ordering according to $f$, we allow weaker individuals to continue into the next generation albeit with low probability), keeping the gene pool more diverse. 
+
+\item[Reproduction]
+We generate the next generation $G_{t+1}$ by first generating $2N$ candidates by \emph{mutating} or \emph{recombining} elements of $S$, i.e. either changing a single parameter randomly or taking two individuals and randomly choose for each parameter from which parent to take the value. 
+We then perform a single sample fitness test and remove all networks that fail, until only $N$ networks are left which form $G_{t+1}$. 
+This way, the most unpromising elements of the new generation are removed before the expensive fitness evaluation. 
+\end{description} 
 
 - Hint / vague description of the codebase
 
