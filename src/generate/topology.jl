@@ -52,6 +52,7 @@ function generate(top::RingTopology, size::Integer, rng::AbstractRNG)
         m[i,j] = rand(rng) < p ? 1 : 0
       else
         m[i,j] = 0
+      end
     end
   end
   return m
