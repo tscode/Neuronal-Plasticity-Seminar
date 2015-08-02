@@ -231,7 +231,7 @@ difference $f\ix{d}(r, r') = \left\|r-r'\right\|_2$ has the
 drawback that small phase differences could produce huge differences in
 quality, even though $r'$ has the exact same shape as $r$. 
 
-A measure that is timeshift independent and maximized for functions of identical shape is the 
+A measure that is time-shift independent and maximized for functions of identical shape is the 
 maximum of the cross correlation 
 \begin{align}
     f\ix{c}(r, r') = \max_t \frac{\left<r, r'(\cdot - t)\right>}{\sqrt{\left< r, r\right> \left<r', r' \right>}}~.
@@ -251,7 +251,7 @@ of $F_C$ are computationally expensive, thus preventing increasing the number of
 becomes sufficiently smooth, typical optimization methods like gradient descent or simulated annealing are not usable.
 
  On approach would be to use techniques from Monte Carlo Integration, e.g. stratified or importance sampling, to aid in the
-evaluation of $E(F_C)$, but since $G(\lambda)$ depends noncontinuously on $\lambda$, it can only be applied to the dependence 
+evaluation of $E(F_C)$, but since $G(\lambda)$ depends non-continuously on $\lambda$, it can only be applied to the dependence 
 on the challenge $C$. This would mitigate the effects, but not solve the problem.
 
 Therefore, we optimized using a genetic algorithm, which is inherently capable of coping with the stochastic fitness function.
@@ -259,7 +259,7 @@ Therefore, we optimized using a genetic algorithm, which is inherently capable o
 In each iteration of the algorithm, a generation (set) of $N$ individuals (Generators) $G_t = \left\{ g_i \right\}$ is converted into
 a new one $G_{t+1}$ according to the following scheme:
 \begin{description}
- \item[Evaluation] The fitness $f_i = F_C(g_i)$ of each individual is mesasured using at least 20 samples (and adaptively more if the $f_i$ are spaced closely, to at msot 100).
+ \item[Evaluation] The fitness $f_i = F_C(g_i)$ of each individual is measured using at least 20 samples (and adaptively more if the $f_i$ are spaced closely, to at msot 100).
  \item[Selection] All individuals are grouped into disjunct pairs for which we check which one has the higher $f$. This is repeated $K=10$ times, counting the wins of each individual. Based thereon we use the $p=50\%$ best individuals $S$ to build the next generation.
 
 By using pair comparisons instead of simple ordering according to $f$, we allow weaker individuals to continue into the next generation albeit with low probability), keeping the gene pool more diverse. 
@@ -270,7 +270,7 @@ We then perform a single sample fitness test and remove all networks that fail, 
 This way, the most unpromising elements of the new generation are removed before the expensive fitness evaluation. 
 \end{description} 
 
-- Hint / vague description of the codebase
+\paragraph{Choice of Parameters}
 
 
 \section{Results}
