@@ -42,10 +42,16 @@ end
 function generate(top::RingTopology, size::Integer, rng::AbstractRNG)
   # generates NN topology
   k = top.params[1].val
+  p  = k - floor(k)
   m = spzeros(size, size)
   for i = 1:Base.size(m)[1], j = 1:Base.size(m)[1]
     if i != j
-      m[i, j] = abs(i-j) < k || abs(i-j) > size - k ? 1 : 0
+      if     ( abs(i-j) < k     || abs(i-j) > size - k )
+        m[i,j] = 1
+      elseif ( abs(i-j) < k + 1 || abs(i-j) > size - k - 1 )
+        m[i,j] = rand(rng) < p ? 1 : 0
+      else
+        m[i,j] = 0
     end
   end
   return m
