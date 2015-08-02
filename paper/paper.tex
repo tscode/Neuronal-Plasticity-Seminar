@@ -249,7 +249,17 @@ This measure becomes problematic for functions that are very close to zero for a
 different frequencies, this drawback is unproblematic.
 
 \paragraph{Genetic Optimization}
-Genetic Optimization:
+Due to the stochastic nature of the fitness function $F_C(G)$ of a generator $G$, and the fact that single evaluations
+of $F_C$ are computationally expensive, thus preventing increasing the number of samples such that the estimation $E(F_C)$
+becomes sufficiently smooth, typical optimization methods like gradient descent or simulated annealing are not usable.
+
+ On approach would be to use techniques from Monte Carlo Integration, e.g. stratified or importance sampling, to aid in the
+evaluation of $E(F_C)$, but since $G(\lambda)$ depends noncontinuously on $\lambda$, it can only be applied to the dependence 
+on the challenge $C$. This would mitigate the effects, but not solve the problem.
+
+Therefore, we optimized using a genetic algorithm, which is inherently capable of coping with the stochastic fitness function.
+
+
 
 - Hint / vague description of the codebase
 
