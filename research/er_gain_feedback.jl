@@ -16,14 +16,16 @@ gopt = ev.GeneticOptimizer( ev.fitness_in_environment, ev.compare_fitness, env=e
 N = 100 # use 100 for final run
 p = 0.1
 ertop = ev.ErdösRenyiTopology(p)
-gen  = ev.SparseFRGenerator( N, topology = ertop )
-ev.init_population!(gopt, gen, 50)
+# choose gain and feedback far from the values of the original paper, to show 
+# that the optimization works.
+gen  = ev.SparseFRGenerator( N, topology = ertop, gain = 2.5, feedback = 6 )
+ev.init_population!(gopt, [(gen, 0.1)], 50)
 
 if N != 100
   info("this seems to be a test run. use N=100 to create final results")
 end
 
-for i = 1:50
+for i = 1:25
   ev.step!(gopt)
   ev.save_evolution("er_gain_feedback.dat", gopt)
 end

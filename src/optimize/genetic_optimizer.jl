@@ -89,7 +89,7 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
   survivors = fight_till_death(opt, opt.population)
 
   # two stage population generation:
-  newborns = calculate_next_generation(opt.rng, survivors, 2*length(opt.population), opt.env.blacklist )
+  newborns = calculate_next_generation(opt, survivors, 2*length(opt.population) )
   opt.population = infancy_death(opt, newborns, length(opt.population))
 
   opt.generation += 1
@@ -181,7 +181,7 @@ function record_population_(rec::Recorder, pop::Vector{AbstractGenerator}, suc::
     record(rec, "QL", suc[i].quality)
     record(rec, "TS", suc[i].timeshift)
     for p in export_params(pop[i])
-      record(rec, p.name, p.val) 
+      record(rec, p.name, p.val)
     end
   end
 end
@@ -207,12 +207,13 @@ function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::V
 end
 
 # performs recombination and mutation / currently mutually exclusive
-function calculate_next_generation( rng::AbstractRNG, parents::Vector{AbstractGenerator}, N::Integer, lock = [])
+function calculate_next_generation( opt::GeneticOptimizer, parents::Vector{AbstractGenerator}, N::Integer)
+  rng = opt.rng
   offspring = AbstractGenerator[]
   lidx = 1
   for t in 1:N
     if randbool(rng)
-      push!(offspring, mutate(rng, parents[lidx], lock))
+      push!(offspring, mutate(rng, parents[lidx], lock=opt.env.blacklist, rate=opt.env.contamination))
     else
       push!(offspring, recombine(rng, parents[lidx], parents[lidx % length(parents) + 1]))
     end
@@ -300,7 +301,7 @@ function save_evolution(file, opt::GeneticOptimizer)
 end
 
 
-function mutate( rng::AbstractRNG, source::AbstractParametricObject, lock=[] )
+function mutate( rng::AbstractRNG, source::AbstractParametricObject; lock=[], rate=0.1 )
   # load parameters
   params = export_params( source )
   # remove blacklisted ones
@@ -308,7 +309,7 @@ function mutate( rng::AbstractRNG, source::AbstractParametricObject, lock=[] )
   # choose parameter-index to mutate
   id = rand( rng, valid )
   # make the mutation
-  params[id] = random_param( params[id], rng )
+  params[id] = random_param( params[id], rng, s = rate )
   # and reimport them
   target = deepcopy(source) # this assumes that A and B are equivalent!
   import_params!( target, params )

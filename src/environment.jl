@@ -15,7 +15,7 @@ type Environment <: AbstractEnvironment
     blacklist::Vector{UTF8String} # Contains genes (parameters) not allowed to change
 end
 
-function Environment(; contamination::Real = 0.,
+function Environment(; contamination::Real = 0.1,
                        blacklist = UTF8String[],
                        challenge::AbstractChallenge = simple_wave() )
     blacklist = UTF8String[ entry for entry in blacklist ]
