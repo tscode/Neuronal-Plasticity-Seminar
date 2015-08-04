@@ -126,8 +126,7 @@ function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGen
   end
 
   # it is not really nice to record here :(
-  record_population_(opt.recorder, population, success, opt.generation)
-  #=record_population(opt.recorder, population, success, opt.generation)=#
+  record_population(opt.recorder, population, success, opt.generation)
 
   wins = zeros(length(population))
   NUM_FIGHTS = 10
@@ -172,7 +171,7 @@ function mean_success(suc::Vector{AbstractRating})
   return mean::Float64, sqrt(variance)::Float64
 end
 
-function record_population_(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractRating}, generation::Integer)
+function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractRating}, generation::Integer)
   # get all parameters that occur for the generators
   #
   for i = 1:length(pop)
@@ -186,25 +185,6 @@ function record_population_(rec::Recorder, pop::Vector{AbstractGenerator}, suc::
   end
 end
 
-# writes info about a population
-function record_population(rec::Recorder, pop::Vector{AbstractGenerator}, suc::Vector{AbstractRating}, generation::Integer)
-  # collect info about all gens
-  for i = 1:length(pop)
-    succ = Float64[suc[i].quota, suc[i].quality, suc[i].timeshift]
-    pars = Float64[]
-    # UGLY UGLY UGLY
-    for p in export_params(pop[i])
-      if isa(p.val, Real)
-        pars = vcat(pars, p.val)
-      elseif isa(p.val, Vector{Float64})
-        pars = vcat(pars, p.val...)
-      else
-        @assert false "$(typeof(p.val))"
-      end
-    end
-    record(rec, 1, vcat([generation], succ, pars))
-  end
-end
 
 # performs recombination and mutation / currently mutually exclusive
 function calculate_next_generation( opt::GeneticOptimizer, parents::Vector{AbstractGenerator}, N::Integer)
