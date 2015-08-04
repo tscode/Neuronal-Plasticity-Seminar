@@ -98,11 +98,11 @@ end
 # lets the members of a population fight
 function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGenerator};
                           rng::AbstractRNG = opt.rng, compare::Function = opt.compare,
-                          reduction_rate::Float64 = 0.5, max_samples = 100
+                          reduction_rate::Float64 = 0.5, max_samples::Integer = 100, 
+                          samples::Integer = 40
                           )
    # collection of all generators that survive
-  success = rate_population_parallel(opt, seed=randseed(rng), pop = population, samples = 20)
-  samples = 20
+  success = rate_population_parallel(opt, seed=randseed(rng), pop = population, samples = samples)
   mean, stddev = mean_success(success)
   while(samples < max_samples)
     req1 = ceil(4*(mean * (1-mean) / stddev)^2) # first criterion: error
