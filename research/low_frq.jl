@@ -6,7 +6,7 @@ ev = EvoNet
 
 
 # here we need to set up our final task set
-ch   = EvoNet.simple_wave(amplitude=1, frequency=(0.02, 0.002))
+ch   = EvoNet.simple_wave(amplitude=1, frequency=(0.04, 0.004))
 # blacklist all but gain and feedback
 env  = ev.Environment(challenge=ch, blacklist=["size"])
 # create the optimizer
