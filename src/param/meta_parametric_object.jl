@@ -12,15 +12,29 @@ end
 
 # Meta Generator relative generator contribution
 function random_param( param::MetaCombinationParam, rng::AbstractRNG; s::Real = 0.1 )
-  new_random_val = Float64[rand(rng) for i in param.val]
-  new_random_val /= sum(new_random_val)
+  # choose two paramerters
+  p1 = rand(rng, 1:length(param.val))
+  p2 = rand(rng, 1:length(param.val))
 
-  # Obtain new parameter values by relative changes of +-0.1*s
-  new_val = param.val + s*new_random_val
-  new_val /= sum(new_val)
+  v1 = param.val[p1]
+  v2 = param.val[p2]
+  sum = v1 + v2
+  # rescale to 1
+  v1 /= sum
+  v2 /= sum
 
-  # Check if the new value is within the boundaries and return new param
-  return MetaCombinationParam(param.name, new_val)
+  # select a change rate
+  change = min(v1, 1-v2, abs(randn(rng) * s))
+
+  v1 += change
+  v2 -= change
+
+  # scale back
+  v1 *= sum
+  v2 *= sum
+
+  param.val[p1] = v1
+  param.val[p2] = v2
 end
 
 #####################################################################################
