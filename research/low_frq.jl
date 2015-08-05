@@ -6,7 +6,7 @@ ev = EvoNet
 
 
 # here we need to set up our final task set
-ch   = EvoNet.simple_wave(amplitude=1, frequency=(0.02, 0.02))
+ch   = EvoNet.simple_wave(amplitude=1, frequency=(0.02, 0.002))
 # blacklist all but gain and feedback
 env  = ev.Environment(challenge=ch, blacklist=["size"])
 # create the optimizer
@@ -25,7 +25,7 @@ if N != 100
   info("this seems to be a test run. use N=100 to create final results")
 end
 
-for i = 1:50
+for i = 1:100
   ev.step!(gopt)
   ev.save_evolution("low_frq_opt.dat", gopt)
 end
