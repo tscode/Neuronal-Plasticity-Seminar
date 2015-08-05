@@ -21,13 +21,13 @@ ringtop = ev.RingTopology( k )
 # choose gain and feedback as in the paper
 gener  = ev.SparseFRGenerator( N, topology = ev.MetaTopology([ertop, ringtop], p = [1.0, 0]), gain = 1.2, feedback = 2 )
 genrg  = ev.SparseFRGenerator( N, topology = ev.MetaTopology([ertop, ringtop], p = [0, 1.0]), gain = 1.2, feedback = 2 )
-ev.init_population!(gopt, [(gener, 0.5), (genrg, 0.5)], 10)
+ev.init_population!(gopt, [(gener, 0.5), (genrg, 0.5)], 100)
 
 if N != 100
   info("this seems to be a test run. use N=100 to create final results")
 end
 
-for i = 1:50
+for i = 1:100
   ev.step!(gopt)
   ev.save_evolution("ring_vs_er.dat", gopt)
 end
