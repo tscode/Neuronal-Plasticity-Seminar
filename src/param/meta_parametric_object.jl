@@ -12,9 +12,15 @@ end
 
 # Meta Generator relative generator contribution
 function random_param( param::MetaCombinationParam, rng::AbstractRNG; s::Real = 0.1 )
+  @assert(length(param.val) != 1)
+
   # choose two paramerters
-  p1 = rand(rng, 1:length(param.val))
-  p2 = rand(rng, 1:length(param.val))
+  p1 = 0
+  p2 = 0
+  while p1 == p2
+    p1 = rand(rng, 1:length(param.val))
+    p2 = rand(rng, 1:length(param.val))
+  end
 
   v1 = param.val[p1]
   v2 = param.val[p2]
@@ -26,15 +32,20 @@ function random_param( param::MetaCombinationParam, rng::AbstractRNG; s::Real = 
   # select a change rate
   change = min(v1, 1-v2, abs(randn(rng) * s))
 
-  v1 += change
-  v2 -= change
+  v1 -= change
+  v2 += change
 
   # scale back
   v1 *= sum
   v2 *= sum
 
-  param.val[p1] = v1
-  param.val[p2] = v2
+  # new param
+  new_value = deepcopy(param)
+
+  new_value.val[p1] = v1
+  new_value.val[p2] = v2
+
+  return new_value
 end
 
 #####################################################################################
