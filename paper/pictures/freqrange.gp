@@ -9,8 +9,6 @@ set xrange [10**(-3) : 10**0.5]
 set xlabel 'Frequency $\omega$'
 set ylabel 'Fitness $F_{C(\omega)}$'
 set grid
-set style line 100 lt 5 lc rgb "gray" lw 2
-set style line 101 lt 7 lc rgb "gray" lw 0.25
 
 set grid mxtics xtics ls 100, ls 101
 
