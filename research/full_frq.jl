@@ -25,7 +25,7 @@ if N != 100
   info("this seems to be a test run. use N=100 to create final results")
 end
 
-for i = 1:100
+for i = 1:200
   ev.step!(gopt)
   ev.save_evolution("full_frq_opt.dat", gopt)
 end
