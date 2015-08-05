@@ -1,0 +1,10 @@
+
+file = ''
+
+set xlabel 'Frequency $f$'
+
+set ylabel 'Quota $q(f)$'
+
+plot file w lp 
+
+
