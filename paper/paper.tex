@@ -166,8 +166,7 @@ with the readout weights $\omega\Ix{read}$.
 Taking into account both internal dynamics as well as an external feedback
 pathway, the dynamics $t \mapsto x_i(t)$ of the single neurons are governed
 by \footnote{~Note that we did not include external input signals in this
-formula, as is done in \citep{FORCE} and \citep{RM}. We in fact enabled
-inputs in our code base, but did not use them for the main results.}
+formula, as is done in \citep{FORCE} and \citep{RM}.}
 \begin{equation}
     \dot{x}_i(t) = -x_i(t) + \sum_{i=1}^N \omega\Ix{rec}_{ij}\, r_j(t) + 
                    \sum_{i=1}^R \omega\Ix{fb}_{ij}\, z_j(t)~,
@@ -176,7 +175,7 @@ where we introduce the internal recurrent synapse weights
 $\omega\Ix{rec}_{ij}$ and the feedback synapse weights
 $\omega\Ix{fb}_{ij}$. 
 We solved this system of differential equations by
-a simple Newton method with integration time steps $dt = 0.01$, which was
+Euler integration with a time steps $dt = 0.01$, which was
 also used in \citep{FORCE}. 
 %(How we constructed $\omega\Ix{rec}$ and
 %$\omega\Ix{fb}$ will be described in \emph{Parametric Random Networks})
@@ -186,19 +185,20 @@ also used in \citep{FORCE}.
 $\omega\Ix{read}$ so that the dynamics $t\mapsto r_i(t)$ of the readout
 neurons should eventually match a given periodic target pattern $t\mapsto
 r'_i(t)$, henceforth called a \emph{task}, as accurately as possible. To
-update $\omega\Ix{read}$ we chose a variant of the FORCE algorithm
-\citep{FORCE} that rapidly modifies the feedback loop to keep the errors
+update $\omega\Ix{read}$ we chose variant A of the FORCE algorithm
+\citep{FORCE}, which rapidly modifies the feedback loop to keep the errors
 $|r_i(t) - r'_i(t)|$ small from the beginning on.
 
 While the authors of \citep{FORCE} update the weights $\lambda\Ix{read}$ in
-fixed intervals (every second time step), we used an adaptive mechanism to
-determine how often learning should occur. This was initially introduced
-for performance reasons, as the single learning steps proved to be the main
-computational bottleneck, but we also found that the long time network
-dynamics tended to be slightly more accurate for adaptive learning steps.
+fixed intervals, we used an adaptive mechanism to
+determine how often learning should occur. 
+%This was initially introduced
+%for performance reasons, as the single learning steps proved to be the main
+%computational bottleneck, but we also found that the long time network
+%dynamics tended to be slightly more accurate for adaptive learning steps.
 
 \paragraph{Network Genotypes} Since we are not
-interested in single network properties but rather want to find out which
+interested in single network properties, but rather want to find out which
 structural elements of networks are important for learning success, we
 introduced  \emph{network genotypes}.
 Such a genotype $G$ consists of a set $\Theta$ of parameters that determine
@@ -206,12 +206,12 @@ which concrete networks are created when $G$ is expressed in a single
 phenotype. Technically $G$ may be understood as a stochastic network
 generator that returns a network $\mathcal{N}=G(\lambda)$ for every seed
 $\lambda \in \mathbb{N}$.
-The genotypes' parameters $\theta\in\Theta$ were either integer or floating
+The genotypes' parameters $\theta\in\Theta$ are either integer or floating
 point values and can be classified as affecting either (1) the topology of
 $\omega\Ix{rec}$ or (2) the weight values of $\omega\Ix{rec}$ and
 $\omega\Ix{fb}$. Important examples for (1) are the networks size $N$, the
 occupation probability $p$ (for random Erdös-Renyi networks), and the
-neighborhood range $k$ (for ring topologies). We furthermore introduced ratio parameters
+neighborhood range $k$ (for ring topologies). We furthermore introduced ratio parameters $r$
 that allowed us to interpolate between different topologies. Optimized
 parameters of type (2) were the feedback strength $\feedback$ (with
 $\omega\Ix{fb}\propto \feedback$) and the gain value $\gain$ (with
@@ -224,7 +224,7 @@ different frequencies. To express this formally, we introduced
 \emph{challenges}: For a given seed value $\lambda$, the challenge $C$
 yields a task $r' = C(\lambda)$ according to some (parametrized)
 distribution. If we now make use of a success function $S(\mathcal{N},
-r')\in\{0, 1\}$ that decides whether the network $\mathcal{N}$
+r')\in\{0, 1\}$ that decides whether the NN $\mathcal{N}$
 has successfully reproduced the desired output $r'$, the fitness $F_C(G)$
 of a genotype $G$ for a challenge $C$ may reasonably be defined as the
 expectation value of $\lambda \mapsto S(G(\lambda), C(\lambda))$. For fixed
@@ -338,12 +338,6 @@ survivors and get $\mathcal{G}_{t+1}$. This means we either change
 \end{description} 
 
 \paragraph{Choice of Parameters and Algorithmic Quantities}
-For all of the simulations we chose the size of the networks to be fixed
-with $N=100$. Though increasing $N$ generally improved the quality of the
-learning results, the computational cost increased proportional to $N^2$,
-which made using networks as large as in the original FORCE publication
-(between $500$ and $20000$) utterly unusable for our purposes.
-
 The mutation rate of the parameters $\Theta$ of the genotypes\dots
 
 \section{Results}
