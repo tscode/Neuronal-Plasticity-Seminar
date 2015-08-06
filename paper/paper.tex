@@ -83,7 +83,7 @@
 \maketitle
 
 \section{Introduction}
-Looking at the field of artificial neuronal networks, one finds a great
+Looking at the field of artificial neuronal networks (NN), one finds a great
 variety of different models describing both the dynamic of networks as well
 as their plasticities, i.e.\ their learning behavior.
 But what exactly makes artificial neuronal networks learn successfully? And
@@ -93,9 +93,9 @@ answering these questions is critical when trying to gain a deep
 understanding of neural networks and artificial intelligence. 
 
 Using the above questions as a guideline, we decided to analyze what
-network characteristics make the FORCE algorithm, introduced in
-\citep{FORCE}, especially suitable for learning periodic patterns.  More
-precisely, we wanted to identify which properties of a network are
+network characteristics make the FORCE algorithm \citep{FORCE} especially suitable
+for learning periodic patterns.  More
+precisely, we wanted to identify which properties of a NN are
 important for its learning success, and how to choose their
 values for an optimal result.  To this end, one option would be to take an
 initial network and an adequate periodic pattern to be learned, and
@@ -107,30 +107,29 @@ Instead of fine tuning single internal weights, we were concerned with the
 general rules of the network's structure. So we wanted our networks to
 be random to a certain degree, which seems biologically plausible, but we
 also wanted them to follow certain patterns and allow for specialization:
-How dense are the synapses distributed? Is there a strong compartmentalization?
-Are recurrent structures frequent? How strong should the feedback signal
+How densely are the synapses distributed? Is there a strong compartmentalization?
+How strong should the feedback signal
 be, and how strong should the synapses fire on average?
 
-To address these issues we looked at parameterized random networks, or in
-the language of genetics, at different \emph{network genotypes}. These
+To address these issues we looked at parameterized random networks (in
+the language of genetics, as we are using a genetic optimization algorithm, at different 
+\emph{network genotypes}). These
 genotypes contain parametric information about the networks
 (\emph{phenotypes}) to be created. 
-Different phenotypes with the same genotype may thus have strong
+Different phenotypes of the same genotype may thus have strong
 quantitative differences, but they share structural qualities whose fitness
 for a preassigned range of tasks we wanted to analyze and improve.
 
-Since calculating the fitness of a genotype required the evaluation of many
+Since calculating the fitness of a genotype requires the evaluation of many
 different phenotypes and because of the resulting stochastic nature of the
 problems we faced, we decided to use genetic algorithms for the
 optimization process. 
 
 We first lay out the main aspects of our model in a 
 %partially abstract fashion in the next section.
-rather high-level overview. 
-More details on the actual implementation are then provided in the third
-section (or ultimately in the published source
-code / supplementary material).
-Finally, some of the obtained results are presented and discussed.
+rather high-level overview, followed by 
+more details on the actual implementation.
+Finally, the obtained results are presented and discussed.
 
 \section{Concepts and Model}
 \label{sec:concepts}
@@ -138,7 +137,7 @@ Finally, some of the obtained results are presented and discussed.
 %MAYBE WE SHOULD MOTIVATE FORCE HERE, WHICH THEN NATURALLY LEADS TO THE CHOICE OF NETWORK BELOW.
 
 We chose the same rate based network architecture
-that is used in the original FORCE publication \citep{FORCE} (denoted as
+that is used in the original FORCE publication \citep{FORCE} (therein denoted as
 architecture A) and also in \citep{RM}, where our notation mainly stems
 from. So we look at a network $\mathcal{N}$ with $N$ internal neurons and
 states $x_i$ for $1 \le i \le N$ that loosely represent the neurons'
@@ -160,8 +159,7 @@ inputs in our code base, but did not use them for the main results.}
 \end{equation}
 where we introduce the internal recurrent synapse weights
 $\omega\Ix{rec}_{ij}$ and the feedback synapse weights
-$\omega\Ix{fb}_{ij}$. One can see that the neurons exponentially
-decay if they are not presented stimulus by other neurons. 
+$\omega\Ix{fb}_{ij}$. 
 We solved this system of differential equations by
 a simple Newton method with integration time steps $dt = 0.01$, which was
 also used in \citep{FORCE}. 
@@ -172,7 +170,7 @@ also used in \citep{FORCE}.
 \paragraph{Learning} Learning took place by stepwisely adapting the weights
 $\omega\Ix{read}$ so that the dynamics $t\mapsto r_i(t)$ of the readout
 neurons should eventually match a given periodic target pattern $t\mapsto
-r'_i(t)$, called a \emph{task} from now on, as accurately as possible. To
+r'_i(t)$, henceforth called a \emph{task}, as accurately as possible. To
 update $\omega\Ix{read}$ we chose a variant of the FORCE algorithm
 \citep{FORCE} that rapidly modifies the feedback loop to keep the errors
 $|r_i(t) - r'_i(t)|$ small from the beginning on.
@@ -192,14 +190,13 @@ Such a genotype $G$ consists of a set $\Theta$ of parameters that determine
 which concrete networks are created when $G$ is expressed in a single
 phenotype. Technically $G$ may be understood as a stochastic network
 generator that returns a network $\mathcal{N}=G(\lambda)$ for every seed
-value $\lambda$.
+$\lambda \in \mathbb{N}$.
 The genotypes' parameters $\theta\in\Theta$ were either integer or floating
 point values and can be classified as affecting either (1) the topology of
 $\omega\Ix{rec}$ or (2) the weight values of $\omega\Ix{rec}$ and
 $\omega\Ix{fb}$. Important examples for (1) are the networks size $N$, the
-occupation probability $p$ (for random Erdös-Renyi networks), the
-neighborhood range $k$ (for ring topologies), or the number $l$ of layers
-(for feed-forward networks). We furthermore introduced ratio parameters
+occupation probability $p$ (for random Erdös-Renyi networks), and the
+neighborhood range $k$ (for ring topologies). We furthermore introduced ratio parameters
 that allowed us to interpolate between different topologies. Optimized
 parameters of type (2) were the feedback strength $\feedback$ (with
 $\omega\Ix{fb}\propto \feedback$) and the gain value $\gain$ (with
@@ -207,12 +204,12 @@ $\omega\Ix{rec} \propto \gain$).
 
 
 \paragraph{Fitness} The next step was to define the \emph{fitness} of a given
-genotype when confronted with a diverse range of tasks, like waves of
+genotype when confronted with a diverse range of tasks, e.g. waves of
 different frequencies. To express this formally, we introduced
 \emph{challenges}: For a given seed value $\lambda$, the challenge $C$
 yields a task $r' = C(\lambda)$ according to some (parametrized)
 distribution. If we now make use of a success function $S(\mathcal{N},
-r')\in\{0, 1\}$ that decides, if the network $\mathcal{N}$
+r')\in\{0, 1\}$ that decides whether the network $\mathcal{N}$
 has successfully reproduced the desired output $r'$, the fitness $F_C(G)$
 of a genotype $G$ for a challenge $C$ may reasonably be defined as the
 expectation value of $\lambda \mapsto S(G(\lambda), C(\lambda))$. For fixed
@@ -228,10 +225,9 @@ finding parameters $\Theta$ that maximize $F_C$.
 
 \paragraph{Tasks}
 For the optimization to work properly, the tasks presented to the networks
-must be reasonably chosen; they must be learnable by FORCE (at least in
+must be chosen reasonably; they must be learnable by FORCE (at least in
 principle) and must be compatible with technical aspects like the
-integration time step.
-%have (for the most part) to be solvable by FORCE. 
+integration time step. 
 While it was shown in \citep{FORCE} that large recurrent neural networks are
 capable of learning very complex tasks, the optimization requires an
 extensive number of learning processes, since every single evaluation of
@@ -254,7 +250,7 @@ frequencies.
 
 \paragraph{Success}
 As mentioned in \emph{Concepts and Methods}, we need a function $S$
-that decides weather a network succeeded or failed to solve a task.
+that decides whether a network succeeded or failed to solve a task.
 To this end
 %In order to optimize the function reconstruction of a force network,
 a measure $f(r', r)$ for the concordance of the target function $r'(t)$ and
@@ -264,7 +260,7 @@ difference based metric, like the norm $f\ix{2}(r, r')
 mismatches could produce high differences, even though the
 shape of $r$ matches the one of $r'$ well.
 
-Instead, a measure that is time-shift independent and maximized for functions of
+A measure that is time-shift independent and maximized for functions of
 identical shape is the maximum of the cross correlation 
 \begin{align}
     f\ix{cor}(r, r') = \max_t \frac{\left<r, r'(\cdot
@@ -277,7 +273,7 @@ shift, so the phase only has to remain relatively constant over the
 timescale of a single chunk (which is about 10 seconds of simulated time).
 This measure becomes problematic for functions that are very close to zero
 for a longer time (order of chunk size), but since we are going to work
-with superpositions of sinusoidals of different frequencies, this drawback
+with superpositions of sinusoidals, this drawback
 is unproblematic.
 
 Using this measure of quality, the success function for a network
@@ -294,17 +290,17 @@ reproduction of the target pattern.
 
 \paragraph{Genetic Optimization}
 Due to the stochastic nature of a genotype $G$'s fitness $F_C(G)$,
-a very high number of samples would be required to obtain sufficiently
+a very high number of samples would be required to numerically obtain sufficiently
 smooth approximations of $F_C(G)$ for typical optimization methods like
 gradient descend or simulated annealing. But as the computational cost for
-even one learning process was considerable high, these methods were not
+even one learning process is considerable high, these methods were not
 feasible.
 
-An alternative approach would be to use techniques from Monte Carlo
-integration, e.g.  stratified or importance sampling, to aid in the
-evaluation of $F_C(G)$, but since $G(\lambda)$ and $C(\lambda)$ depend
-non-continuously on the seed value $\lambda$, this too would not solve the
-problem.
+%An alternative approach would be to use techniques from Monte Carlo
+%integration, e.g.  stratified or importance sampling, to aid in the
+%evaluation of $F_C(G)$, but since $G(\lambda)$ and $C(\lambda)$ depend
+%non-continuously on the seed value $\lambda$, this too would not solve the
+%problem.
 
 Therefore, we optimized $F_C(G)$ using a genetic algorithm, which is inherently
 capable of coping with the stochastic fitness function. In each iteration
@@ -313,7 +309,7 @@ of $N$ individuals (Generators) is converted into a new one, $\mathcal{G}_{t+1}$
 according to the following scheme:
 \begin{description}[itemsep=1ex, leftmargin=0pt]
  \item[Evaluation] The fitness $F_i = F_C(G_i)$ of each individual is
-     measured using at least 20 samples (and adaptively more if the
+     measured using at least 50 samples (and adaptively more if the
      $(F_i)_{1\le i\le N}$ are spaced closely, to at most 100).
  \item[Selection] All individuals are grouped into disjunct pairs for which
      we check which one has the higher fitness. This is repeated $k=10$ times,
@@ -324,15 +320,11 @@ according to the following scheme:
      the next generation (albeit with low probability), keeping the gene
      pool more diverse. 
 
-\item[Reproduction] We obtain the next generation $\mathcal{G}_{t+1}$ by first
-    generating $2N$ candidates via \emph{mutating} or \emph{recombining}
-    elements of $\mathcal{G}\Ix{survive}_t$. This means we either change
+\item[Reproduction] We then replace the $(1-p)|G_t|$ elements that did not make
+it into the next generation by eith \emph{mutating} or \emph{recombining} the 
+survivors and get $\mathcal{G}_{t+1}$. This means we either change
     a single parameter randomly or take two individuals and randomly choose
-    for each parameter from which parent to take the value.  We then
-    perform a single sample fitness test and remove all networks that fail,
-    until only $N$ networks are left; these form $\mathcal{G}_{t+1}$. By
-    this approach the most unpromising elements of the new generation are
-    removed before the expensive fitness evaluation takes place. 
+    for each parameter from which parent to take the value.   
 \end{description} 
 
 \paragraph{Choice of Parameters and Algorithmic Quantities}
