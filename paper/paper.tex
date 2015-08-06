@@ -3,6 +3,7 @@
     \usepackage{microtype}
     \usepackage{blindtext}
     \usepackage{enumitem}
+    \usepackage{siunitx}
 
 	\usepackage{amsmath}%,amssymb} 
 	\usepackage{makeidx}
@@ -85,41 +86,48 @@
 \section{Introduction}
 Looking at the field of artificial neuronal networks (NN), one finds a great
 variety of different models describing both the dynamic of networks as well
-as their plasticities, i.e.\ their learning behavior.
-But what exactly makes artificial neuronal networks learn successfully? And
-why are certain types of networks and certain learning rules effective for
-some problems, but fail at solving others? Confronting and eventually
-answering these questions is critical when trying to gain a deep
-understanding of neural networks and artificial intelligence. 
+as their plasticities, i.e.\ their learning behavior. 
+But, given some dynamics and plasticity rules, which features of a network
+determine, if it is a good candidate for doing a specific task?
+%But what exactly makes artificial neuronal networks learn successfully? And
+%why are certain types of networks and certain learning rules effective for
+%some problems, but fail at solving others? 
+%Confronting and eventually
+%answering these questions is critical when trying to gain a deep
+%understanding of neural networks and artificial intelligence. 
 
-Using the above questions as a guideline, we decided to analyze what
-network characteristics make the FORCE algorithm \citep{FORCE} especially suitable
-for learning periodic patterns.  More
-precisely, we wanted to identify which properties of a NN are
-important for its learning success, and how to choose their
-values for an optimal result.  To this end, one option would be to take an
-initial network and an adequate periodic pattern to be learned, and
-optimize the network's internals for this very task. Then patterns may
-emerge that hint at how an optimal network design looks. 
+Using this question as a guideline, we decided to examine network
+characteristics that make the FORCE algorithm \citep{FORCE} especially
+suitable for learning periodic patterns. More precisely, we wanted to
+identify which high level properties of a NN are important for its learning
+success under FORCE, and how to choose their values for an optimal result.  
 
-However, we took a different approach:
-Instead of fine tuning single internal weights, we were concerned with the
-general rules of the network's structure. So we wanted our networks to
-be random to a certain degree, which seems biologically plausible, but we
-also wanted them to follow certain patterns and allow for specialization:
-How densely are the synapses distributed? Is there a strong compartmentalization?
-How strong should the feedback signal
-be, and how strong should the synapses fire on average?
+%To this end, one option would be to take an
+%initial network and an adequate periodic pattern to be learned, and
+%optimize the network's internals for this very task. Then patterns may
+%emerge that hint at how an optimal network design looks. 
+%However, we took a different approach:
+Instead of fine tuning single internal weights, we were thus concerned with the
+general rules of the network's properties. And we wanted our networks to
+be random to a certain degree, which seems biologically plausible; but we
+also wanted to allow for structural specialization:
+How densely are the synapses distributed? How strong shall the feedback
+signal be, and how strong should the synapses fire on average?
+%To address these issues we looked at parameterized random networks (in
+%the language of genetics, as we are using a genetic optimization algorithm, at different 
+%\emph{network genotypes}). 
 
-To address these issues we looked at parameterized random networks (in
-the language of genetics, as we are using a genetic optimization algorithm, at different 
-\emph{network genotypes}). These
-genotypes contain parametric information about the networks
-(\emph{phenotypes}) to be created. 
-Different phenotypes of the same genotype may thus have strong
-quantitative differences, but they share structural qualities whose fitness
-for a preassigned range of tasks we wanted to analyze and improve.
-
+To address these issues we introduce \emph{network genotypes}, which
+contain parametric information about the networks (\emph{phenotypes}) to be
+created: Different phenotypes of the same genotype may have strong
+differences in detail, but they share structural qualities of interest.
+Improving these genotypes for a specific range of tasks via genetic
+optimization is the main concern of this article.
+%The fitness of these genotypes for a specific range of tasks was optimized 
+%using genetic algorithms.
+%whose fitness
+%for a preassigned range of tasks we analyze and improve with genetic
+%optimization.
 % TODO we say the same thing later on again. maybe, the comment about the genetic algorithm
 % should be moved out of the parenthesis
 %Since calculating the fitness of a genotype requires the evaluation of many
@@ -129,9 +137,8 @@ for a preassigned range of tasks we wanted to analyze and improve.
 
 We first lay out the main aspects of our model in a 
 %partially abstract fashion in the next section.
-rather high-level overview, followed by 
-more details on the actual implementation.
-Finally, the obtained results are presented and discussed.
+rather high-level overview, followed by more details on the actual
+implementation.  Finally, the obtained results are presented and discussed.
 
 \section{Concepts and Model}
 \label{sec:concepts}
