@@ -350,7 +350,7 @@ increased quadraticaly to $N$
 - short description: get feeling for frequency range (by using unoptimized
 parameters from the force paper), make optimizations with 3 different
 challenges: 1) challenges that cover the frequency area completely,
-challenges that cover low frequencies, and challanges that cover high
+challenges that cover low frequencies, and challenges that cover high
 frequencies, then pick genotypes with high fitness.
 \subsection{Topology Optimizations}
 Baseline
@@ -398,11 +398,30 @@ optimizations: ER topology, Ring Topology, Mixing
       of challenges than parameters (partially) -> must be very careful how to
       interpret the results
 
+Our investigation showed that the frequency of the wave that is to be reconstructed 
+strongly determines whether FORCE learning is able to learn that curve. Still, 
+a good choice of network parameters is still able to improve the success rate for
+certain frequency ranges. Some parameters ($p$, $feedback$) can vary in a relatively large interval
+without influencing the success very much, whereas others are confined to a relatively small interval (gain).
 
 
-\blindtext
+The code developed for this paper provides a framework which can be used to perform a variety of similar 
+investigations, e.g. the inclusion of feed forward topologies, or the extension to task other than simple 
+sinusoidals. To that end, it would be wise to improve that selection algorithm by using the same tasks
+for all generators in each generation, instead of evaluating them all independently. This would make the 
+selection process more robust because it removes the dependence on the task distribution. 
 
+One problem with the approach presented here is that, in order to use the results of the genetic algorithm, 
+we determined a single set of parameters by taking the mean of the values of the most successful generators, 
+any information about an interdependence between the parameters is lost. We checked that there are no strong
+correlations between any pair of parameters by doing 3D plots that showed the two parameters for each generator 
+in development with the generations and could not detect any obvious correlation, but have not investigated 
+this problem thoroughly. 
 
+The biggest problem with the current implementation, however, is the large amount of "magic" numbers, 
+i.e. hyper-parameters of the optimization, that are used in the code. Their values were determined
+by an informal search of testing a few optimizations. However, this should mostly affect the performance
+of the optimization algorithm and not the results themselves. 
 
 \bibliography{sources}
 
