@@ -88,7 +88,7 @@ Looking at the field of artificial neuronal networks (NN), one finds a great
 variety of different models describing both the dynamic of networks as well
 as their plasticities, i.e.\ their learning behavior. 
 But, given some dynamics and plasticity rules, which features of a network
-determine, if it is a good candidate for doing a specific task?
+determine whether it is a good candidate for doing a specific task?
 %But what exactly makes artificial neuronal networks learn successfully? And
 %why are certain types of networks and certain learning rules effective for
 %some problems, but fail at solving others? 
@@ -96,11 +96,16 @@ determine, if it is a good candidate for doing a specific task?
 %answering these questions is critical when trying to gain a deep
 %understanding of neural networks and artificial intelligence. 
 
-Using this question as a guideline, we decided to examine network
-characteristics that make the FORCE algorithm \citep{FORCE} especially
-suitable for learning periodic patterns. More precisely, we wanted to
-identify which high level properties of a NN are important for its learning
-success under FORCE, and how to choose their values for an optimal result.  
+%Using this question as a guideline, we decided to examine network
+%characteristics that make the FORCE algorithm \citep{FORCE} especially
+%suitable for learning periodic patterns. More precisely, we wanted to
+%identify which high level properties of a NN are important for its learning
+%success under FORCE, and how to choose their values for an optimal result.  
+
+Using this question as a guideline, we decided to analyze which high level
+properties of a NN are important for its learning success under a variant
+of the FORCE algorithm \citep[Architecture A]{FORCE}, and how to choose
+their values for an optimal result.
 
 %To this end, one option would be to take an
 %initial network and an adequate periodic pattern to be learned, and
@@ -117,12 +122,13 @@ signal be, and how strong should the synapses fire on average?
 %the language of genetics, as we are using a genetic optimization algorithm, at different 
 %\emph{network genotypes}). 
 
-To address these issues we introduce \emph{network genotypes}, which
-contain parametric information about the networks (\emph{phenotypes}) to be
-created: Different phenotypes of the same genotype may have strong
-differences in detail, but they share structural qualities of interest.
-Improving these genotypes for a specific range of tasks via genetic
-optimization is the main concern of this article.
+To address these issues in the context of genetic algorithms, we introduce
+\emph{network genotypes}, which contain parametric information about the
+networks (\emph{phenotypes}) to be created: Different phenotypes of the
+same genotype may have strong differences in detail, but they share
+structural qualities of interest.  Improving these genotypes for a specific
+range of tasks via genetic optimization is the main concern of this
+article.
 %The fitness of these genotypes for a specific range of tasks was optimized 
 %using genetic algorithms.
 %whose fitness
