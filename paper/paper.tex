@@ -120,10 +120,12 @@ Different phenotypes of the same genotype may thus have strong
 quantitative differences, but they share structural qualities whose fitness
 for a preassigned range of tasks we wanted to analyze and improve.
 
-Since calculating the fitness of a genotype requires the evaluation of many
-different phenotypes and because of the resulting stochastic nature of the
-problems we faced, we decided to use genetic algorithms for the
-optimization process. 
+% TODO we say the same thing later on again. maybe, the comment about the genetic algorithm
+% should be moved out of the parenthesis
+%Since calculating the fitness of a genotype requires the evaluation of many
+%different phenotypes and because of the resulting stochastic nature of the
+%problems we faced, we decided to use genetic algorithms for the
+%optimization process. 
 
 We first lay out the main aspects of our model in a 
 %partially abstract fashion in the next section.
@@ -228,12 +230,12 @@ For the optimization to work properly, the tasks presented to the networks
 must be chosen reasonably; they must be learnable by FORCE (at least in
 principle) and must be compatible with technical aspects like the
 integration time step. 
-While it was shown in \citep{FORCE} that large recurrent neural networks are
-capable of learning very complex tasks, the optimization requires an
-extensive number of learning processes, since every single evaluation of
-the fitness $F_C$ needs dozens of tested phenotypes (see below). Therefore,
-the networks had to be restricted to being quite small ($\approx 100$
-neurons) and are consequently less powerful. 
+%While it was shown in \citep{FORCE} that large recurrent neural networks are
+%capable of learning very complex tasks, the optimization requires an
+%extensive number of learning processes, since every single evaluation of
+%the fitness $F_C$ needs dozens of tested phenotypes (see below). Therefore,
+%the networks had to be restricted to being quite small ($\approx 100$
+%neurons) and are consequently less powerful. 
 
 To get a first estimate whether it might be possible to learn a given task
 using FORCE with 100 neurons in our network model, we looked at a single
@@ -243,7 +245,8 @@ learn the function (see fig. \ref{}).
 
 Since we expect/hope that the optimized network extends this range of
 possible frequencies, we choose the frequencies for the optimization tasks
-from the slightly larger interval $[0.6e-2, 4]$ such that their logarithms
+from the slightly larger interval $[\num{0.6e-2}, 4]$ such that their logarithms
+% TODO this number is no longer right: we have low, high and full
 are uniformly spaced. This allows for good resolution for both high and low
 frequencies.
 
@@ -271,10 +274,10 @@ which are correlated separately.  This saves computational power and
 prevents minute differences in frequency to accumulate into a huge phase
 shift, so the phase only has to remain relatively constant over the
 timescale of a single chunk (which is about 10 seconds of simulated time).
-This measure becomes problematic for functions that are very close to zero
-for a longer time (order of chunk size), but since we are going to work
-with superpositions of sinusoidals, this drawback
-is unproblematic.
+%This measure becomes problematic for functions that are very close to zero
+%for a longer time (order of chunk size), but since we are going to work
+%with superpositions of sinusoidals, this drawback
+%is unproblematic.
 
 Using this measure of quality, the success function for a network
 $\mathcal{N}$ with readout $r$ for the task $r'$ was taken to be 
@@ -311,17 +314,11 @@ according to the following scheme:
  \item[Evaluation] The fitness $F_i = F_C(G_i)$ of each individual is
      measured using at least 50 samples (and adaptively more if the
      $(F_i)_{1\le i\le N}$ are spaced closely, to at most 100).
- \item[Selection] All individuals are grouped into disjunct pairs for which
-     we check which one has the higher fitness. This is repeated $k=10$ times,
-     counting the number of wins for each individual. Based thereon we use the
-     $p=50\%$ best individuals $\mathcal{G}\Ix{survive}_t$ to build the next
-     generation.  By using pair comparisons instead of simple ordering
-     according to the fitness, we allow weaker individuals to reach
-     the next generation (albeit with low probability), keeping the gene
-     pool more diverse. 
+ \item[Selection] We choose $p=50\%$ of the most successful members of $G_t$ as survivors.
+With a small chance, a weaker generator can survive, in order to keep the gene pool more diverse.
 
 \item[Reproduction] We then replace the $(1-p)|G_t|$ elements that did not make
-it into the next generation by eith \emph{mutating} or \emph{recombining} the 
+it into the next generation by either \emph{mutating} or \emph{recombining} the 
 survivors and get $\mathcal{G}_{t+1}$. This means we either change
     a single parameter randomly or take two individuals and randomly choose
     for each parameter from which parent to take the value.   
@@ -462,11 +459,8 @@ $\ERtoRING$ approaches zero.
 
 
 - Problems
-    * Many magic / ``empiric'' parameters scattered in the model that were not examined exhaustively
     * Only few and uncomprehensive number of test / experiments conducted due to the
       computational cost.
-    * Test with several other topologies did not yield concrete results,
-      only rough tendencies.
     * Influence of statistics: Learning success depends stronger on choice
       of challenges than parameters (partially) -> must be very careful how to
       interpret the results / should have used fixed array of challenges instead
