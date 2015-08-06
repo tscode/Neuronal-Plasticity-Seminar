@@ -89,16 +89,17 @@ function step!( opt::GeneticOptimizer ) ## TO BE GENERALIZED
   survivors = fight_till_death(opt, opt.population)
 
   # two stage population generation:
-  newborns = calculate_next_generation(opt, survivors, 2*length(opt.population) )
-  opt.population = infancy_death(opt, newborns, length(opt.population))
+  #newborns = calculate_next_generation(opt, survivors, 2*length(opt.population) )
+  #opt.population = infancy_death(opt, newborns, length(opt.population))
 
+  opt.population = calculate_next_generation(opt, survivors, length(opt.population) )
   opt.generation += 1
 end
 
 # lets the members of a population fight
 function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGenerator};
                           rng::AbstractRNG = opt.rng, compare::Function = opt.compare,
-                          reduction_rate::Float64 = 0.5, max_samples::Integer = 100, 
+                          reduction_rate::Float64 = 0.5, max_samples::Integer = 100,
                           samples::Integer = 40
                           )
    # collection of all generators that survive
@@ -126,7 +127,7 @@ function fight_till_death( opt::GeneticOptimizer, population::Vector{AbstractGen
   end
 
   wins = zeros(length(population))
-  NUM_FIGHTS = 10
+  NUM_FIGHTS = 100
   for i = 1:NUM_FIGHTS
     # random order for comparison
     order = shuffle( rng, collect(1:length(population)) )
@@ -194,7 +195,10 @@ function calculate_next_generation( opt::GeneticOptimizer, parents::Vector{Abstr
   rng = opt.rng
   offspring = AbstractGenerator[]
   lidx = 1
-  for t in 1:N
+  for p in parents
+    push!(offspring, p)
+  end
+  for t in 1:N-length(parents)
     if randbool(rng)
       push!(offspring, mutate(rng, parents[lidx], lock=opt.env.blacklist, rate=opt.env.contamination))
     else
