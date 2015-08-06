@@ -45,6 +45,7 @@
     \newcommand{\size}{N}
     \newcommand{\ERprob}{p}
     \newcommand{\RINGk}{k}
+    \newcommand{\ERtoRING}{r}
     \newcommand{\FFlayers}{l}
 
 	\setlength\textheight{24.5cm}
@@ -292,18 +293,12 @@ reproduction of the target pattern.
 
 
 \paragraph{Genetic Optimization}
-Due to the stochastic nature of the fitness function $F_C(G)$ of a genotype
-$G$, a very high number of samples would be required to obtain sufficiently
+Due to the stochastic nature of a genotype $G$'s fitness $F_C(G)$,
+a very high number of samples would be required to obtain sufficiently
 smooth approximations of $F_C(G)$ for typical optimization methods like
 gradient descend or simulated annealing. But as the computational cost for
 even one learning process was considerable high, these methods were not
 feasible.
-
-%and the fact that single evaluations of $F_C$ are
-%computationally very expensive, thus preventing increasing the number of
-%samples such that the estimation $E(F_C)$ becomes sufficiently smooth,
-%typical optimization methods like gradient descent or simulated annealing
-%are not usable.
 
 An alternative approach would be to use techniques from Monte Carlo
 integration, e.g.  stratified or importance sampling, to aid in the
@@ -340,38 +335,124 @@ according to the following scheme:
     removed before the expensive fitness evaluation takes place. 
 \end{description} 
 
-\paragraph{Choice of Parameters}
-- $N=100$ fixed, since greater $N$ always increased quality and computational cost
-increased quadraticaly to $N$
-- Mutation rate
+\paragraph{Choice of Parameters and Algorithmic Quantities}
+For all of the simulations we chose the size of the networks to be fixed
+with $N=100$. Though increasing $N$ generally improved the quality of the
+learning results, the computational cost increased proportional to $N^2$,
+which made using networks as large as in the original FORCE publication
+(between $500$ and $20000$) utterly unusable for our purposes.
+
+The mutation rate of the parameters $\Theta$ of the genotypes\dots
 
 \section{Results}
-\subsection{Frequency Dependent Optimizations}
-- short description: get feeling for frequency range (by using unoptimized
-parameters from the force paper), make optimizations with 3 different
-challenges: 1) challenges that cover the frequency area completely,
-challenges that cover low frequencies, and challenges that cover high
-frequencies, then pick genotypes with high fitness.
-\subsection{Topology Optimizations}
-Baseline
-gain and feedback tests
+\subsection{Optimizing Genotypes For Frequency Ranges}
+Since we wanted to examine how the ideal genotypes vary for different
+types of problems, we examined how the choice of a frequency range affects
+the optimized genotype parameters.
+To this end we looked at sparse random networks (Erdös-Renyi topology with
+connection probability $\ERprob$) and conducted optimizations of the
+parameters $\gain$, $\feedback$ and $\ERprob$ for both high ($C\ix{high}$)
+and low ($C\ix{low}$) frequency challenges (see FIG.
+\ref{fig:freq_optimization}).
 
-(feedback shifts possible frequencies to higher values)
+\begin{figure}[hbct]
+    {\footnotesize\input{pictures/freq_optimization}}
+    \caption{
+        Genetic optimization process of genotypes with Erdös-Renyi topology
+        ($N=100$ fixed) for the challenges $C\ix{high}$ and $C\ix{low}$.
+        In each figure, one can see the $50$ genotypes of every Generation
+        (single dots) together with the respective mean values (thick
+        lines). Figures (a) to (c) depict the evolution of the three
+        parameters ($\gain$, $\feedback$, and $\ERprob$) being optimized,
+        while figure (d) shows the development of the fitness values.
+    }
+    \label{fig:freq_optimization}
+\end{figure}
 
-success of omega: erdös-renyi, ring
-optimizations: ER topology, Ring Topology, Mixing
+The most striking result is the strong growth of the feedback for
+$C\ix{high}$ to values higher than 14, while the value for $C\ix{low}$
+converges quickly to approximately 1 (FIG. \ref{fig:freq_optimization} (b)).
+This behavior may indicate, that the feedback pathway must
+overshadow the (maybe too slow) internal mechanics for high frequencies,
+while it is the other way round for low frequencies.
+Indeed, FIG. \ref{fig:freq_optimization} (a) shows that genotypes with
+a lower gain value (on average) are more successful for high frequencies,
+which seems to fit in: excessive recurrent dynamics with a long time
+scale (compared to the period to be learned) may disturb the learning.
+That the single genotypes remain quite scattered throughout the whole
+optimization process, though, implies that the exact gain value is not
+critical for the success of a genotype.
+
+Another interesting aspect is the branching process of $p$ that takes place
+for $C\ix{low}$ in FIG. \ref{fig:freq_optimization} (c). Albeit the branch
+seems to be dying out towards the end, it suggests, that very high $p$
+values don't ruin the networks capacity to learn low frequencies. This
+behavior was observed neither for high frequencies nor for optimizations
+over the full frequency regime.
+
+But how well did the fitness actually improve during the optimization?
+When looking at FIG. \ref{fig:freq_optimization} (d), one sees that the
+fitness for $C\ix{high}$ increased during nearly the whole process, while
+the algorithm failed to further optimize the genotypes' fitness for
+$C\ix{low}$ after about 20 generations. A major reason for this is
+probably, that the initial population for the $C\ix{low}$ optimization
+already contained genotypes with parameters similar to the (at least
+locally) optimal ones. 
+
+One can also look at the success of the optimization algorithm in a more
+specific way: FIG. \ref{fig:freqrange} shows how well an unoptimized
+genotype $G_0$ handles fixed-frequency-challenges when compared to the
+genotypes $G\ix{high}$ and $G\ix{low}$ optimized for
+$C\ix{high}$ and $C\ix{low}$. Here it becomes clear that $G\ix{high}$ can
+indeed succeed at higher frequencies than $G_0$, but that it also fails at
+learning lower frequencies -- which was expected. On the contrary, while
+the high frequency capacities of $G\ix{low}$ have decreased when compared
+to $G_0$, the low frequency capacities have only marginally improved. This
+reinforces the impression that the optimization was unable to produce
+genotypes that can cope with low frequencies.
+
 
 \begin{figure}
     {\footnotesize\input{pictures/freqrange}}
-    \caption{CAPTION TEXT}
+    \caption{
+        The covered frequency range for an unoptimized
+        genotype $G_0$ as well as genotypes $G\ix{high}$ and $G\ix{low}$
+        that are optimized for $C\ix{high}$ respectively $C\ix{low}$. Each
+        of the three genotypes was tested against constant challenges
+        $C_\omega$ that yielded simple sinusoidal waves with frequency
+        $\omega$ for every seed value. The topology of all genotypes was
+        a mere Erdös-Renyi topology.
+        The parameters for the unoptimized genotype $G_0$ were taken to be
+        default values from \cite{FORCE} (which also uses Erdös-Renyi
+        topologies), while we chose genotypes $G\ix{high}$ and $G\ix{low}$
+        that did particularly well when explicitly optimizing for high and
+        low frequencies (see FIG. \ref{fig:freq_optimization} for more
+        details).
+    }
     \label{fig:freqrange}
 \end{figure}
 
-\begin{figure}
-    {\footnotesize\input{pictures/freq_optimization}}
-    \caption{CAPTION TEXT}
-    \label{fig:freqrange}
-\end{figure}
+
+\subsection{Topology Optimizations}
+To find out whether the topology can be used to improve the learning, we
+performed an optimization in which the networks were an interpolation
+between sparse random connections (Erdös-Renyi) and a ring topology where
+the $\RINGk$ nearest neighbors are connected (for non integer $\RINGk$, the
+fractional part determines the probability to use $[\RINGk]$ or $[\RINGk]+1$).
+Since we are interested in the influence of the topology, the parameters
+gain and feedback are kept constant during the optimization process,
+leaving the connection probability for ER topology $\ERprob$, the ring
+connection length $\RINGk$ and the interpolation value $\ERtoRING$ between
+ER and ring as free parameters.
+
+The results of the optimization are depicted in FIG. \ref{}. Unfortunately,
+the improvement in fitness after the first few generations in extremely
+low. The development of the ration parameter, however, unambiguously shows
+that the selection process prefers generators that consist mostly of ring
+topology with ring parameter $\RINGk \approx 1$. The ER connection probability
+shows a very broad distribution, which is simply due to the low dependence
+of the generated networks on $\ERprob$ when the usage of ER topology
+$\ERtoRING$ approaches zero.
 
 \section{Discussion}
 - Remarks
@@ -389,14 +470,15 @@ optimizations: ER topology, Ring Topology, Mixing
 
 
 - Problems
-    * Many magic parameters scattered in the model that were not examined exhaustively
+    * Many magic / ``empiric'' parameters scattered in the model that were not examined exhaustively
     * Only few and uncomprehensive number of test / experiments conducted due to the
       computational cost.
     * Test with several other topologies did not yield concrete results,
       only rough tendencies.
     * Influence of statistics: Learning success depends stronger on choice
       of challenges than parameters (partially) -> must be very careful how to
-      interpret the results
+      interpret the results / should have used fixed array of challenges instead
+      of random sampling
 
 Our investigation showed that the frequency of the wave that is to be reconstructed 
 strongly determines whether FORCE learning is able to learn that curve. Still, 
