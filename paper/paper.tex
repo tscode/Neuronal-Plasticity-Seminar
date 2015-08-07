@@ -46,7 +46,7 @@
     \newcommand{\size}{N}
     \newcommand{\ERprob}{p}
     \newcommand{\RINGk}{k}
-    \newcommand{\ERtoRING}{r}
+    \newcommand{\ERtoRING}{q}
     \newcommand{\FFlayers}{l}
 
 	\setlength\textheight{24.5cm}
@@ -213,9 +213,9 @@ The genotypes' parameters $\theta\in\Theta$ are either integer or floating
 point values and can be classified as affecting (1) the topology of
 $\omega\Ix{rec}$ or (2) the weight values of $\omega\Ix{rec}$ and
 $\omega\Ix{fb}$. Optimized parameters of type (1) are the
-occupation probability $p$ for sparse random topologies (Erdös-Renyi
-topology), the neighborhood range $k$ for ring topologies, and a ratio
-parameter $q$ used to interpolate between Erdös-Renyi and ring
+occupation probability $\ERprob$ for sparse random topologies (Erdös-Renyi
+topology), the neighborhood range $\RINGk$ for ring topologies, and a ratio
+parameter $\ERtoRING$ used to interpolate between Erdös-Renyi and ring
 topologies. Optimized parameters of type (2) are the feedback strength
 $\feedback\propto \omega\Ix{fb}$ and the gain value
 $\gain\propto\omega\Ix{rec}$.
@@ -421,44 +421,67 @@ genotypes that can cope with low frequencies.
 \begin{figure}
     {\footnotesize\input{pictures/freqrange}}
     \caption{
-        The covered frequency range for an unoptimized
-        genotype $G_0$ as well as genotypes $G\ix{high}$ and $G\ix{low}$
-        that are optimized for $C\ix{high}$ respectively $C\ix{low}$. Each
-        of the three genotypes was tested against constant challenges
-        $C_\nu$ that yielded simple sinusoidal waves with frequency
-        $\nu$ for every seed value. The topology of all genotypes was
-        a mere Erdös-Renyi topology.
-        The parameters for the unoptimized genotype $G_0$ were taken to be
-        default values from \cite{FORCE} (which also uses Erdös-Renyi
-        topologies), while we chose genotypes $G\ix{high}$ and $G\ix{low}$
-        that did particularly well when explicitly optimizing for high and
-        low frequencies (see FIG. \ref{fig:freq_optimization} for more
-        details).
+        The fitness values of four differently obtained genotypes when
+        tested against deterministic challenges $C_\nu$ that yield simple
+        sinusoidal waves with frequency $\nu$ for every seed value.  Here
+        $G_0$ is an unoptimized genotype with parameters taken from
+        \cite{FORCE}, whereas the genotypes $G\ix{high}$ and $G\ix{low}$
+        did particularly well during the optimization for $C\ix{high}$ and
+        $G\ix{low}$ depicted in FIG.  \ref{fig:freq_optimization}.  While
+        these three genotypes had strict Erdös-Renyi topologies,
+        $G\ix{high,ring}$ is a successful sample of an optimization for
+        $C\ix{high}$ under an interpolation of Erdös-Renyi and ring topology
+        (see FIG. \ref{fig:top_optimization} in the next section).
     }
+        
+        %$G\ix{high,ring}$ is
+        %also optimized for $C\ix{high}$.
+
+
+        %The covered frequency range for an unoptimized
+        %genotype $G_0$, genotypes $G\ix{high}$ and $G\ix{high,ring}$ optimized for $C\ix{high}$ and $G\ix{low}$
+        %that are optimized for $C\ix{high}$ respectively $C\ix{low}$, . Each
+        %of the three genotypes was tested against constant challenges
+        %$C_\nu$ that yielded simple sinusoidal waves with frequency
+        %$\nu$ for every seed value. The topology of all genotypes was
+        %a mere Erdös-Renyi topology.
+        %The parameters for the unoptimized genotype $G_0$ were taken to be
+        %default values from \cite{FORCE} (which also uses Erdös-Renyi
+        %topologies), while we chose genotypes $G\ix{high}$ and $G\ix{low}$
+        %that did particularly well when explicitly optimizing for high and
+        %low frequencies (see FIG. \ref{fig:freq_optimization} for more
+        %details).
+    %}
     \label{fig:freqrange}
 \end{figure}
 
 
 \subsection{Topology Optimizations}
-To find out whether the topology can be used to improve the learning, we
-performed an optimization in which the networks were an interpolation
-between sparse random connections and a ring topology where
-the $\RINGk$ nearest neighbors are connected (for non integer $\RINGk$, the
-fractional part determines the probability to use $[\RINGk]$ or $[\RINGk]+1$).
-Since we are interested in the influence of the topology, the parameters
-$\gain = 1.5$ and $\feedback = 2$ are kept constant during the optimization process,
-leaving the connection probability for ER topology $\ERprob$, the ring
-connection length $\RINGk$ and the interpolation value $\ERtoRING$ between
-ER and ring as free parameters.
+To find out whether the topology may be used to improve the learning for
+high frequencies without increasing the feedback, we performed an
+optimization in which the network topologies were an interpolation between
+Erdös-Renyi and ring topology.
+%the $\RINGk$ nearest neighbors are connected (for non integer $\RINGk$, the
+%fractional part determines the probability to use $[\RINGk]$ or $[\RINGk]+1$).
+For this simulation, the parameters $\gain = 1.5$ and $\feedback = 2$ are
+kept constant during the optimization process, leaving the connection
+probability for Erdös-Renyi topology $\ERprob$, the ring connection length $\RINGk$
+and the interpolation value $\ERtoRING$ between Erdös-Renyi and ring as
+free parameters.
 
-The results of the optimization are depicted in FIG. \ref{}. Unfortunately,
-the improvement in fitness after the first few generations in extremely
-low. The development of the ration parameter, however, unambiguously shows
-that the selection process prefers generators that consist mostly of ring
-topology with ring parameter $\RINGk \approx 1$. The ER connection probability
-shows a very broad distribution, which is simply due to the low dependence
-of the generated networks on $\ERprob$ when the usage of ER topology
-$\ERtoRING$ approaches zero.
+The results of the optimization are depicted in FIG.
+\ref{fig:top_optimization}. Unfortunately, the improvement in fitness after the
+first few generations is extremely low. The development of the ration
+parameter, however, unambiguously shows that the selection process prefers
+generators with a high fraction of ring topology and with $\RINGk
+\approx 1.5$. The Erdös-Renyi connection probability $\ERprob$ shows a very
+broad distribution, which is due to the weak dependence of the generated
+networks on $\ERprob$ when $\ERtoRING$ approaches zero.
+
+The fitness curve of $G\ix{high,ring}$ in figure \ref{fig:freqrange}
+confirms, that though $G\ix{high}$ is still better for high frequencies due
+to the strong feedback, the ring topology provides an improvement compared
+to the Erdös-Renyi topology when optimizing for $C\ix{high}$.
 
 \begin{figure}[]
     {\footnotesize\input{pictures/top_optimization}}

@@ -40,7 +40,7 @@ set tmargin scr 0.50
 set bmargin scr 0.29
 set yrange [5:30]
 unset key
-set ylabel '\textbf{(c)} Probability'
+set ylabel '\textbf{(c)} Probability $\ERprob$'
 
 plot 'data/high_frq_opt.dat' u 1:($9*100) w d lt 1 t 'High', \
      'data/low_frq_opt.dat' u 1:($9*100) w d lt 2 t 'Low',\
