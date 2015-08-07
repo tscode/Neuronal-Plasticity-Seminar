@@ -500,9 +500,9 @@ $\ERtoRING$ approaches zero.
 
 Our investigation showed that the frequency of the wave that is to be reconstructed 
 strongly determines whether FORCE learning is able to learn that curve. Still, 
-a good choice of network parameters is still able to improve the success rate for
-certain frequency ranges. Some parameters ($p$, $feedback$) can vary in a relatively large interval
-without influencing the success very much, whereas others are confined to a relatively small interval (gain).
+a good choice of network parameters is able to improve the success rate for
+certain frequency ranges. Some parameters ($\ERprob$, $\feedback$) can vary in a relatively large interval
+without influencing the success very much, whereas others are confined to a relatively small interval ($\gain$).
 
 
 The code developed for this paper provides a framework which can be used to perform a variety of similar 
@@ -512,8 +512,8 @@ for all generators in each generation, instead of evaluating them all independen
 selection process more robust because it removes the dependence on the task distribution. 
 
 One problem with the approach presented here is that, in order to use the results of the genetic algorithm, 
-we determined a single set of parameters by taking the mean of the values of the most successful generators, 
-any information about an interdependence between the parameters is lost. We checked that there are no strong
+we determined a single set of parameters by taking the mean of the values of the most successful generators.
+Thereby, any information about an interdependence between the parameters is lost. We checked that there are no strong
 correlations between any pair of parameters by doing 3D plots that showed the two parameters for each generator 
 in development with the generations and could not detect any obvious correlation, but have not investigated 
 this problem thoroughly. 
