@@ -20,7 +20,7 @@ set multiplot
 set tmargin scr 0.96
 set bmargin scr 0.75
 set yrange [0.6:1.8]
-set ylabel '\textbf{(a)} Gain'
+set ylabel '\textbf{(a)} Gain \gain'
 plot 'data/high_frq_opt.dat' u 1:6 w d lt 1 notitle ,\
      'data/low_frq_opt.dat' u 1:6 w d lt 2 notitle ,\
      'data/high_frq_opt.dat' u 1:6 s u lt 1 lw 7 t '$C\ix{high}$', \
@@ -30,7 +30,7 @@ set tmargin scr 0.73
 set bmargin scr 0.52
 set yrange [0:18]
 unset key
-set ylabel '\textbf{(b)} Feedback'
+set ylabel '\textbf{(b)} Feedback \texttt{fb}'
 plot 'data/high_frq_opt.dat' u 1:8 w d lt 1 t 'High', \
      'data/low_frq_opt.dat' u 1:8 w d lt 2 t 'Low',\
      'data/high_frq_opt.dat' u 1:8 s u lt 1 lw 7 t 'High', \
@@ -51,7 +51,7 @@ set tmargin scr 0.27
 set bmargin scr 0.06
 set yrange [0:1]
 unset key
-set ylabel '\textbf{(d)} Fitness'
+set ylabel '\textbf{(d)} Fitness $F_C$'
 set format x "%.0f" 
 set xlabel 'Generation'
 

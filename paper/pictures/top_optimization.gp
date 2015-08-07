@@ -28,7 +28,7 @@ set tmargin scr 0.73
 set bmargin scr 0.52
 #set yrange [0:18]
 unset key
-set ylabel '\textbf{(b)} Probability $p$'
+set ylabel '\textbf{(b)} Probability $\ERprob$'
 plot 'data/ring_vs_er_high.dat' u 1:($9*100) w d lt 1 t 'High', \
      'data/ring_vs_er_high.dat' u 1:($9*100) s u lt 1 lw 7 t 'High', \
 
@@ -36,7 +36,7 @@ set tmargin scr 0.50
 set bmargin scr 0.29
 #set yrange [5:30]
 unset key
-set ylabel '\textbf{(c)} Ring Distance $k$'
+set ylabel '\textbf{(c)} Neighborhood Range $k$'
 
 plot 'data/ring_vs_er_high.dat' u 1:10 w d lt 1 t 'High', \
      'data/ring_vs_er_high.dat' u 1:10 s u lt 1 lw 7 t 'High', \
@@ -45,7 +45,7 @@ set tmargin scr 0.27
 set bmargin scr 0.06
 #set yrange [0:1]
 unset key
-set ylabel '\textbf{(d)} Fitness'
+set ylabel '\textbf{(d)} Fitness $F_C$'
 set format x "%.0f" 
 set xlabel 'Generation'
 
