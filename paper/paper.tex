@@ -498,30 +498,80 @@ $\ERtoRING$ approaches zero.
       %interpret the results / should have used fixed array of challenges instead
       %of random sampling
 
-Our investigation showed that the frequency of the wave that is to be reconstructed 
-strongly determines whether FORCE learning is able to learn that curve. Still, 
-a good choice of network parameters is able to improve the success rate for
-certain frequency ranges. Some parameters ($\ERprob$, $\feedback$) can vary in a relatively large interval
-without influencing the success very much, whereas others are confined to a relatively small interval ($\gain$).
+%Our investigation showed that the frequency of sinusoidal tasks strongly
+%determines whether FORCE learning is able to learn it or not. Still, a good
+%choice of network parameters, conveying structural information, is able to
+%improve the success rate for certain frequency ranges. 
+%Under certain conditions, some parameters (like $\ERprob$ for low
+%frequencies or $\feedback$ for high frequencies) can vary in a relatively
+%large interval without influencing the success critically.
 
+While we only presented results concerning simple sinusoidals of varying
+frequencies here, the code developed during our project provides
+a framework which can be used to perform a variety of similar and extended
+investigations; for example the inclusion of feed forward topologies and
+arbitrary (higher dimensional) tasks with optional external input pathways
+(e.g.\ as a timer signal to make the network synchronize better).
 
-The code developed for this paper provides a framework which can be used to perform a variety of similar 
-investigations, e.g. the inclusion of feed forward topologies, or the extension to task other than simple 
-sinusoidals. To that end, it would be wise to improve that selection algorithm by using the same tasks
-for all generators in each generation, instead of evaluating them all independently. This would make the 
-selection process more robust because it removes the dependence on the task distribution. 
+One peculiarity to be recognized throughout our project work is that the
+optimization algorithm does not excel at providing strictly converging,
+single most optimal parameter values, but that we are rather given more or
+less broad ``survival ranges'' for each parameter as result. And though the
+final genotypes varied quite a bit in their fitness, we did not observe
+strong correlations between the different parameters in these ranges when
+doing sporadic tests.
 
-One problem with the approach presented here is that, in order to use the results of the genetic algorithm, 
-we determined a single set of parameters by taking the mean of the values of the most successful generators.
-Thereby, any information about an interdependence between the parameters is lost. We checked that there are no strong
-correlations between any pair of parameters by doing 3D plots that showed the two parameters for each generator 
-in development with the generations and could not detect any obvious correlation, but have not investigated 
-this problem thoroughly. 
+Indeed, looking at all of our simulations in their entirety, the genotype
+parameters showed less influence on the learning results than we initially
+expected, and during our inquiry it often seamed that the statistics of the
+challenges might overshadow the effect of the parameters -- at least when
+looking at more complex tasks than monofrequent waves. A wise improvement
+would therefore be to make the challenges more deterministic, e.g.\ to use
+the same tasks for all genotypes in each generation instead of drawing them
+independently from some (wide range) distribution.
 
-The biggest problem with the current implementation, however, is the large amount of "magic" numbers, 
-i.e. hyper-parameters of the optimization, that are used in the code. Their values were determined
-by an informal search of testing a few optimizations. However, this should mostly affect the performance
-of the optimization algorithm and not the results themselves. 
+Another issue to be mentioned with the current implementation is the large
+amount of empirical (``magic") numbers, i.e.\ hyper-parameters of the
+optimization used in the code. Examples hereof are the strength of the
+mutation process or the mechanics of the selection process (actual number
+of survivors, survival chances for weaker genotypes, etc.).  Their values
+were determined by an informal search of testing a few optimizations but
+were not investigated thoroughly. This should, however, mostly affect the
+performance of the optimization algorithm and not the results themselves. 
+
+%One problem with the approach presented here is that, in order to use the
+%results of the genetic algorithm, we determined a single set of parameters
+%by taking the mean of the values of the most successful generators.
+%Thereby, any information about an interdependence between the parameters
+%is lost. We checked that there are no strong correlations between any pair
+%of parameters by doing 3D plots that showed the two parameters for each
+%generator in development with the generations and could not detect any
+%obvious correlation, but have not investigated this problem thoroughly. 
+
+Nevertheless *ABSCHLUSSSATZ*
+
+%This would certainly make the selection process more robust as it removes
+%the dependence of the task distributions.
+%In general, the genotypes parameters showed less influence than we expected.
+%, whereas others are
+%restricted to more concise regions (???).
+%Some parameters
+%($\ERprob$, $\feedback$) can vary in a relatively large interval without
+%influencing the success very much, whereas others are confined to
+%a relatively small interval ($\gain$).
+
+%To that end, it would be wise to improve that selection
+%algorithm by using the same tasks
+%for all generators in each generation, instead of evaluating them all independently. This would make the 
+%selection process more robust because it removes the dependence on the task distribution. 
+
+%One problem with the approach presented here is that, in order to use the results of the genetic algorithm, 
+%we determined a single set of parameters by taking the mean of the values of the most successful generators.
+%Thereby, any information about an interdependence between the parameters is lost. We checked that there are no strong
+%correlations between any pair of parameters by doing 3D plots that showed the two parameters for each generator 
+%in development with the generations and could not detect any obvious correlation, but have not investigated 
+%this problem thoroughly. 
+
 
 \bibliography{sources}
 
