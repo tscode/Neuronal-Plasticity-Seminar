@@ -351,7 +351,7 @@ according to the following scheme:
     it for the next generation by either \emph{mutating} or \emph{recombining} the 
     survivors and get $\mathcal{G}_{t+1}$. This means we either change
     a single parameter randomly or take two individuals and randomly choose
-    for every parameter from which parent to take the value from.
+    for every parameter from which parent to take the value.
 \end{description} 
 
 
@@ -373,7 +373,7 @@ high ($C\ix{high}$) and low ($C\ix{low}$) frequency challenges (see FIG.
     \caption{
         Genetic optimization process of genotypes with Erdös-Renyi topology
         ($N=100$ fixed) for the challenges $C\ix{high}$ and $C\ix{low}$.
-        In each figure, one can see the $50$ genotypes of every Generation
+        In each figure, one can see the $50$ genotypes of every generation
         (single dots) together with the respective mean values (thick
         lines). Figures (a) to (c) depict the evolution of the three
         parameters ($\gain$, $\feedback$, and $\ERprob$) being optimized,
@@ -486,7 +486,7 @@ generators with a high fraction of ring topology and with $\RINGk
 broad distribution, which is due to the weak dependence of the generated
 networks on $\ERprob$ when $\ERtoRING$ approaches zero.
 
-The fitness curve of $G\ix{high,ring}$ in figure \ref{fig:freqrange}
+The fitness curve of $G\ix{high,ring}$ in FIG. \ref{fig:freqrange}
 confirms, that though $G\ix{high}$ is still better for high frequencies due
 to the strong feedback, the ring topology provides an improvement compared
 to the Erdös-Renyi topology when optimizing for $C\ix{high}$.
