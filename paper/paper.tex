@@ -330,15 +330,15 @@ feasible.
 Therefore, we optimized $F_C$ using a genetic algorithm, which is inherently
 capable of coping with the stochastic fitness function. In each iteration
 of the algorithm, a generation $\mathcal{G}_t = \left\{ G_i~|~1\le i\le M\right\}$
-of $M$ individuals (Genotypes) is converted into a new one, $\mathcal{G}_{t+1}$,
+of $M$ individuals (genotypes) is converted into a new one, $\mathcal{G}_{t+1}$,
 according to the following scheme:
-\begin{description}[itemsep=1ex, leftmargin=0pt]
- \item[Evaluation] The fitness $F_i = F_C(G_i)$ of each individual is
+\begin{description}[itemsep=0ex, leftmargin=0pt, format=\normalfont]
+ \item[1. Evaluation] The fitness $F_i = F_C(G_i)$ of each individual is
      measured using at least 50 samples (and adaptively more if the
      $(F_i)_{1\le i\le N}$ are spaced closely, to at most 100).
- \item[Selection] We choose $50\%$ of the most successful members of $G_t$ as survivors.
+ \item[2. Selection] We choose $50\%$ of the most successful members of $G_t$ as survivors.
      With a small chance, a weaker generator can survive, in order to keep the gene pool more diverse.
-\item[Reproduction] We then replace the $(1-p)|G_t|$ elements that did not make
+\item[3. Reproduction] We then replace the $(1-p)|G_t|$ elements that did not make
     it into the next generation by either \emph{mutating} or \emph{recombining} the 
     survivors and get $\mathcal{G}_{t+1}$. This means we either change
     a single parameter randomly or take two individuals and randomly choose
