@@ -243,12 +243,12 @@ $\Theta$ that maximize $F_C$.
 %principle) and must be compatible with technical aspects like the
 %integration time step. 
 
-Our concrete goal for this article was to examine which choice of genotype
+Our concrete goal for this article was to examine which choices of genotype
 parameters are optimal for learning sinusoidal waves with relatively high
 or low frequencies. 
 Based on preliminary simulation results we chose
-$\nu\in[]$ as frequency range for the challenge $C\ix{high}$, producing
-high frequency waves, and $\nu\in[]$ for $C\ix{low}$, producing low
+$\nu\in[0.3, 3]$ as frequency range for the challenge $C\ix{high}$, producing
+high frequency waves, and $\nu\in[0.004, 0.04]$ for $C\ix{low}$, producing low
 frequency waves. 
 Optimizing the fitness functions $F_{C\ix{high}}$ or $F_{C\ix{low}}$ thus
 results in genotypes with the desired frequency properties.
@@ -286,7 +286,7 @@ differences for properly matching shapes.
 %$r$ matches the one of $r'$ well.
 
 A measure that is time-shift independent and maximized for functions of
-identical shape, on the contrary, is the maximum of the cross correlation 
+identical shape is the maximum of the cross correlation 
 \begin{align}
     f\ix{cor}(z, z') = \max_t \frac{\left<z, z'(\cdot
     - t)\right>}{\sqrt{\left< z, z\right> \left<z', z' \right>}}~.
@@ -442,11 +442,11 @@ genotypes that can cope with low frequencies.
 \subsection{Topology Optimizations}
 To find out whether the topology can be used to improve the learning, we
 performed an optimization in which the networks were an interpolation
-between sparse random connections (Erdös-Renyi) and a ring topology where
+between sparse random connections and a ring topology where
 the $\RINGk$ nearest neighbors are connected (for non integer $\RINGk$, the
 fractional part determines the probability to use $[\RINGk]$ or $[\RINGk]+1$).
 Since we are interested in the influence of the topology, the parameters
-gain and feedback are kept constant during the optimization process,
+$\gain$ and $\feedback$ are kept constant during the optimization process,
 leaving the connection probability for ER topology $\ERprob$, the ring
 connection length $\RINGk$ and the interpolation value $\ERtoRING$ between
 ER and ring as free parameters.
