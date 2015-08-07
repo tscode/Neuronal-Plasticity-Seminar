@@ -446,7 +446,7 @@ between sparse random connections and a ring topology where
 the $\RINGk$ nearest neighbors are connected (for non integer $\RINGk$, the
 fractional part determines the probability to use $[\RINGk]$ or $[\RINGk]+1$).
 Since we are interested in the influence of the topology, the parameters
-$\gain$ and $\feedback$ are kept constant during the optimization process,
+$\gain = 1.5$ and $\feedback = 2$ are kept constant during the optimization process,
 leaving the connection probability for ER topology $\ERprob$, the ring
 connection length $\RINGk$ and the interpolation value $\ERtoRING$ between
 ER and ring as free parameters.
