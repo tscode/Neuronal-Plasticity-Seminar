@@ -442,11 +442,11 @@ genotypes that can cope with low frequencies.
 \subsection{Topology Optimizations}
 To find out whether the topology can be used to improve the learning, we
 performed an optimization in which the networks were an interpolation
-between sparse random connections (Erdös-Renyi) and a ring topology where
+between sparse random connections and a ring topology where
 the $\RINGk$ nearest neighbors are connected (for non integer $\RINGk$, the
 fractional part determines the probability to use $[\RINGk]$ or $[\RINGk]+1$).
 Since we are interested in the influence of the topology, the parameters
-gain and feedback are kept constant during the optimization process,
+$\gain$ and $\feedback$ are kept constant during the optimization process,
 leaving the connection probability for ER topology $\ERprob$, the ring
 connection length $\RINGk$ and the interpolation value $\ERtoRING$ between
 ER and ring as free parameters.
