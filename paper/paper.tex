@@ -463,15 +463,11 @@ $\ERtoRING$ approaches zero.
 \begin{figure}[]
     {\footnotesize\input{pictures/top_optimization}}
     \caption{
-        Genetic optimization process of genotypes with Erdös-Renyi topology
-        ($N=100$ fixed) for the challenges $C\ix{high}$ and $C\ix{low}$.
-        In each figure, one can see the $50$ genotypes of every Generation
-        (single dots) together with the respective mean values (thick
-        lines). Figures (a) to (c) depict the evolution of the three
-        parameters ($\gain$, $\feedback$, and $\ERprob$) being optimized,
-        while figure (d) shows the development of the fitness values.
+        Genetic optimization of genotypes with an fraction $q$ of Erdös-Renyi
+        topology and $1-q$ of ring topology for the challenge $C\ix{high}$.
+        This figure is to be understood like FIG. \ref{fig:freq_optimization}.
     }
-    \label{fig:freq_optimization}
+    \label{fig:top_optimization}
 \end{figure}
 
 
@@ -548,7 +544,13 @@ performance of the optimization algorithm and not the results themselves.
 %generator in development with the generations and could not detect any
 %obvious correlation, but have not investigated this problem thoroughly. 
 
-Nevertheless *ABSCHLUSSSATZ*
+Nevertheless we were able to produce successful optimization results
+and could indeed show that adaption to high frequencies can not only be
+accomplished by an implausible effect, namely the 
+high feedback values, but also by changing the topological structure of the
+network. In this regard it would certainly be interesting to further
+inquire, how genotypes that allow for a more fine grained control over the
+topology behave under the optimization.
 
 %This would certainly make the selection process more robust as it removes
 %the dependence of the task distributions.
