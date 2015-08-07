@@ -243,12 +243,12 @@ $\Theta$ that maximize $F_C$.
 %principle) and must be compatible with technical aspects like the
 %integration time step. 
 
-Our concrete goal for this article was to examine which choice of genotype
+Our concrete goal for this article was to examine which choices of genotype
 parameters are optimal for learning sinusoidal waves with relatively high
 or low frequencies. 
 Based on preliminary simulation results we chose
-$\nu\in[]$ as frequency range for the challenge $C\ix{high}$, producing
-high frequency waves, and $\nu\in[]$ for $C\ix{low}$, producing low
+$\nu\in[0.3, 3]$ as frequency range for the challenge $C\ix{high}$, producing
+high frequency waves, and $\nu\in[0.004, 0.04]$ for $C\ix{low}$, producing low
 frequency waves. 
 Optimizing the fitness functions $F_{C\ix{high}}$ or $F_{C\ix{low}}$ thus
 results in genotypes with the desired frequency properties.
@@ -286,7 +286,7 @@ differences for properly matching shapes.
 %$r$ matches the one of $r'$ well.
 
 A measure that is time-shift independent and maximized for functions of
-identical shape, on the contrary, is the maximum of the cross correlation 
+identical shape is the maximum of the cross correlation 
 \begin{align}
     f\ix{cor}(z, z') = \max_t \frac{\left<z, z'(\cdot
     - t)\right>}{\sqrt{\left< z, z\right> \left<z', z' \right>}}~.
