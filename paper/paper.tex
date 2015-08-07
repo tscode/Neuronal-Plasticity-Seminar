@@ -66,17 +66,16 @@
 
 \begin{abstract}
     In this article we examine how structural properties of neural
-    networks, like the size or local synapse densities, affect their
+    networks, like the local synapse densities, affect their
     learning success for various tasks. To do so, we look at a rate based
-    model for neural networks and apply the FORCE rule for the learning
-    process. A sophisticated matching algorithm
+    model for neural networks and apply a learning algorithm called FORCE to let the network learn 
+		to reproduce either low or high frequent sinusoidals. A sophisticated matching algorithm
     allows us to quantify the learning success of a network so that the
-    fitness of structural characteristics, expressed by integer or
-    floating-point parameters, can be evaluated. We then use evolutionary
-    optimization methods on these parameters to show that (1) ring
-    topologies are generally more successful than strictly random
-    topologies, (2) *FAT
-    LIST OF INCREDIBLE RESULTS THAT CHANGE THE UNIVERSE*
+    fitness of structural characteristics can be evaluated. We then use evolutionary
+    optimization methods on these parameters, and found that for high frequencies, the
+		$\feedback$ parameter can be increased  to improve learning results, at the cost of strongly 
+		decreasing the ability to memorize low frequencies. Alternatively, using ring topology instead
+		of random connections has a similar effect, but still retains the ability to learn lower frequencies.
 \end{abstract}
 
 \keywords{genetic algorithms, evolutionary algorithms, FORCE learning, rate networks}
